@@ -20,7 +20,7 @@ To run this project locally, you will need the following installed on your machi
 
 1. **Clone the repository** (if you haven't already):
    ```bash
-   git clone <your-github-repo-url>
+   git clone https://github.com/Jlasi17/Flowy.git
    cd flowy
    ```
 
