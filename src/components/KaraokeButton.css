@@ -1,0 +1,260 @@
+.karaoke-uiverse-btn {
+  --black-700: hsla(0 0% 12% / 1);
+  --border_radius: 9999px;
+  --transtion: 0.3s ease-in-out;
+  --offset: 2px;
+
+  cursor: pointer;
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  transform-origin: center;
+
+  padding: 1rem 2rem;
+  background-color: transparent;
+
+  border: none;
+  border-radius: var(--border_radius);
+  transform: scale(calc(1 + (var(--active, 0) * 0.1)));
+
+  transition: transform var(--transtion), box-shadow var(--transtion);
+  box-shadow: 0 0 0 hsla(0, 100%, 30%, 0);
+}
+
+.karaoke-uiverse-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 100%;
+  height: 100%;
+  background-color: var(--black-700);
+
+  border-radius: var(--border_radius);
+  box-shadow: inset 0 0.5px hsl(0, 0%, 100%), inset 0 -1px 2px 0 hsl(0, 0%, 0%),
+    0px 4px 10px -4px hsla(0 0% 0% / calc(1 - var(--active, 0))),
+    0 0 0 calc(var(--active, 0) * 0.375rem) hsl(0, 100%, 35%, 0.75);
+
+  transition: all var(--transtion);
+  z-index: 0;
+}
+
+.karaoke-uiverse-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 100%;
+  height: 100%;
+  background-color: hsla(0, 100%, 30%, 0.75);
+  background-image: radial-gradient(at 51% 89%,
+      hsla(0, 100%, 45%, 1) 0px,
+      transparent 50%),
+    radial-gradient(at 100% 100%, hsla(0, 100%, 20%, 1) 0px, transparent 50%),
+    radial-gradient(at 22% 91%, hsla(0, 100%, 20%, 1) 0px, transparent 50%);
+  background-position: top;
+
+  opacity: var(--active, 0);
+  border-radius: var(--border_radius);
+  transition: opacity var(--transtion);
+  z-index: 2;
+}
+
+.karaoke-uiverse-btn:is(:hover, :focus-visible) {
+  --active: 1;
+  box-shadow: 0 0 25px hsla(0, 100%, 35%, 0.7), 0 0 50px hsla(0, 100%, 35%, 0.4);
+}
+
+.karaoke-uiverse-btn:active {
+  transform: scale(1);
+}
+
+.karaoke-uiverse-btn .dots_border {
+  --size_border: calc(100% + 2px);
+
+  overflow: hidden;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: var(--size_border);
+  height: var(--size_border);
+  background-color: transparent;
+
+  border-radius: var(--border_radius);
+  z-index: -10;
+}
+
+.karaoke-uiverse-btn .dots_border::before {
+  content: "";
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transform-origin: left;
+  transform: rotate(0deg);
+
+  width: 100%;
+  height: 2rem;
+  background-color: white;
+
+  mask: linear-gradient(transparent 0%, white 120%);
+  -webkit-mask: linear-gradient(transparent 0%, white 120%);
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.karaoke-uiverse-btn .sparkle {
+  position: relative;
+  z-index: 10;
+  width: 1.75rem;
+}
+
+.karaoke-uiverse-btn .sparkle .path {
+  fill: currentColor;
+  stroke: currentColor;
+  transform-origin: center;
+  color: hsl(0, 0%, 100%);
+}
+
+.karaoke-uiverse-btn:is(:hover, :focus) .sparkle .path {
+  animation: path 1.5s linear 0.5s infinite;
+}
+
+.karaoke-uiverse-btn .sparkle .path:nth-child(1) {
+  --scale_path_1: 1.2;
+}
+
+.karaoke-uiverse-btn .sparkle .path:nth-child(2) {
+  --scale_path_2: 1.2;
+}
+
+.karaoke-uiverse-btn .sparkle .path:nth-child(3) {
+  --scale_path_3: 1.2;
+}
+
+@keyframes path {
+
+  0%,
+  34%,
+  71%,
+  100% {
+    transform: scale(1);
+  }
+
+  17% {
+    transform: scale(var(--scale_path_1, 1));
+  }
+
+  49% {
+    transform: scale(var(--scale_path_2, 1));
+  }
+
+  83% {
+    transform: scale(var(--scale_path_3, 1));
+  }
+}
+
+.karaoke-btn-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── AMBIENT BURST STARS ── */
+.karaoke-burst-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+  z-index: -1;
+  overflow: visible;
+}
+
+.karaoke-burst-star {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: #fff;
+  font-size: 1.2rem;
+  line-height: 1;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 0 0 15px rgb(153, 0, 0);
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  transition: all 0.1s ease;
+}
+
+/* Fire animation when hover state adds .shoot class */
+.karaoke-burst-star.shoot {
+  animation: star-burst 1s ease-out forwards;
+}
+
+@keyframes star-burst {
+  0% {
+    transform: translate(-50%, -50%) scale(0) rotate(0deg);
+    opacity: 1;
+  }
+
+  40% {
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1) rotate(var(--rot));
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(calc(-50% + calc(var(--dx) * 1.5)), calc(-50% + calc(var(--dy) * 1.5))) scale(0) rotate(calc(var(--rot) * 2));
+    opacity: 0;
+  }
+}
+
+/* ── TOGGLE OFF ACTIVE STATE OVERRIDES ── */
+.karaoke-uiverse-btn.toggled-off {
+  background-color: #2a2a30 !important;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.4), inset 0 -1px 1px rgba(255, 255, 255, 0.05) !important;
+  transform: scale(0.96) !important;
+}
+
+.karaoke-uiverse-btn.toggled-off::before,
+.karaoke-uiverse-btn.toggled-off::after {
+  display: none !important;
+  opacity: 0 !important;
+  box-shadow: none !important;
+}
+
+.karaoke-uiverse-btn.toggled-off .text_button {
+  background-image: none !important;
+  color: #6a6a75 !important;
+  text-shadow: none !important;
+}
+
+.karaoke-uiverse-btn .text_button {
+  position: relative;
+  z-index: 10;
+  text-transform: lowercase;
+
+  background-image: linear-gradient(90deg,
+      hsla(0 0% 100% / 1) 0%,
+      hsla(0 0% 100% / var(--active, 0)) 120%);
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  color: transparent;
+}

@@ -1,0 +1,879 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* ============================================================
+   ROOT
+   ============================================================ */
+.db-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Inter', sans-serif;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  background: radial-gradient(circle at 50% 30%, #3a2218 0%, #1a1515 50%, #050505 100%);
+  view-transition-name: page-bg;
+}
+
+/* ============================================================
+   ANIMATED AMBIENT BACKGROUND
+   ============================================================ */
+.db-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Spotlight effect & Vignette */
+.db-bg::before {
+  content: "";
+  position: absolute;
+  top: -10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80vw;
+  height: 60vh;
+  background: radial-gradient(ellipse at top, rgba(255, 230, 200, 0.15), transparent 70%);
+  mix-blend-mode: screen;
+}
+
+.db-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+}
+
+.blob {
+  display: none;
+}
+
+.blob-1 {
+  width: 700px;
+  height: 700px;
+  top: -180px;
+  left: -120px;
+  background: radial-gradient(circle, rgba(255, 185, 160, 0.6), rgba(255, 150, 180, 0.3));
+  animation-duration: 14s;
+  background-size: cover;
+  background-position: center;
+  mix-blend-mode: multiply;
+}
+
+.blob-2 {
+  width: 500px;
+  height: 500px;
+  bottom: -80px;
+  right: -60px;
+  background: radial-gradient(circle, rgba(200, 160, 255, 0.45), rgba(160, 200, 255, 0.25));
+  animation-duration: 10s;
+  animation-direction: alternate-reverse;
+}
+
+.blob-3 {
+  width: 380px;
+  height: 380px;
+  top: 40%;
+  left: 55%;
+  background: radial-gradient(circle, rgba(255, 220, 190, 0.5), rgba(255, 200, 210, 0.3));
+  animation-duration: 16s;
+}
+
+@keyframes blobFloat {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+
+  to {
+    transform: translate(30px, 20px) scale(1.06);
+  }
+}
+
+/* Subtle paper noise */
+.db-noise {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.25;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.db-header {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 32px 0;
+}
+
+.db-back {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.db-back:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.08);
+}
+
+.db-header-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.db-artist-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.db-toggle-dock {
+  display: flex;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 99px;
+  padding: 4px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.db-toggle-btn {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  border: none;
+  border-radius: 99px;
+  padding: 8px 24px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.db-toggle-btn:hover {
+  color: #fff;
+}
+
+.db-toggle-btn.active {
+  background: #fff;
+  color: #111;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.db-group-title-static {
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin: 0;
+  opacity: 0.9;
+  /* softer white */
+}
+
+
+.db-sub-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.db-header-right {
+  display: flex;
+  gap: 8px;
+}
+
+.db-icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.db-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.08);
+}
+
+/* ── SOLOIST SELECTOR ── */
+.soloist-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  position: absolute;
+  top: 100px;
+  /* Moves it just below the header */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+.soloist-selector button {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1.5rem;
+  font-weight: 300;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 5px 10px;
+}
+
+.soloist-selector button:hover {
+  color: #fff;
+}
+
+.soloist-selector span {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  min-width: 140px;
+  text-align: center;
+}
+
+/* ── 3D STAGE & CAROUSEL ── */
+.db-stage {
+  /* This gives depth to the 3D world. Lower number = more extreme 3D distortion */
+  perspective: 1200px;
+  position: relative;
+  width: 100%;
+  height: 400px;
+  /* Adjust based on your layout */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  flex: 1;
+  padding: 40px 0 0;
+  cursor: grab;
+}
+
+.db-stage:active {
+  cursor: grabbing;
+}
+
+.db-carousel {
+  position: relative;
+  width: 500px;
+  /* Increased album width */
+  height: 500px;
+  /* Increased album height */
+  transform-style: preserve-3d;
+}
+
+/* ---- Album card ---- */
+.db-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.6s ease;
+  transform-style: preserve-3d;
+}
+
+.db-card--active {
+  filter: drop-shadow(0 40px 80px rgba(0, 0, 0, 0.6));
+}
+
+/* Optional: Slight rotation on hover for the active card to reveal the 3D edge */
+.db-card--active:hover {
+  transform: translateX(0px) translateY(-12px) translateZ(160px) !important;
+}
+
+/* ── THE 3D ALBUM BOX ── */
+.db-card-3d-object {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  box-shadow: -10px 20px 30px rgba(0, 0, 0, 0.4);
+  /* realistic shadow */
+}
+
+/* Shared Face Styles */
+.db-card-face {
+  position: absolute;
+  display: block;
+  /* Album base color if image fails */
+  background-color: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Front Face */
+.db-card-front {
+  width: 100%;
+  height: 100%;
+  /* Push it forward by half the depth (10px) */
+  transform: translateZ(15px);
+  object-fit: cover;
+}
+
+/* Back Face */
+.db-card-back {
+  width: 100%;
+  height: 100%;
+  /* Push it back and flip it so it faces away */
+  transform: rotateY(180deg) translateZ(15px);
+  object-fit: cover;
+  filter: brightness(0.6);
+  /* Usually backs are slightly darker in shadow */
+}
+
+/* Left Spine */
+.db-card-spine--left {
+  width: 20px;
+  /* Album thickness */
+  height: 100%;
+  left: 0;
+  transform-origin: left center;
+  transform: rotateY(-90deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to right, #2a2a2a, #111);
+}
+
+/* Right Spine */
+.db-card-spine--right {
+  width: 20px;
+  height: 100%;
+  right: 0;
+  transform-origin: right center;
+  transform: rotateY(90deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to left, #2a2a2a, #111);
+}
+
+/* Top & Bottom (Caps off the box to prevent seeing "inside") */
+.db-card-spine--top {
+  width: 100%;
+  height: 20px;
+  top: 0;
+  transform-origin: top center;
+  transform: rotateX(90deg);
+  background: #111;
+}
+
+.db-card-spine--bottom {
+  width: 100%;
+  height: 20px;
+  bottom: 0;
+  transform-origin: bottom center;
+  transform: rotateX(-90deg);
+  background: #000;
+}
+
+/* Text on the spines */
+.db-spine-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  color: #fff;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+/* Reflection under card */
+.db-card-reflection {
+  position: absolute;
+  bottom: -56px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  border-radius: 0 0 20px 20px;
+  background-size: cover;
+  background-position: center bottom;
+  transform: scaleY(-1);
+  opacity: 0.22;
+  filter: blur(4px);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+  pointer-events: none;
+}
+
+/* Diagonal shine sweep on active card */
+.db-card-shine {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.35) 0%,
+      rgba(255, 255, 255, 0.05) 40%,
+      transparent 60%);
+  pointer-events: none;
+  transform: translateZ(32px);
+  animation: shinePulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes shinePulse {
+  from {
+    opacity: 0.6;
+  }
+
+  to {
+    opacity: 0.9;
+  }
+}
+
+/* ---- Arrows ---- */
+.db-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(14px);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+  transition: all 0.25s ease;
+}
+
+.db-arrow:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.4);
+}
+
+.db-arrow:disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+}
+
+.db-arrow--left {
+  left: 40px;
+}
+
+.db-arrow--right {
+  right: 40px;
+}
+
+/* ---- Dot indicators ---- */
+.db-dots {
+  position: absolute;
+  bottom: 24px;
+  /* Moved up to remain visible above the info card */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 20;
+}
+
+.db-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.db-dot--on {
+  background: #c060a0;
+  width: 22px;
+  border-radius: 3px;
+}
+
+/* ============================================================
+   INFO PANEL  (glassmorphism card)
+   ============================================================ */
+.db-info {
+  position: relative;
+  z-index: 10;
+  width: calc(100% - 80px);
+  max-width: 900px;
+  margin: 10px auto 40px;
+  padding: 24px 32px;
+  background: rgba(25, 25, 25, 0.65);
+  backdrop-filter: blur(28px) saturate(1.8);
+  -webkit-backdrop-filter: blur(28px) saturate(1.8);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 28px;
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.5),
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: infoFadeUp 0.45s cubic-bezier(.22, 1, .36, 1);
+  color: #fff;
+}
+
+/* When mini-player is visible, add extra bottom margin to avoid overlap */
+.db-info--player-visible {
+  margin-bottom: 130px;
+}
+
+@keyframes infoFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.db-info-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  flex-wrap: nowrap;
+}
+
+.db-info-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.db-info-year {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 6px;
+}
+
+/* ── Album title — simple truncation for long names ── */
+.db-info-title {
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: #fff;
+  line-height: 1.1;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.db-info-sub {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.db-dot-sep {
+  opacity: 0.45;
+}
+
+/* ---- Action buttons ---- */
+.db-info-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.db-play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 26px;
+  border-radius: 99px;
+  border: none;
+  background: linear-gradient(135deg, #d060a0, #8040d0);
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.28s ease;
+  box-shadow: 0 8px 28px rgba(160, 60, 200, 0.35);
+  white-space: nowrap;
+  font-family: 'Inter', sans-serif;
+}
+
+.db-play-btn:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 14px 36px rgba(160, 60, 200, 0.45);
+  background: linear-gradient(135deg, #e070b0, #9050e0);
+}
+
+.db-play-btn--pause {
+  background: linear-gradient(135deg, #e0a060, #d06080);
+  box-shadow: 0 8px 28px rgba(180, 80, 100, 0.35);
+}
+
+
+
+/* ---- Stats row ---- */
+.db-stats {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(120, 60, 160, 0.1);
+}
+
+.db-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  text-align: center;
+}
+
+.db-stat-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.db-stat-lbl {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.db-stat-div {
+  width: 1px;
+  height: 36px;
+  background: rgba(120, 60, 160, 0.15);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   COMING SOON
+   ============================================================ */
+.db-coming-soon {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.cs-card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(24px);
+  border: 1.5px solid rgba(255, 255, 255, 0.8);
+  border-radius: 28px;
+  padding: 3rem 3.5rem;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(80, 20, 120, 0.1);
+  animation: infoFadeUp 0.5s ease;
+}
+
+.cs-card h2 {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #2a0840;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+
+.cs-card p {
+  font-size: 1rem;
+  color: rgba(60, 20, 90, 0.6);
+  margin-bottom: 24px;
+}
+
+.cs-btn {
+  padding: 13px 30px;
+  border-radius: 99px;
+  border: none;
+  background: linear-gradient(135deg, #d060a0, #8040d0);
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 8px 28px rgba(160, 60, 200, 0.35);
+}
+
+.cs-btn:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 14px 36px rgba(160, 60, 200, 0.45);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  .db-arrow--left {
+    left: 16px;
+  }
+
+  .db-arrow--right {
+    right: 16px;
+  }
+
+  .db-info {
+    width: calc(100% - 40px);
+    padding: 22px 20px 18px;
+    margin: 36px auto 16px;
+  }
+
+  .db-info--player-visible {
+    margin-bottom: 120px;
+  }
+
+  .db-info-actions {
+    align-self: center;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .db-carousel {
+    width: 300px;
+    height: 300px;
+  }
+
+  .db-stats {
+    gap: 0;
+  }
+
+  .db-stat-val {
+    font-size: 0.88rem;
+  }
+
+  .db-stat-lbl {
+    font-size: 0.62rem;
+  }
+
+  .db-header {
+    padding: 16px 20px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .db-root {
+    min-height: 100dvh;
+  }
+
+  .db-header {
+    padding: 12px 14px 0;
+  }
+
+  .db-back,
+  .db-icon-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .db-toggle-btn {
+    padding: 6px 16px;
+    font-size: 0.7rem;
+  }
+
+  .db-stage {
+    padding: 20px 0 0;
+  }
+
+  .db-carousel {
+    width: 240px;
+    height: 240px;
+  }
+
+  .db-info {
+    width: calc(100% - 24px);
+    padding: 16px 16px 14px;
+    margin: 10px auto 16px;
+    border-radius: 20px;
+  }
+
+  .db-info--player-visible {
+    margin-bottom: 110px;
+  }
+
+  .db-info-title {
+    font-size: 1.25rem;
+  }
+
+  .db-info-sub {
+    font-size: 0.78rem;
+  }
+
+  .db-play-btn {
+    padding: 10px 20px;
+    font-size: 0.85rem;
+  }
+
+  .db-stats {
+    margin-top: 14px;
+    padding-top: 14px;
+  }
+
+  .db-stat-val {
+    font-size: 0.82rem;
+  }
+
+  .db-stat-lbl {
+    font-size: 0.58rem;
+  }
+
+  .soloist-selector {
+    top: 80px;
+    gap: 12px;
+  }
+
+  .soloist-selector span {
+    font-size: 0.88rem;
+    min-width: 100px;
+  }
+}

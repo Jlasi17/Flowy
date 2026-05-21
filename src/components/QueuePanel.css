@@ -1,0 +1,547 @@
+/* ═══════════════════════════════════════════════
+   QUEUE PANEL — Complete Styles
+   Monochrome · Glassmorphism · Premium
+═══════════════════════════════════════════════ */
+
+/* ─── Overlay ─── */
+.queue-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: qFadeIn 0.3s ease forwards;
+}
+.queue-overlay.closing {
+  animation: qFadeOut 0.4s ease forwards;
+}
+@keyframes qFadeIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes qFadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* ─── Panel ─── */
+.queue-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 1060;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  background: rgba(8, 8, 10, 0.94);
+  backdrop-filter: blur(64px) saturate(1.8);
+  -webkit-backdrop-filter: blur(64px) saturate(1.8);
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 -24px 80px rgba(0, 0, 0, 0.7);
+
+  color: #fff;
+  font-family: 'Inter', -apple-system, sans-serif;
+
+  animation: qSlideUp 0.52s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.queue-panel.closing {
+  animation: qSlideDown 0.42s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes qSlideUp   { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes qSlideDown { from { transform: translateY(0); }    to { transform: translateY(100%); } }
+
+/* ─── Header ─── */
+.queue-header {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 34px 52px 22px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.queue-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.queue-title {
+  margin: 0;
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #fff;
+}
+
+.queue-subtitle {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.queue-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ─── Clear button ─── */
+.clear-queue-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 7px 16px;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  font-family: inherit;
+}
+.clear-queue-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+.clear-queue-btn.confirming {
+  background: rgba(255, 70, 70, 0.12);
+  border-color: rgba(255, 70, 70, 0.3);
+  color: rgba(255, 130, 130, 0.9);
+  animation: confirmPop 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes confirmPop {
+  0%  { transform: scale(1); }
+  45% { transform: scale(1.07); }
+  100%{ transform: scale(1); }
+}
+
+/* ─── Close button ─── */
+.close-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.13);
+  color: #fff;
+  transform: scale(1.08);
+}
+
+/* ─── Scrollable area ─── */
+.queue-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px 44px 140px;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+.queue-content.is-dragging {
+  overflow-y: hidden;
+  cursor: grabbing;
+  user-select: none;
+}
+.queue-content::-webkit-scrollbar { width: 3px; }
+.queue-content::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+}
+
+/* ─── Section labels ─── */
+.queue-section-label {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.25);
+  margin: 18px 10px 6px;
+  letter-spacing: 1.4px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* ─── Queue list ─── */
+.queue-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─────────────────────────────────────────────
+   QUEUE ROW
+   Stable DOM wrapper that NEVER changes height.
+   Contains: optional drop-indicator + item-mover.
+────────────────────────────────────────────── */
+.queue-row {
+  /* Fixed height so the list never collapses during drag.
+     The inner mover can translate without affecting layout. */
+  position: relative;
+  /* no height set — natural content height is the placeholder */
+}
+
+/* ─────────────────────────────────────────────
+   ITEM MOVER (translation layer)
+   JS sets translateY here via inline style.
+   CSS transition makes it spring-like.
+────────────────────────────────────────────── */
+.queue-item-mover {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* ─────────────────────────────────────────────
+   QUEUE ITEM (visual card)
+────────────────────────────────────────────── */
+.queue-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    opacity 0.2s ease,
+    transform 0.16s ease;
+  -webkit-font-smoothing: antialiased;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+.queue-item:hover {
+  background: rgba(255, 255, 255, 0.055);
+}
+.queue-item:active {
+  transform: scale(0.986) translateZ(0);
+}
+.queue-item.draggable { cursor: default; }
+
+/* Ghost: the dragged item stays in place — faded but visible, holds its space */
+.queue-item.is-ghost {
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+/* Items shifting position scale very slightly for depth */
+.queue-item.is-shifting {
+  transform: scale(0.978) translateZ(0);
+}
+
+/* ─── Now Playing card ─── */
+.playing-item {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  overflow: hidden;
+  cursor: pointer;
+}
+.playing-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 15%;
+  bottom: 15%;
+  width: 2.5px;
+  border-radius: 2px;
+  background: #fff;
+  box-shadow: 0 0 8px rgba(255,255,255,0.55), 0 0 20px rgba(255,255,255,0.2);
+}
+.playing-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  pointer-events: none;
+  animation: npGlow 3.5s ease-in-out infinite alternate;
+}
+@keyframes npGlow {
+  0%   { box-shadow: inset 0 0 18px rgba(255,255,255,0.02); }
+  100% { box-shadow: inset 0 0 38px rgba(255,255,255,0.055); }
+}
+
+/* ─── Album art wrap ─── */
+.qi-art-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 7px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ─── No-cover placeholder (inline icon) ─── */
+.qi-art-no-cover {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 7px;
+}
+.qi-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.qi-art-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.18);
+}
+.qi-art-play-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  color: #fff;
+}
+.queue-item:hover .qi-art-play-overlay {
+  opacity: 1;
+}
+.qi-art-playing-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.52);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── EQ bars ─── */
+.playing-eq {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 13px;
+}
+.playing-eq span {
+  width: 3px;
+  background: #fff;
+  border-radius: 1.5px;
+  animation: eqBar 1.1s ease-in-out infinite alternate;
+}
+.playing-eq span:nth-child(1) { animation-duration: 0.9s; }
+.playing-eq span:nth-child(2) { animation-delay: 0.22s;  animation-duration: 1.1s; }
+.playing-eq span:nth-child(3) { animation-delay: 0.44s;  animation-duration: 0.8s; }
+@keyframes eqBar {
+  0%   { height: 3px; }
+  100% { height: 13px; }
+}
+
+/* ─── Song info ─── */
+.qi-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+.qi-title {
+  font-size: 0.93rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.1px;
+}
+.qi-sub {
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.38);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.qi-duration {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.28);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+.qi-duration-next {
+  font-size: 0.65rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.18);
+}
+
+/* ─── Drag handle ─── */
+.drag-handle {
+  flex-shrink: 0;
+  width: 22px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.18);
+  transition: color 0.15s, background 0.15s;
+}
+.drag-handle:hover {
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.06);
+}
+.drag-handle:active { cursor: grabbing; }
+
+/* ─── Auto-next (interactable now) ─── */
+.auto-next {
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.auto-next:hover {
+  opacity: 0.75;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ─── Auto-play handle & play icon ─── */
+.ap-drag-handle {
+  color: rgba(255, 255, 255, 0.15);
+}
+
+.ap-play-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.25);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.auto-next:hover .ap-play-icon {
+  opacity: 1;
+}
+
+/* ─────────────────────────────────────────────
+   DROP INDICATOR LINE
+   Thin glowing horizontal rule that appears
+   between items to show the drop target.
+────────────────────────────────────────────── */
+.drop-indicator {
+  height: 2px;
+  margin: 2px 10px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow:
+    0 0 6px rgba(255, 255, 255, 0.6),
+    0 0 18px rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+  animation: dropIn 0.14s ease forwards;
+}
+@keyframes dropIn {
+  from { opacity: 0; transform: scaleX(0.65); }
+  to   { opacity: 1; transform: scaleX(1); }
+}
+
+/* ─────────────────────────────────────────────
+   FLOATING DRAG PREVIEW (portal)
+   Appears near the cursor while dragging.
+   Uses position:fixed so it's viewport-relative.
+────────────────────────────────────────────── */
+.queue-drag-preview {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  background: rgba(18, 18, 22, 0.88);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 11px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.55),
+    0 8px 20px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  max-width: 280px;
+  will-change: left, top;
+  animation: previewIn 0.18s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes previewIn {
+  from { opacity: 0; transform: translate(16px, -50%) scale(0.88); }
+  to   { opacity: 1; transform: translate(16px, -50%) scale(1); }
+}
+
+.qdp-art {
+  width: 34px;
+  height: 34px;
+  border-radius: 5px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.qdp-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.qdp-title {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+.qdp-sub {
+  font-size: 0.71rem;
+  color: rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Empty state ─── */
+.empty-queue {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 64px 24px;
+  text-align: center;
+}
+.empty-queue-icon { color: rgba(255,255,255,0.12); margin-bottom: 6px; }
+.empty-queue p    { margin: 0; font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.38); }
+.empty-queue span { font-size: 0.78rem; color: rgba(255,255,255,0.18); }
+
+/* ─── Toast ─── */
+.queue-toast {
+  position: fixed;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(18, 18, 22, 0.92);
+  backdrop-filter: blur(16px);
+  padding: 9px 22px;
+  border-radius: 99px;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  pointer-events: none;
+  animation: toastIn 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes toastIn {
+  0%   { opacity: 0; transform: translate(-50%, 12px) scale(0.9); }
+  100% { opacity: 1; transform: translate(-50%, 0)   scale(1);   }
+}

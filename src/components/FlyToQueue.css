@@ -1,0 +1,83 @@
+.fly-to-queue-ghost {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  opacity: 0.9;
+  transform-origin: center center;
+}
+
+.fly-ghost-content {
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.fly-ghost-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ─── Arc flight animation ─── */
+/* Separate X and Y with different timings create a curved path */
+/* Rotation adds natural feel */
+.fly-to-queue-ghost.flying {
+  animation:
+    flyX 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards,
+    flyY 0.45s cubic-bezier(0.5, 0, 0.8, 0.4) forwards,
+    flyScale 0.45s cubic-bezier(0.4, 0, 1, 1) forwards,
+    flyRotate 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes flyX {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: var(--fly-dx) 0;
+  }
+}
+
+@keyframes flyY {
+  from {
+    margin-top: 0;
+  }
+  to {
+    margin-top: var(--fly-dy);
+  }
+}
+
+@keyframes flyScale {
+  0% {
+    scale: 1;
+    opacity: 0.9;
+  }
+  60% {
+    scale: 0.6;
+    opacity: 0.7;
+  }
+  100% {
+    scale: 0.2;
+    opacity: 0;
+  }
+}
+
+@keyframes flyRotate {
+  0% {
+    rotate: 0deg;
+  }
+  100% {
+    rotate: -12deg;
+  }
+}

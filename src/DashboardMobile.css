@@ -1,0 +1,550 @@
+/* ============================================================
+   DASHBOARD MOBILE — Premium HYBE Album Showcase
+   Immersive 9:16 mobile experience
+   ============================================================ */
+
+/* ── MOBILE BREAKPOINT: 768px and below ── */
+@media (max-width: 768px) {
+
+  /* ============================================================
+     ROOT — Cinematic dark gradient with depth
+     ============================================================ */
+  .db-root {
+    min-height: 100dvh;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(80, 40, 20, 0.45) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 100%, rgba(60, 20, 40, 0.3) 0%, transparent 50%),
+      radial-gradient(ellipse at 20% 80%, rgba(40, 20, 60, 0.2) 0%, transparent 45%),
+      linear-gradient(180deg, #0a0604 0%, #110a08 30%, #0d0705 60%, #050303 100%);
+    overflow-x: hidden;
+    padding-bottom: 0;
+    justify-content: flex-start;
+  }
+
+  /* ── Ambient BG adjustments ── */
+  .db-bg::before {
+    width: 100vw;
+    height: 45vh;
+    top: -5%;
+    background: radial-gradient(ellipse at top, rgba(255, 200, 160, 0.08), transparent 70%);
+  }
+
+  .db-bg::after {
+    box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.95);
+  }
+
+  .db-noise {
+    opacity: 0.18;
+    /* Film-grain for cinematic depth */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  }
+
+  /* ============================================================
+     HEADER — Glassmorphic top nav with pill toggle
+     ============================================================ */
+  .db-header {
+    padding: 16px 18px 0;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    /* Subtle header backdrop for readability */
+    background: linear-gradient(180deg, rgba(10, 6, 4, 0.9) 0%, rgba(10, 6, 4, 0.6) 60%, transparent 100%);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* ── Back button — premium glass circle ── */
+  .db-back {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    box-shadow:
+      0 2px 12px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .db-back:active {
+    transform: scale(0.92);
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  .db-back svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  /* ── Center pill toggle — frosted glass ── */
+  .db-toggle-dock {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 99px;
+    padding: 3px;
+    backdrop-filter: blur(24px) saturate(1.6);
+    -webkit-backdrop-filter: blur(24px) saturate(1.6);
+    box-shadow:
+      0 4px 20px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    gap: 0;
+  }
+
+  .db-toggle-btn {
+    padding: 7px 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    border-radius: 99px;
+    color: rgba(255, 255, 255, 0.45);
+    transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .db-toggle-btn.active {
+    background: rgba(255, 255, 255, 0.95);
+    color: #0a0604;
+    box-shadow:
+      0 2px 12px rgba(255, 255, 255, 0.15),
+      0 1px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .db-group-title-static {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  /* ── Search icon — glass circle ── */
+  .db-icon-btn {
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    box-shadow:
+      0 2px 12px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .db-icon-btn:active {
+    transform: scale(0.92);
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  .db-icon-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* ============================================================
+     SOLOIST SELECTOR — Compact mobile version
+     ============================================================ */
+  .soloist-selector {
+    top: 72px;
+    gap: 14px;
+    z-index: 40;
+  }
+
+  .soloist-selector button {
+    font-size: 1.2rem;
+    padding: 4px 8px;
+    color: rgba(255, 255, 255, 0.35);
+    transition: color 0.2s ease;
+  }
+
+  .soloist-selector button:active {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .soloist-selector span {
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    min-width: 110px;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  /* ============================================================
+     CAROUSEL — Hide arrows, swipe only on mobile
+     ============================================================ */
+  .db-arrow {
+    display: none !important;
+  }
+
+  .db-stage {
+    cursor: default;
+    touch-action: pan-y;
+  }
+
+  /* ============================================================
+     DOT INDICATORS — Soft neon glow
+     ============================================================ */
+  .db-dots {
+    bottom: 16px;
+    gap: 5px;
+  }
+
+  .db-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .db-dot--on {
+    width: 20px;
+    height: 5px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #c060a0, #9050d0);
+    box-shadow:
+      0 0 8px rgba(192, 96, 160, 0.5),
+      0 0 20px rgba(144, 80, 208, 0.25);
+  }
+
+  /* ============================================================
+     INFO PANEL — Fix overlap with mini-player
+     ============================================================ */
+  .db-info {
+    width: calc(100% - 32px);
+    margin: 8px auto 20px;
+    padding: 20px 22px 18px;
+    border-radius: 24px;
+    background: rgba(18, 14, 12, 0.6);
+    backdrop-filter: blur(32px) saturate(1.8);
+    -webkit-backdrop-filter: blur(32px) saturate(1.8);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 20px 50px rgba(0, 0, 0, 0.6),
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.02);
+    animation: mobileInfoSlideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* When mini-player is active, push info above it */
+  .db-info--player-visible {
+    margin-bottom: 115px;
+  }
+
+  @keyframes mobileInfoSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(24px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .db-info-top {
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+    flex-wrap: nowrap;
+  }
+
+  /* ── Year + type label ── */
+  .db-info-year {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+
+  /* ── Album title — single line truncation ── */
+  .db-info-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #fff;
+    line-height: 1.15;
+    margin-bottom: 6px;
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.06);
+  }
+
+  /* ── Artist + track subtext ── */
+  .db-info-sub {
+    font-size: 0.74rem;
+    color: rgba(255, 255, 255, 0.45);
+    gap: 5px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .db-dot-sep {
+    opacity: 0.3;
+  }
+
+  /* ── Play button — gradient glow ── */
+  .db-info-actions {
+    margin-left: auto;
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  .db-play-btn {
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #d060a0, #8040d0);
+    box-shadow:
+      0 4px 20px rgba(160, 60, 200, 0.4),
+      0 0 40px rgba(192, 96, 160, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    border: none;
+  }
+
+  .db-play-btn:active {
+    transform: scale(0.9);
+    box-shadow:
+      0 2px 12px rgba(160, 60, 200, 0.5),
+      0 0 20px rgba(192, 96, 160, 0.2);
+  }
+
+  .db-play-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .db-play-btn--pause {
+    background: linear-gradient(135deg, #e0a060, #d06080);
+    box-shadow:
+      0 4px 20px rgba(180, 80, 100, 0.4),
+      0 0 40px rgba(224, 160, 96, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  /* ============================================================
+     COMING SOON — Mobile card
+     ============================================================ */
+  .db-coming-soon {
+    padding: 0 16px;
+  }
+
+  .cs-card {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  }
+
+  .cs-card h2 {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .cs-card p {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.9rem;
+  }
+
+  .cs-btn {
+    padding: 12px 28px;
+    font-size: 0.88rem;
+    border-radius: 99px;
+  }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  .db-footer {
+    font-size: 0.55rem !important;
+    bottom: 4px !important;
+    color: rgba(255, 255, 255, 0.15) !important;
+  }
+}
+
+/* ── Extra-small phones (≤ 400px) ── */
+@media (max-width: 400px) {
+  .db-header {
+    padding: 12px 14px 0;
+  }
+
+  .db-back,
+  .db-icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .db-toggle-btn {
+    padding: 6px 14px;
+    font-size: 0.66rem;
+  }
+
+  .db-info {
+    width: calc(100% - 24px);
+    padding: 16px 18px 14px;
+    border-radius: 20px;
+  }
+
+  .db-info-title {
+    font-size: 1.05rem;
+  }
+
+  .db-info-sub {
+    font-size: 0.68rem;
+  }
+
+  .db-play-btn {
+    width: 46px;
+    height: 46px;
+  }
+
+  .db-play-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .soloist-selector {
+    top: 64px;
+  }
+
+  .soloist-selector span {
+    font-size: 0.76rem;
+    min-width: 90px;
+  }
+}
+
+/* ============================================================
+   MOBILE MINI-PLAYER ENHANCEMENTS
+   Works with musicplayer.css — adds premium mobile feel
+   ============================================================ */
+@media (max-width: 768px) {
+  .audio-player {
+    bottom: 10px;
+    width: 94%;
+    border-radius: 20px;
+    padding: 10px 14px 12px;
+    background: rgba(16, 12, 10, 0.7);
+    backdrop-filter: blur(36px) saturate(1.8);
+    -webkit-backdrop-filter: blur(36px) saturate(1.8);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 20px 48px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    gap: 6px;
+  }
+
+  .disc {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  }
+
+  .song-info {
+    width: 110px;
+  }
+
+  .song-title-mini {
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  .song-album-mini {
+    font-size: 0.66rem;
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  .ctrl-btn.play-pause {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow:
+      0 2px 10px rgba(0, 0, 0, 0.3),
+      0 0 20px rgba(255, 255, 255, 0.05);
+  }
+
+  .time-bar input[type="range"] {
+    height: 3px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 999px;
+  }
+
+  .time-bar input[type="range"]::-webkit-slider-thumb {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+/* ============================================================
+   MOBILE TOUCH INTERACTIONS & ANIMATIONS
+   ============================================================ */
+@media (max-width: 768px) {
+  /* Smooth touch feedback for all interactive elements */
+  .db-back:active,
+  .db-icon-btn:active,
+  .db-toggle-btn:active,
+  .db-dot:active,
+  .db-play-btn:active,
+  .cs-btn:active {
+    transition-duration: 0.1s;
+  }
+
+  /* Disable hover effects on touch devices */
+  @media (hover: none) {
+    .db-back:hover,
+    .db-icon-btn:hover,
+    .db-play-btn:hover,
+    .db-card--active:hover {
+      transform: none;
+      background: inherit;
+    }
+  }
+}
+
+/* ============================================================
+   LANDSCAPE MOBILE SAFEGUARD
+   ============================================================ */
+@media (max-width: 768px) and (orientation: landscape) {
+  .db-info {
+    margin-bottom: 16px;
+  }
+
+  .db-info--player-visible {
+    margin-bottom: 100px;
+  }
+
+  .db-header {
+    padding: 8px 14px 0;
+  }
+}
+
+/* ============================================================
+   SAFE AREA INSETS (notch / dynamic island support)
+   ============================================================ */
+@supports (padding-top: env(safe-area-inset-top)) {
+  @media (max-width: 768px) {
+    .db-header {
+      padding-top: calc(16px + env(safe-area-inset-top));
+    }
+
+    .db-info--player-visible {
+      margin-bottom: calc(115px + env(safe-area-inset-bottom));
+    }
+
+    .audio-player {
+      bottom: calc(10px + env(safe-area-inset-bottom));
+    }
+  }
+}

@@ -1,0 +1,103 @@
+const lesserafimAlbums = [
+    {
+        year: 2022,
+        albums: [
+            {
+                id: "le1",
+                title: "FEARLESS",
+                cover: "/le/le1.png",
+                release: "2 May 2022",
+                titleSong: "FEARLESS",
+                type: "Mini Album",
+                language: "Korean",
+                color: "#040404ff",
+            },
+            {
+                id: "le2",
+                title: "ANTIFRAGILE",
+                cover: "/le/le2.png",
+                release: "17 October 2022",
+                titleSong: "ANTIFRAGILE",
+                type: "Mini Album",
+                language: "Korean",
+                color: "#ffffffff",
+            },
+        ],
+    },
+    {
+        year: 2023,
+        albums: [
+            {
+                id: "le3",
+                title: "UNFORGIVEN",
+                cover: "/le/le3.jpg",
+                release: "1 May 2023",
+                titleSong: "UNFORGIVEN (feat. Nile Rodgers)",
+                type: "Studio Album",
+                language: "Korean",
+                color: "#9b193aff",
+            },
+            {
+                id: "le4",
+                title: "Perfect Night",
+                cover: "/le/le4.jpg",
+                release: "27 October 2023",
+                titleSong: "Perfect Night",
+                type: "Single",
+                language: "English",
+                color: "#d766dbff",
+            },
+        ],
+    },
+    {
+        year: 2024,
+        albums: [
+            {
+                id: "le5",
+                title: "EASY",
+                cover: "/le/le5.png",
+                release: "19 February 2024",
+                titleSong: "EASY",
+                type: "Mini Album",
+                language: "Korean",
+                color: "#c9b8b6ff",
+            },
+        ],
+    },
+    {
+        year: 2025,
+        albums: [
+            {
+                id: "le6",
+                title: "CRAZY",
+                cover: "/le/le6.jpg",
+                release: "2025",
+                titleSong: "CRAZY",
+                type: "Mini Album",
+                language: "Korean",
+                color: "#090524ff",
+            },
+            {
+                id: "le7",
+                title: "HOT",
+                cover: "/le/le7.png",
+                release: "2025",
+                titleSong: "HOT",
+                type: "Mini Album",
+                language: "Korean",
+                color: "#d2a57dff",
+            },
+            {
+                id: "le8",
+                title: "SPAGHETTI",
+                cover: "/le/le8.jpg",
+                release: "2025",
+                titleSong: "SPAGHETTI",
+                type: "Single Album",
+                language: "Korean",
+                color: "#e25a1bff",
+            },
+        ],
+    },
+];
+export default lesserafimAlbums;

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Outer black ring -->
+  <circle cx="100" cy="100" r="96" fill="#111" />
+  <!-- White ring -->
+  <circle cx="100" cy="100" r="92" fill="#fff" />
+  <!-- Bright Yellow Circle -->
+  <circle cx="100" cy="100" r="82" fill="#fbff00" />
+
+  <!-- Texts -->
+  <g fill="#111" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif">
+    <text x="28" y="105" font-size="38" font-weight="900" letter-spacing="8">HYBE</text>
+    <text x="28" y="135" font-size="18" font-weight="500" letter-spacing="1">LABELS</text>
+  </g>
+</svg>

@@ -1,0 +1,949 @@
+/* ============================================================
+   KARAOKE PANEL — Immersive AI Karaoke Experience
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Grandstander&display=swap');
+
+/* ── OVERLAY ── */
+.karaoke-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  animation: karaokeSlideUp 0.6s cubic-bezier(0.22, 0.68, 0, 1.1) forwards;
+  background: #050510;
+}
+
+.karaoke-overlay.closing {
+  animation: karaokeSlideDown 0.45s cubic-bezier(0.4, 0, 0.8, 0.2) forwards;
+}
+
+@keyframes karaokeSlideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0.5;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes karaokeSlideDown {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+/* ── BACKGROUND ── */
+.karaoke-bg {
+  position: absolute;
+  inset: -100px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(90px) saturate(220%) brightness(0.3);
+  z-index: 0;
+  transform: scale(1.15);
+  animation: karaokeBgPulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes karaokeBgPulse {
+  0% {
+    filter: blur(90px) saturate(220%) brightness(0.3);
+    transform: scale(1.15);
+  }
+
+  100% {
+    filter: blur(100px) saturate(250%) brightness(0.25);
+    transform: scale(1.2);
+  }
+}
+
+.karaoke-bg-tint {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+      rgba(5, 5, 16, 0.75) 0%,
+      rgba(3, 3, 12, 0.85) 50%,
+      rgba(2, 2, 8, 0.95) 100%);
+  z-index: 1;
+}
+
+/* ── TOP NAV CONTROLS ── */
+.karaoke-cancel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  flex-shrink: 0;
+}
+
+/* Specific position for processing screen to keep it top-left */
+.karaoke-processing .karaoke-cancel-btn {
+  position: absolute;
+  top: 24px;
+  left: 30px;
+}
+
+.karaoke-cancel-btn:hover {
+  background: rgba(255, 50, 50, 0.15);
+  border-color: rgba(255, 50, 50, 0.3);
+  color: #ff6b6b;
+  transform: scale(1.08) rotate(90deg);
+}
+
+.karaoke-cancel-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.karaoke-top-right-controls {
+  position: fixed;
+  top: 24px;
+  right: 30px;
+  z-index: 10002;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* ═══════════════════════════════════════════════════
+   PROCESSING STATE — Circular Progress Ring
+   ═══════════════════════════════════════════════════ */
+.karaoke-processing {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+}
+
+.karaoke-progress-ring-container {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── WIREFRAME WAVES AROUND RING ── */
+.karaoke-waves {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 230px;
+  height: 230px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.karaoke-wave-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  border: 1px solid rgba(255, 0, 0, 0.35);
+  /* pure red base */
+
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+
+  animation: karaoke-wave-spin 10s linear infinite;
+
+  /* deeper layered glow */
+  box-shadow:
+    0 0 8px rgba(255, 0, 0, 0.25),
+    0 0 20px rgba(180, 0, 40, 0.2);
+
+  mix-blend-mode: screen;
+}
+
+@keyframes karaoke-wave-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.karaoke-wave-line:nth-child(1) {
+  border-radius: 40% 60% 54% 46% / 49% 60% 40% 51%;
+  animation-duration: 8s;
+  border-color: rgba(255, 220, 100, 0.7);
+  /* yellow highlight */
+}
+
+.karaoke-wave-line:nth-child(2) {
+  border-radius: 54% 46% 38% 62% / 49% 70% 30% 51%;
+  animation-duration: 11s;
+  animation-direction: reverse;
+  border-color: rgba(255, 180, 60, 0.65);
+  /* warm yellow-orange */
+}
+
+.karaoke-wave-line:nth-child(3) {
+  border-radius: 60% 40% 46% 54% / 60% 49% 51% 40%;
+  animation-duration: 14s;
+  border-color: rgba(255, 140, 40, 0.6);
+  /* orange */
+}
+
+.karaoke-wave-line:nth-child(4) {
+  border-radius: 46% 54% 60% 40% / 51% 40% 60% 49%;
+  animation-duration: 17s;
+  animation-direction: reverse;
+  border-color: rgba(255, 100, 20, 0.55);
+  /* deep orange */
+}
+
+.karaoke-wave-line:nth-child(5) {
+  border-radius: 50% 50% 40% 60% / 40% 60% 50% 50%;
+  animation-duration: 20s;
+  border-color: rgba(255, 60, 40, 0.55);
+  /* red-orange */
+}
+
+.karaoke-wave-line:nth-child(6) {
+  border-radius: 42% 58% 36% 64% / 45% 55% 53% 47%;
+  animation-duration: 23s;
+  animation-direction: reverse;
+  border-color: rgba(255, 40, 40, 0.5);
+  /* red */
+}
+
+.karaoke-wave-line:nth-child(7) {
+  border-radius: 58% 42% 48% 52% / 55% 45% 40% 60%;
+  animation-duration: 26s;
+  border-color: rgba(200, 20, 30, 0.45);
+  /* deep red */
+}
+
+.karaoke-wave-line:nth-child(8) {
+  border-radius: 65% 35% 55% 45% / 45% 65% 35% 55%;
+  animation-duration: 29s;
+  animation-direction: reverse;
+  border-color: rgba(120, 0, 20, 0.4);
+  /* dark maroon edge */
+}
+
+.karaoke-wave-line {
+  opacity: 0.8;
+}
+
+.karaoke-wave-line:nth-child(1),
+.karaoke-wave-line:nth-child(5) {
+  opacity: 1;
+}
+
+.karaoke-progress-ring {
+  width: 220px;
+  height: 220px;
+  transform: rotate(-90deg);
+  filter: drop-shadow(0 0 20px rgba(138, 100, 255, 0.4));
+  z-index: 10;
+}
+
+.karaoke-progress-ring-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-width: 6;
+}
+
+.karaoke-progress-ring-fill {
+  fill: none;
+  stroke: url(#karaokeGradient);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.karaoke-progress-percent {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.karaoke-progress-number {
+  font-size: 3.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg,
+      #ff4d4d,
+      /* brighter highlight */
+      #cc0000,
+      /* strong red core */
+      #800000
+      /* still deep but not too dark */
+    );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -2px;
+  line-height: 1;
+}
+
+.karaoke-progress-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-weight: 600;
+}
+
+.karaoke-processing-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.karaoke-processing-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: -0.02em;
+}
+
+.karaoke-processing-song {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 500;
+}
+
+.karaoke-processing-cancel {
+  margin-top: 24px;
+  background: rgba(255, 69, 58, 0.12);
+  border: 1px solid rgba(255, 69, 58, 0.25);
+  color: rgba(255, 100, 100, 0.9);
+  padding: 8px 24px;
+  border-radius: 40px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+}
+
+.karaoke-processing-cancel:hover {
+  background: rgba(255, 69, 58, 0.22);
+  border-color: rgba(255, 69, 58, 0.5);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 69, 58, 0.15);
+}
+
+.karaoke-processing-cancel:active {
+  transform: translateY(0);
+}
+
+/* Pulsing microphone icon during processing */
+.karaoke-mic-pulse {
+  width: 48px;
+  height: 48px;
+  color: rgba(204, 33, 62, 0.956);
+  animation: micPulse 2s ease-in-out infinite;
+}
+
+@keyframes micPulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+/* Ambient particles during processing */
+.karaoke-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.karaoke-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(185, 38, 102, 0.786);
+  animation: particleFloat 6s ease-in-out infinite;
+}
+
+.karaoke-particle:nth-child(1) {
+  left: 15%;
+  animation-delay: 0s;
+  animation-duration: 7s;
+}
+
+.karaoke-particle:nth-child(2) {
+  left: 30%;
+  animation-delay: 1s;
+  animation-duration: 5s;
+}
+
+.karaoke-particle:nth-child(3) {
+  left: 50%;
+  animation-delay: 2s;
+  animation-duration: 8s;
+}
+
+.karaoke-particle:nth-child(4) {
+  left: 70%;
+  animation-delay: 0.5s;
+  animation-duration: 6s;
+}
+
+.karaoke-particle:nth-child(5) {
+  left: 85%;
+  animation-delay: 1.5s;
+  animation-duration: 7.5s;
+}
+
+.karaoke-particle:nth-child(6) {
+  left: 25%;
+  animation-delay: 3s;
+  animation-duration: 5.5s;
+}
+
+.karaoke-particle:nth-child(7) {
+  left: 60%;
+  animation-delay: 2.5s;
+  animation-duration: 6.5s;
+}
+
+.karaoke-particle:nth-child(8) {
+  left: 40%;
+  animation-delay: 4s;
+  animation-duration: 8.5s;
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(100vh) scale(0);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(-20vh) scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   SINGING STATE — Lyrics + Controls
+   ═══════════════════════════════════════════════════ */
+
+/* Reuse lyrics-scroll-area styles from LyricsPanel */
+.karaoke-lyrics-area {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 0 40px;
+  scroll-behavior: smooth;
+  mask-image: linear-gradient(to bottom,
+      transparent 0%, black 10%, black 88%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom,
+      transparent 0%, black 10%, black 88%, transparent 100%);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.karaoke-lyrics-area::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── HEADER ── */
+.karaoke-header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 36px 40px 20px;
+  flex-shrink: 0;
+}
+
+.karaoke-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.karaoke-header-art {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+
+.karaoke-header-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.karaoke-header-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.karaoke-header-sub {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+
+.karaoke-mode-badge {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  font-family: 'Grandstander', cursive;
+  font-size: 2.4rem;
+  /* ⬅️ BIG change */
+  font-weight: 900;
+
+  color: #a3122a;
+  /* slightly deeper red */
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+
+  /* sharper instead of blurry */
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── VOCAL VOLUME CONTROL ── */
+.karaoke-vocal-control {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 40px;
+  margin-bottom: 8px;
+}
+
+.karaoke-vocal-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+  min-width: 100px;
+}
+
+.karaoke-vocal-label svg {
+  width: 16px;
+  height: 16px;
+  color: #a78bfa;
+}
+
+.karaoke-vocal-slider {
+  flex: 1;
+  max-width: 200px;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  transition: height 0.2s;
+}
+
+.karaoke-vocal-slider:hover {
+  height: 6px;
+}
+
+.karaoke-vocal-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #a78bfa;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(138, 100, 255, 0.5);
+  cursor: pointer;
+}
+
+.karaoke-vocal-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #a78bfa;
+  border-radius: 50%;
+  border: none;
+  box-shadow: 0 0 10px rgba(138, 100, 255, 0.5);
+  cursor: pointer;
+}
+
+.karaoke-vocal-value {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.35);
+  font-variant-numeric: tabular-nums;
+  min-width: 30px;
+  text-align: right;
+}
+
+/* ── BOTTOM PLAYER BAR ── */
+.karaoke-player-bar {
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+  padding: 16px 40px 32px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.karaoke-seek-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 580px;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-variant-numeric: tabular-nums;
+}
+
+.karaoke-seek-row input[type="range"] {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  transition: height 0.2s;
+}
+
+.karaoke-seek-row:hover input[type="range"] {
+  height: 6px;
+}
+
+.karaoke-seek-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+.karaoke-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.karaoke-ctrl-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  opacity: 0.65;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.karaoke-ctrl-btn:hover {
+  opacity: 1;
+  transform: scale(1.12);
+}
+
+.karaoke-play-btn {
+  width: 60px !important;
+  height: 60px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #111 !important;
+  opacity: 1 !important;
+  font-size: 1.4rem !important;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+}
+
+.karaoke-play-btn:hover {
+  transform: scale(1.06) !important;
+  opacity: 1 !important;
+}
+
+/* ═══════════════════════════════════════════════════
+   COUNTDOWN STATE — Between songs
+   ═══════════════════════════════════════════════════ */
+.karaoke-countdown {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+.karaoke-countdown-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 1px;
+}
+
+.karaoke-countdown-number {
+  font-size: 8rem;
+  font-weight: 900;
+  line-height: 1;
+
+  /* strong red gradient (no white/pink) */
+  background: linear-gradient(135deg,
+      rgba(255, 40, 40, 0.9) 0%,
+      /* bright red */
+      rgba(200, 0, 30, 0.85) 40%,
+      /* deep red */
+      rgba(140, 0, 20, 0.8) 100%
+      /* dark base */
+    );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  /* red-tinted edge (not white) */
+  -webkit-text-stroke: 1px rgba(180, 0, 30, 0.5);
+
+  /* red glow instead of white shine */
+  text-shadow:
+    0 0 6px rgba(255, 0, 0, 0.6),
+    0 4px 12px rgba(120, 0, 20, 0.5);
+
+  filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.4));
+
+  animation: countdownPulse 1s ease-in-out infinite;
+}
+
+@keyframes countdownGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes countdownPulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+.karaoke-countdown-next-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.karaoke-countdown-next-label {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 600;
+}
+
+.karaoke-countdown-next-song {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+}
+
+.karaoke-countdown-art {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.karaoke-countdown-song-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.karaoke-countdown-song-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.karaoke-countdown-song-artist {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ── PRELOADING INDICATOR ── */
+.karaoke-preload-indicator {
+  position: fixed;
+  bottom: 140px;
+  right: 24px;
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(85, 0, 0, 0.15);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(85, 0, 0, 0.3);
+  border-radius: 24px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #b80a0a;
+  letter-spacing: 0.5px;
+  animation: preloadFadeIn 0.5s ease forwards;
+}
+
+@keyframes preloadFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.karaoke-preload-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(85, 0, 0, 0.3);
+  border-top-color: #8b0000;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 700px) {
+  .karaoke-header {
+    padding: 24px 20px 16px;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .karaoke-vocal-control {
+    padding: 0 20px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .karaoke-player-bar {
+    padding: 12px 20px 24px;
+  }
+
+  .karaoke-cancel-btn {
+    top: 16px;
+    right: 16px;
+    padding: 8px 14px;
+    font-size: 0.75rem;
+  }
+
+  .karaoke-countdown-number {
+    font-size: 5rem;
+  }
+
+  .karaoke-progress-ring-container {
+    width: 180px;
+    height: 180px;
+  }
+
+  .karaoke-progress-ring {
+    width: 180px;
+    height: 180px;
+  }
+
+
+}

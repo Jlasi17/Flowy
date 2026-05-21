@@ -1,0 +1,341 @@
+:root {
+  --vocal-color: #ca2c10;
+  --inst-color: #84160f;
+  --panel-bg: rgba(15, 15, 25, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.12);
+}
+
+.dual-mixer-wrapper,
+.vocal-quick-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* ── TOGGLE BUTTON ── */
+.mixer-toggle-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.mixer-toggle-btn:hover,
+.mixer-toggle-btn.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ── QUICK TOGGLE BUTTON ── */
+.vocal-quick-btn {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+  overflow: visible;
+}
+
+.vocal-quick-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  transform: scale(1.05);
+}
+
+.vocal-quick-btn.active {
+  background: rgba(255, 0, 0, 0.15);
+  border-color: rgba(255, 0, 0, 0.4);
+  color: #ff2b2b;
+}
+
+.vocal-btn-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 126, 103, 0.3) 0%, transparent 70%);
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+.vocal-toggle-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #e51a1a;
+  color: #fff;
+  font-size: 0.45rem;
+  font-weight: 800;
+  padding: 2px 4px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+.vocal-quick-btn svg {
+  width: 26px;
+  height: 26px;
+}
+
+/* ── QUICK SLIDER EXPANSION ── */
+.vocal-slider-track-horizontal {
+  width: 0;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px 0 0 20px;
+  margin-right: -20px;
+  padding-right: 20px;
+  height: 40px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.vocal-quick-container.expanded .vocal-slider-track-horizontal {
+  width: 140px;
+  opacity: 1;
+  pointer-events: auto;
+  margin-right: -10px;
+  padding: 0 15px 0 10px;
+}
+
+.vocal-quick-range {
+  width: 100%;
+  -webkit-appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.vocal-quick-range::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.vocal-quick-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 14px;
+  width: 14px;
+  border-radius: 50%;
+  background: #ff2b2b;
+  margin-top: -5px;
+  box-shadow: 0 0 10px rgba(255, 43, 43, 0.5);
+  transition: transform 0.2s;
+}
+
+.vocal-quick-range:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+}
+
+/* ── RIGHT SIDE PANEL ── */
+.mixer-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 10004;
+}
+
+.mixer-panel {
+  position: absolute;
+  top: 60px;
+  right: -10px;
+  width: 160px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 24px 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  z-index: 10005;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: mixerSlideIn 0.4s cubic-bezier(0.2, 0.9, 0.3, 1);
+  transform-origin: top right;
+  pointer-events: auto;
+}
+
+@keyframes mixerSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+}
+
+.mixer-content {
+  display: flex;
+  justify-content: space-around;
+  gap: 16px;
+  height: 260px;
+}
+
+/* ── SLIDER GROUP ── */
+.mixer-slider-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.mixer-slider-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.mixer-icon {
+  font-size: 1.2rem;
+  margin-bottom: 2px;
+}
+
+.mixer-slider-track-wrap {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.mixer-slider-track {
+  position: relative;
+  width: 10px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.mixer-native-input {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) rotate(-90deg);
+
+  width: 260px;
+  /* match track height */
+  height: 20px;
+
+  opacity: 0.01;
+  /* Fully invisible but keeps interaction reliable */
+  z-index: 20;
+  cursor: pointer;
+}
+
+.mixer-slider-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+.mixer-slider-thumb {
+  position: absolute;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border: 3px solid;
+  border-radius: 50%;
+  transform: translate(-50%, 50%);
+  z-index: 15;
+  pointer-events: none;
+}
+
+.mixer-track-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+
+
+.mixer-slider-value {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── AUDIO REACTIVE FX ── */
+.mixer-audio-visual {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 200%;
+  transform: translateX(-50%);
+  border-radius: 50% 50% 0 0;
+  filter: blur(8px);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+/* ── FOOTER ── */
+.mixer-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mixer-close-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+}
+
+.mixer-close-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}

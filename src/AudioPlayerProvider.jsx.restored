@@ -1,0 +1,227 @@
+import { createContext, useRef, useState, useEffect, useCallback, useMemo } from "react";
+import "./AlbumPage.css";
+
+export const AudioContext = createContext();
+
+export default function AudioPlayerProvider({ children }) {
+  const audioRef = useRef(new Audio());
+
+  const [songs, setSongs] = useState([]); // Base album/playlist
+  const [currentIndex, setCurrentIndex] = useState(null);
+  const [albumData, setAlbumData] = useState(null);
+  const [albumId, setAlbumId] = useState(null);
+
+  // QUEUE SYSTEM
+  const [queue, setQueue] = useState([]);
+  const [activeSong, setActiveSong] = useState(null);
+  const [isQueueOpen, setIsQueueOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState(null);
+
+  // SHUFFLE & REPEAT
+  const [shuffleMode, setShuffleMode] = useState(false); // false = off, true = on
+  const [repeatMode, setRepeatMode] = useState('off'); // 'off' | 'one' | 'all'
+  const shuffleHistoryRef = useRef([]);
+
+  const toggleShuffle = useCallback(() => setShuffleMode(prev => !prev), []);
+  const cycleRepeat = useCallback(() => setRepeatMode(prev => {
+    if (prev === 'off') return 'all';
+    if (prev === 'all') return 'one';
+    return 'off';
+  }), []);
+
+  // Fly-to-queue animation state
+  const [flyAnimData, setFlyAnimData] = useState(null);
+  const queueBtnRef = useRef(null);
+
+  useEffect(() => {
+    console.log("Global Queue Updated:", queue);
+  }, [queue]);
+
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [volume, setVolume] = useState(80);
+
+  const updateVolume = useCallback((val) => {
+    setVolume(val);
+    if (audioRef.current) audioRef.current.volume = val / 100;
+  }, []);
+
+  const showToast = useCallback((msg, color = null) => {
+    setToastMessage({ message: msg, color });
+    setTimeout(() => setToastMessage(null), 2000);
+  }, []);
+
+  const addToQueue = useCallback((song) => {
+    setQueue((prev) => [...prev, song]);
+    showToast("Added to queue", song.color);
+  }, [showToast]);
+
+  const triggerFlyAnimation = useCallback((sourceRect, songName) => {
+    const targetEl = queueBtnRef.current;
+    if (!targetEl) { return; }
+    const targetRect = targetEl.getBoundingClientRect();
+    setFlyAnimData({ sourceRect, targetRect, songName });
+  }, []);
+
+  const removeFromQueue = useCallback((index) => {
+    setQueue((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const reorderQueue = useCallback((startIndex, endIndex) => {
+    setQueue((prev) => {
+      const result = Array.from(prev);
+      const [removed] = result.splice(startIndex, 1);
+      result.splice(endIndex, 0, removed);
+      return result;
+    });
+  }, []);
+
+  const getRandomIndex = (excludeIdx, length) => {
+    if (length <= 1) return 0;
+    let idx;
+    do { idx = Math.floor(Math.random() * length); } while (idx === excludeIdx);
+    return idx;
+  };
+
+  const playNext = useCallback(() => {
+    // Repeat one is handled in the 'ended' handler
+    if (queue.length > 0) {
+      const nextSong = queue[0];
+      setQueue((q) => q.slice(1));
+      setActiveSong(nextSong);
+      // Update albumData so the player UI shows the correct album cover/title
+      setAlbumData({
+        title: nextSong.albumTitle || "Album",
+        cover: nextSong.cover || albumData?.cover,
+        member: nextSong.member || albumData?.member,
+        color: nextSong.color || albumData?.color,
+      });
+    } else {
+      if (currentIndex === null || !songs.length) return;
+      if (shuffleMode) {
+        const nextIdx = getRandomIndex(currentIndex, songs.length);
+        shuffleHistoryRef.current.push(currentIndex);
+        setCurrentIndex(nextIdx);
+      } else {
+        const nextIdx = currentIndex < songs.length - 1 ? currentIndex + 1 : (repeatMode === 'all' ? 0 : null);
+        if (nextIdx === null) {
+          setIsPlaying(false);
+          return;
+        }
+        setCurrentIndex(nextIdx);
+      }
+    }
+  }, [queue, currentIndex, songs, shuffleMode, repeatMode, albumData]);
+
+  const playPrev = useCallback(() => {
+    if (audioRef.current.currentTime > 3) {
+      audioRef.current.currentTime = 0;
+      return;
+    }
+    if (currentIndex === null || !songs.length) return;
+    if (shuffleMode && shuffleHistoryRef.current.length > 0) {
+      const prevIdx = shuffleHistoryRef.current.pop();
+      setCurrentIndex(prevIdx);
+    } else {
+      const prevIdx = currentIndex > 0 ? currentIndex - 1 : songs.length - 1;
+      setCurrentIndex(prevIdx);
+    }
+  }, [currentIndex, songs, shuffleMode]);
+
+  // When UI sets base context explicitly
+  useEffect(() => {
+    if (currentIndex === null || !songs.length) return;
+    setActiveSong(songs[currentIndex]);
+  }, [currentIndex, songs]);
+
+  // When activeSong changes, physically play it
+  useEffect(() => {
+    if (!activeSong) return;
+    audioRef.current.src = activeSong.filePath;
+    audioRef.current.play().catch(() => console.log("Playback interrupted"));
+    setIsPlaying(true);
+    setCurrentTime(0);
+  }, [activeSong]);
+
+  useEffect(() => {
+    if (!audioRef.current.src) return;
+    isPlaying ? audioRef.current.play() : audioRef.current.pause();
+  }, [isPlaying]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    const update = () => setCurrentTime(audio.currentTime);
+    const handleEnded = () => {
+      if (repeatMode === 'one') {
+        audio.currentTime = 0;
+        audio.play().catch(() => { });
+        return;
+      }
+      playNext();
+    };
+
+    audio.addEventListener("timeupdate", update);
+    audio.addEventListener("ended", handleEnded);
+
+    return () => {
+      audio.removeEventListener("timeupdate", update);
+      audio.removeEventListener("ended", handleEnded);
+    };
+  }, [queue, currentIndex, songs, repeatMode, shuffleMode]);
+  const contextValue = useMemo(() => ({
+    audioRef,
+    songs,
+    setSongs,
+    currentIndex,
+    setCurrentIndex,
+    albumData,
+    setAlbumData,
+    albumId,
+    setAlbumId,
+
+    queue,
+    activeSong,
+    isQueueOpen,
+    setIsQueueOpen,
+    toastMessage,
+    addToQueue,
+    removeFromQueue,
+    reorderQueue,
+    playNext,
+    playPrev,
+    updateVolume,
+
+    shuffleMode,
+    toggleShuffle,
+    repeatMode,
+    cycleRepeat,
+
+    flyAnimData,
+    setFlyAnimData,
+    triggerFlyAnimation,
+    queueBtnRef
+  }), [
+    songs, currentIndex, albumData, albumId, 
+    updateVolume, queue, activeSong, isQueueOpen, toastMessage, addToQueue,
+    removeFromQueue, reorderQueue, playNext, playPrev, shuffleMode, toggleShuffle,
+    repeatMode, cycleRepeat, flyAnimData, triggerFlyAnimation
+  ]);
+
+  // OPTIMIZATION: We merge frequently updated values (currentTime, isPlaying) 
+  // into the final context object AFTER memoization. This ensures that 
+  // components using stable functions (like playNext) don't re-render 
+  // 60 times a second unless they explicitly use currentTime.
+  const finalContextValue = {
+    ...contextValue,
+    isPlaying,
+    setIsPlaying,
+    currentTime,
+    volume
+  };
+
+  return (
+    <AudioContext.Provider value={finalContextValue}>
+      {children}
+    </AudioContext.Provider>
+  );
+}

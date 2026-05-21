@@ -1,0 +1,160 @@
+.max-radial-vol-wrapper {
+  position: absolute;
+  top: 36px;
+  right: 36px;
+  z-index: 40;
+}
+
+.max-vol-trigger {
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  z-index: 42;
+  transition: all 0.3s ease;
+}
+
+.max-vol-trigger:hover,
+.max-radial-vol-wrapper:hover .max-vol-trigger {
+  box-shadow: 0 0 16px var(--glow-color, rgba(255, 255, 255, 0.2));
+  border-color: var(--glow-color, rgba(255, 255, 255, 0.5));
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.max-radial-panel {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  width: 220px;
+  height: 220px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.2, 0.9, 0.3, 1), transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1);
+  transform-origin: top right;
+  transform: scale(0.6) translate(20px, -20px);
+}
+
+.max-radial-panel.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1) translate(0, 0);
+}
+
+.max-radial-svg {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  overflow: visible;
+  z-index: 5;
+  /* Sit on top of the vinyl disc */
+}
+
+/* --- VINYL DISC STYLES --- */
+
+.vinyl-record-bg {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: #0a0a0a;
+  /* Simulating vinyl grooves */
+  background-image: repeating-radial-gradient(#0a0a0a,
+      #0a0a0a 2px,
+      #181818 3px,
+      #181818 4px);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+
+  /* Slow spin when playing */
+  animation: vinylSpin 4s linear infinite;
+}
+
+@keyframes vinylSpin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- TILTED BLURRED CENTER LABEL --- */
+
+.vinyl-label-container {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 1px solid #333;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* The requested tilt */
+  transform: rotate(-15deg);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+.vinyl-blurred-art {
+  position: absolute;
+  /* Oversize the background slightly to prevent blur from exposing white edges */
+  top: -20%;
+  left: -20%;
+  right: -20%;
+  bottom: -20%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(4px) brightness(0.5);
+  /* Brightness adjusted so text pops */
+  z-index: 1;
+}
+
+.vinyl-text-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 90%;
+  margin-bottom: 4px;
+  /* offset for center hole */
+}
+
+.vinyl-song {
+  font-size: 10px;
+  font-weight: bold;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.vinyl-artist {
+  font-size: 8px;
+  color: #cccccc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  margin-top: 2px;
+}
+
+.vinyl-spindle-hole {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  background-color: #000;
+  border-radius: 50%;
+  z-index: 3;
+  box-shadow: 0 0 2px rgba(255, 255, 255, 0.2);
+}
