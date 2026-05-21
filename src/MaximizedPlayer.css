@@ -922,7 +922,7 @@
 
 .max-mode-btn.max-mode-active {
   opacity: 1 !important;
-  color: #1db954 !important;
+  color: #fff !important;
 }
 
 .max-mode-btn.max-mode-active::after {
@@ -934,7 +934,7 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #1db954;
+  background: #fff;
 }
 
 .max-mode-btn:disabled,
@@ -949,7 +949,7 @@
   right: -6px;
   font-size: 0.52rem;
   font-weight: 800;
-  background: #1db954;
+  background: #fff;
   color: #000;
   width: 13px;
   height: 13px;

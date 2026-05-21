@@ -458,11 +458,10 @@ export default function LyricsPanel({ onClose }) {
 
         <div className="lyrics-controls-row">
           <button
-            className={`lyr-ctrl-btn ${shuffleMode ? 'ctrl-active' : ''}`}
+            className={`lyr-ctrl-btn ctrl-mode-btn ${shuffleMode ? 'ctrl-active' : ''}`}
             onClick={toggleShuffle}
             aria-label="Shuffle"
             title={shuffleMode ? 'Shuffle on' : 'Shuffle off'}
-            style={{ opacity: shuffleMode ? 1 : 0.6 }}
           >
             <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
               <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
@@ -496,16 +495,15 @@ export default function LyricsPanel({ onClose }) {
           </button>
 
           <button
-            className={`lyr-ctrl-btn ${repeatMode !== 'off' ? 'ctrl-active' : ''}`}
+            className={`lyr-ctrl-btn ctrl-mode-btn ${repeatMode !== 'off' ? 'ctrl-active' : ''}`}
             onClick={cycleRepeat}
             aria-label="Repeat"
             title={repeatMode === 'off' ? 'Repeat off' : repeatMode === 'all' ? 'Repeat all' : 'Repeat one'}
-            style={{ position: 'relative', opacity: repeatMode !== 'off' ? 1 : 0.6 }}
           >
             <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
               <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" />
             </svg>
-            {repeatMode === 'one' && <span className="repeat-one-badge" style={{ position: 'absolute', top: 0, right: 0, fontSize: '9px', background: '#fff', color: '#000', borderRadius: '50%', width: '12px', height: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>1</span>}
+            {repeatMode === 'one' && <span className="repeat-one-badge">1</span>}
           </button>
         </div>
       </div>
@@ -518,10 +516,9 @@ export default function LyricsPanel({ onClose }) {
         </div>
         <div className="mlyr-bottom-controls">
           <button
-            className={`mlyr-bottom-btn ${shuffleMode ? 'ctrl-active' : ''}`}
+            className={`mlyr-bottom-btn ctrl-mode-btn ${shuffleMode ? 'ctrl-active' : ''}`}
             onClick={toggleShuffle}
             aria-label="Shuffle"
-            style={{ opacity: shuffleMode ? 1 : 0.6 }}
           >
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
               <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
@@ -545,15 +542,14 @@ export default function LyricsPanel({ onClose }) {
           </button>
 
           <button
-            className={`mlyr-bottom-btn ${repeatMode !== 'off' ? 'ctrl-active' : ''}`}
+            className={`mlyr-bottom-btn ctrl-mode-btn ${repeatMode !== 'off' ? 'ctrl-active' : ''}`}
             onClick={cycleRepeat}
             aria-label="Repeat"
-            style={{ position: 'relative', opacity: repeatMode !== 'off' ? 1 : 0.6 }}
           >
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
               <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" />
             </svg>
-            {repeatMode === 'one' && <span className="repeat-one-badge" style={{ position: 'absolute', top: '-2px', right: '-2px', fontSize: '8px', background: '#fff', color: '#000', borderRadius: '50%', width: '10px', height: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>1</span>}
+            {repeatMode === 'one' && <span className="repeat-one-badge">1</span>}
           </button>
         </div>
       </div>
