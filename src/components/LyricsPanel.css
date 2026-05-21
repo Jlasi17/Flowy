@@ -1014,3 +1014,9 @@
   pointer-events: none;
   filter: blur(5px);
 }
+.lyr-ctrl-btn.ctrl-active,
+.mlyr-bottom-btn.ctrl-active {
+  color: #1db954 !important;
+  opacity: 1 !important;
+}
+
