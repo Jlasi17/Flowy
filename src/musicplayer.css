@@ -338,6 +338,10 @@
   transform: scale(1.1);
 }
 
+.mobile-lyrics-btn {
+  display: none !important;
+}
+
 /* ============================================================
    RESPONSIVE
    ============================================================ */
@@ -365,6 +369,10 @@
 
   .player-right {
     display: none;
+  }
+
+  .mobile-lyrics-btn {
+    display: flex !important;
   }
 
   .disc {
@@ -426,7 +434,35 @@
     display: none;
   }
 
+  .mobile-lyrics-btn {
+    display: flex !important;
+  }
+
   .time-bar input[type="range"] {
     height: 3px;
   }
+}
+
+/* Flush top border progress bar */
+.karaoke-top-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  z-index: 1050;
+  cursor: pointer;
+  transition: height 0.2s ease;
+}
+
+.karaoke-top-progress-bar:hover {
+  height: 10px;
+}
+
+.karaoke-top-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff4d4d, #ff1f1f);
+  box-shadow: 0 0 10px rgba(255, 77, 77, 0.6);
+  transition: width 0.3s ease-out;
 }

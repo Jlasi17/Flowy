@@ -82,10 +82,23 @@ def get_job_dir(job_id: str) -> Path:
 
 
 # ── POST /api/karaoke ────────────────────────────────────────────────────
+from fastapi import Form
+from typing import Optional
+
 @app.post("/api/karaoke")
-async def start_karaoke(audio: UploadFile = File(...)):
-    """Upload an MP3 file and start Demucs vocal separation."""
-    content = await audio.read()
+async def start_karaoke(audio: Optional[UploadFile] = File(None), filePath: Optional[str] = Form(None)):
+    """Upload an MP3 file or specify a local file path, then start Demucs vocal separation."""
+    if filePath:
+        rel_path = filePath.lstrip('/')
+        full_path = BASE_DIR.parent / "public" / rel_path
+        if not full_path.exists():
+            raise HTTPException(status_code=404, detail="File not found on server")
+        with open(full_path, "rb") as f:
+            content = f.read()
+    elif audio:
+        content = await audio.read()
+    else:
+        raise HTTPException(status_code=400, detail="Must provide audio or filePath")
     job_id = hashlib.md5(content).hexdigest()[:16]
     job_dir = get_job_dir(job_id)
 

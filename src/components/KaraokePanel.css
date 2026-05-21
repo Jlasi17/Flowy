@@ -320,7 +320,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.karaoke-processing-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
 }
 
 .karaoke-processing-title {
@@ -337,11 +344,10 @@
 }
 
 .karaoke-processing-cancel {
-  margin-top: 24px;
   background: rgba(255, 69, 58, 0.12);
   border: 1px solid rgba(255, 69, 58, 0.25);
   color: rgba(255, 100, 100, 0.9);
-  padding: 8px 24px;
+  padding: 10px 24px;
   border-radius: 40px;
   font-size: 0.85rem;
   font-weight: 600;
@@ -359,6 +365,31 @@
 }
 
 .karaoke-processing-cancel:active {
+  transform: translateY(0);
+}
+
+.karaoke-processing-bg-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 10px 24px;
+  border-radius: 40px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+}
+
+.karaoke-processing-bg-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+.karaoke-processing-bg-btn:active {
   transform: translateY(0);
 }
 
@@ -879,6 +910,15 @@
   animation: preloadFadeIn 0.5s ease forwards;
 }
 
+.preload-percent {
+  font-variant-numeric: tabular-nums;
+  min-width: 32px;
+}
+
+.preload-text {
+  white-space: nowrap;
+}
+
 @keyframes preloadFadeIn {
   from {
     opacity: 0;
@@ -909,9 +949,46 @@
 /* ── RESPONSIVE ── */
 @media (max-width: 700px) {
   .karaoke-header {
-    padding: 24px 20px 16px;
-    flex-direction: column;
-    gap: 12px;
+    padding: clamp(16px, 4vw, 24px);
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .karaoke-header-left {
+    flex: 1 1 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: clamp(8px, 3vw, 16px);
+  }
+
+  .karaoke-header-meta {
+    align-items: flex-start;
+    text-align: left;
+    overflow: hidden;
+  }
+
+  .karaoke-header-title {
+    font-size: clamp(1rem, 4vw, 1.25rem);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .karaoke-mode-badge {
+    display: none;
+  }
+
+  .karaoke-top-right-controls {
+    position: static;
+    flex: 1 1 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin: 0;
   }
 
   .karaoke-vocal-control {
@@ -920,30 +997,172 @@
     gap: 8px;
   }
 
+  .karaoke-uiverse-btn {
+    padding: 0.6rem 1.2rem;
+  }
+
+  /* Slide preload indicator on mobile */
+  .karaoke-preload-indicator {
+    right: 0;
+    border-radius: 24px 0 0 24px;
+    border-right: none;
+    animation: preloadMobileSlide 4s ease forwards;
+  }
+
   .karaoke-player-bar {
     padding: 12px 20px 24px;
   }
 
   .karaoke-cancel-btn {
-    top: 16px;
-    right: 16px;
-    padding: 8px 14px;
-    font-size: 0.75rem;
+    position: static;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    flex-shrink: 0;
   }
 
   .karaoke-countdown-number {
-    font-size: 5rem;
+    font-size: clamp(4rem, 15vw, 6rem);
   }
 
-  .karaoke-progress-ring-container {
-    width: 180px;
-    height: 180px;
-  }
-
+  .karaoke-progress-ring-container,
   .karaoke-progress-ring {
-    width: 180px;
-    height: 180px;
+    width: min(50vw, 200px);
+    height: min(50vw, 200px);
   }
 
+  .karaoke-waves {
+    width: min(55vw, 210px);
+    height: min(55vw, 210px);
+  }
 
+  /* ── iPhone 13 safe area support ── */
+  .karaoke-header {
+    padding-top: max(clamp(16px, 4vw, 24px), calc(8px + env(safe-area-inset-top)));
+  }
+
+  .karaoke-player-bar {
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+
+  .karaoke-overlay {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* ── KARAOKE: Cinematic auto-hide for controls ── */
+.karaoke-overlay .cinematic-hide {
+  transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── EDGE TIMEBAR (base styles for KaraokePanel) ── */
+.karaoke-overlay .edge-timebar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  /* No horizontal or bottom padding — stretches to edges and sits flush */
+  padding: 18px 0 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
+  
+  /* Hidden by default */
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.karaoke-overlay .edge-timebar-range {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(
+    to right,
+    var(--accent, rgba(255,255,255,0.85)) var(--progress, 0%),
+    rgba(255,255,255,0.15) var(--progress, 0%)
+  );
+  outline: none;
+  cursor: pointer;
+  transition: height 0.2s ease;
+}
+
+.karaoke-overlay .edge-timebar:hover .edge-timebar-range {
+  height: 5px;
+}
+
+.karaoke-overlay .edge-timebar-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 0;
+  height: 0;
+  background: transparent;
+  transition: width 0.2s ease, height 0.2s ease, box-shadow 0.2s ease;
+}
+
+.karaoke-overlay .edge-timebar:hover .edge-timebar-range::-webkit-slider-thumb {
+  width: 13px;
+  height: 13px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent, rgba(255,255,255,0.7));
+}
+
+.karaoke-overlay .edge-timebar-range::-moz-range-thumb {
+  width: 0;
+  height: 0;
+  background: transparent;
+  border: none;
+}
+
+.karaoke-overlay .edge-timebar:hover .edge-timebar-range::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  background: #fff;
+  border-radius: 50%;
+}
+
+.karaoke-overlay.cinematic-mode .karaoke-header {
+  opacity: 0;
+  transform: translateY(-20px);
+  pointer-events: none;
+  transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.karaoke-overlay.cinematic-mode .karaoke-player-bar {
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+  filter: blur(5px);
+  transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1), filter 1s ease;
+}
+
+.karaoke-overlay.cinematic-mode .edge-timebar {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+@media (max-width: 480px) {
+  .karaoke-overlay .edge-timebar {
+    padding: 14px 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .karaoke-overlay .edge-timebar:hover .edge-timebar-range,
+  .karaoke-overlay .edge-timebar:active .edge-timebar-range {
+    height: 4px;
+  }
+
+  .karaoke-overlay .edge-timebar:hover .edge-timebar-range::-webkit-slider-thumb,
+  .karaoke-overlay .edge-timebar:active .edge-timebar-range::-webkit-slider-thumb {
+    width: 16px;
+    height: 16px;
+  }
 }

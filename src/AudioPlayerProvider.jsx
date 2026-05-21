@@ -10,13 +10,10 @@ const KARAOKE_API = '/api';
 const WS_BASE = `ws://${window.location.hostname}:8000`;
 
 async function uploadForKaraoke(filePath) {
-  // Fetch the audio file from the public path and upload to backend
-  const response = await fetch(filePath);
-  const blob = await response.blob();
+  // Send the file path directly to the backend to avoid downloading and uploading large audio files on mobile
   const formData = new FormData();
-  // Extract a reasonable filename
-  const fileName = filePath.split('/').pop() || 'audio.mp3';
-  formData.append('audio', blob, fileName);
+  formData.append('filePath', filePath);
+  
   const res = await fetch(`${KARAOKE_API}/karaoke`, { method: 'POST', body: formData });
   if (!res.ok) throw new Error('Failed to start karaoke processing');
   return res.json();
@@ -89,6 +86,7 @@ export default function AudioPlayerProvider({ children }) {
   const [karaokeStatus, setKaraokeStatus] = useState('idle'); // 'idle' | 'processing' | 'ready' | 'countdown'
   const [karaokeProgress, setKaraokeProgress] = useState(0);
   const [karaokeJobId, setKaraokeJobId] = useState(null);
+  const [isKaraokeMinimized, setIsKaraokeMinimized] = useState(false);
   const [karaokeInstrumentalUrl, setKaraokeInstrumentalUrl] = useState(null);
   const [karaokeVocalsUrl, setKaraokeVocalsUrl] = useState(null);
   const [vocalVolume, setVocalVolume] = useState(() => {
@@ -179,14 +177,19 @@ export default function AudioPlayerProvider({ children }) {
       }
 
       // Vocal Path
-      if (!vocalSourceRef.current && karaokeVocalsUrl) {
-        vocalAudioRef.current.src = karaokeVocalsUrl;
-        vocalSourceRef.current = ctx.createMediaElementSource(vocalAudioRef.current);
-        const gainNode = ctx.createGain();
-        gainNode.gain.value = vocalVolume / 100;
-        vocalSourceRef.current.connect(gainNode);
-        gainNode.connect(ctx.destination);
-        vocalGainNodeRef.current = gainNode;
+      if (karaokeVocalsUrl && vocalAudioRef.current) {
+        if (vocalAudioRef.current.src !== new URL(karaokeVocalsUrl, window.location.href).href) {
+            vocalAudioRef.current.src = karaokeVocalsUrl;
+        }
+        
+        if (!vocalSourceRef.current) {
+          vocalSourceRef.current = ctx.createMediaElementSource(vocalAudioRef.current);
+          const gainNode = ctx.createGain();
+          gainNode.gain.value = vocalVolume / 100;
+          vocalSourceRef.current.connect(gainNode);
+          gainNode.connect(ctx.destination);
+          vocalGainNodeRef.current = gainNode;
+        }
       }
 
       // Shadow Path (Hidden for transitions)
@@ -212,8 +215,19 @@ export default function AudioPlayerProvider({ children }) {
       
       // Sync Vocal track to Instrumental track
       if (karaokeMode && karaokeStatus === 'ready' && vocals) {
-        if (Math.abs(vocals.currentTime - audio.currentTime) > 0.05) {
+        const diff = vocals.currentTime - audio.currentTime;
+        
+        // If drift is extremely large (e.g. after seeking), do a hard snap
+        if (Math.abs(diff) > 0.5) {
           vocals.currentTime = audio.currentTime;
+        } 
+        // For small drifts, smoothly adjust playback rate to catch up (prevents stuttering on mobile)
+        else if (Math.abs(diff) > 0.03) {
+          vocals.playbackRate = diff > 0 ? 0.95 : 1.05;
+        } 
+        // Once synced, restore normal speed
+        else {
+          vocals.playbackRate = 1.0;
         }
       }
     };
@@ -262,6 +276,9 @@ export default function AudioPlayerProvider({ children }) {
     if (vocalGainNodeRef.current) {
       vocalGainNodeRef.current.gain.value = vocalVolume / 100;
     }
+    if (vocalAudioRef.current) {
+      vocalAudioRef.current.volume = vocalVolume / 100;
+    }
   }, [vocalVolume]);
 
   // Sync Instrumental Gain
@@ -307,6 +324,17 @@ export default function AudioPlayerProvider({ children }) {
   const removeFromQueue = useCallback((index) => {
     setQueue((prev) => prev.filter((_, i) => i !== index));
   }, []);
+
+  const handleNextKaraokeCountdown = useCallback((count) => {
+    setNextKaraokeCountdown(count);
+  }, []);
+
+  // Automatically un-minimize when processing finishes
+  useEffect(() => {
+    if (karaokeStatus === 'countdown' || karaokeStatus === 'ready') {
+      setIsKaraokeMinimized(false);
+    }
+  }, [karaokeStatus]);
 
   const clearQueue = useCallback(() => {
     setQueue([]);
@@ -394,6 +422,16 @@ export default function AudioPlayerProvider({ children }) {
   const startKaraoke = useCallback(async (songToProcess = null) => {
     const targetSong = songToProcess || activeSong;
     if (!targetSong?.filePath) return;
+
+    // Mobile audio unlock: Must synchronously play/pause on user interaction
+    audioRef.current.play().then(() => audioRef.current.pause()).catch(() => {});
+    vocalAudioRef.current.play().then(() => vocalAudioRef.current.pause()).catch(() => {});
+
+    // Must initialize and resume AudioContext synchronously on user interaction
+    const ctx = initAudioCtx();
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
 
     const triggerCountdownTransition = (jobId, instrumentalUrl, vocalsUrl) => {
       setKaraokeJobId(jobId);
@@ -714,11 +752,7 @@ export default function AudioPlayerProvider({ children }) {
     }
   }, [activeSong]);
 
-  useEffect(() => {
-    if (!audioRef.current.src) return;
-    isPlaying ? audioRef.current.play() : audioRef.current.pause();
-  }, [isPlaying]);
-
+  // Redundant isPlaying effect removed to prevent duplicate play() calls
   useEffect(() => {
     const audio = audioRef.current;
     const update = () => {
@@ -803,6 +837,8 @@ export default function AudioPlayerProvider({ children }) {
     setKaraokeProgress,
     karaokeJobId,
     setKaraokeJobId,
+    isKaraokeMinimized,
+    setIsKaraokeMinimized,
     karaokeInstrumentalUrl,
     setKaraokeInstrumentalUrl,
     karaokeVocalsUrl,
@@ -832,6 +868,7 @@ export default function AudioPlayerProvider({ children }) {
     songs, currentIndex, albumData, albumId, queue, isQueueOpen, toastMessage,
     shuffleMode, repeatMode, flyAnimData, isPlaying, currentTime, volume,
     karaokeMode, karaokeStatus, karaokeProgress, karaokeJobId,
+    isKaraokeMinimized,
     karaokeInstrumentalUrl, karaokeVocalsUrl, vocalVolume, instVolume, cancelKaraoke,
     nextKaraokeCountdown, preloadingNext, preloadProgress,
     startKaraoke, playNext, playPrev, toggleShuffle, cycleRepeat,

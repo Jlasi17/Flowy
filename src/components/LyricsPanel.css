@@ -486,6 +486,69 @@
   letter-spacing: 0.3px;
 }
 
+.lyrics-empty-icon svg {
+  opacity: 0.8;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
+}
+
+/* ── SKELETON LOADER ── */
+.lyrics-skeleton-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 24px;
+  padding: 0 40px;
+  z-index: 10;
+  position: relative;
+}
+
+.lyrics-skeleton-line {
+  height: 24px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.lyrics-skeleton-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+  animation: skeletonShimmer 1.5s infinite;
+}
+
+@keyframes skeletonShimmer {
+  100% {
+    left: 200%;
+  }
+}
+
+.lyrics-skeleton-line.short { width: 30%; }
+.lyrics-skeleton-line.medium { width: 50%; }
+.lyrics-skeleton-line.long { width: 70%; }
+.lyrics-skeleton-line.full { width: 85%; }
+
+@media (max-width: 900px) {
+  .lyrics-skeleton-container {
+    align-items: flex-start;
+    padding: 0 20px;
+    margin-top: 30vh;
+    justify-content: flex-start;
+  }
+}
+
 .lyrics-empty-sub {
   font-size: 0.82rem;
   color: rgba(255, 255, 255, 0.2);
@@ -667,13 +730,13 @@
 
   .lyrics-bg-tint {
     background: linear-gradient(180deg,
-        rgba(60, 10, 10, 0.7) 0%,
-        rgba(30, 5, 8, 0.8) 30%,
-        rgba(10, 2, 4, 0.92) 60%,
+        color-mix(in srgb, var(--mobile-bg, rgba(255,255,255,0.8)) 60%, transparent) 0%,
+        color-mix(in srgb, var(--mobile-bg, rgba(255,255,255,0.8)) 30%, black) 30%,
+        rgba(0, 0, 0, 0.92) 60%,
         rgba(0, 0, 0, 0.98) 100%);
   }
 
-  /* ── Hide desktop header, desktop bottom bar, and orbs ── */
+  /* ── Hide desktop header, desktop bottom bar, orbs, and edit FAB ── */
   .lyrics-header {
     display: none !important;
   }
@@ -686,6 +749,10 @@
     display: none !important;
   }
 
+  .lyrics-edit-fab {
+    display: none !important;
+  }
+
   /* ── Show mobile elements ── */
   .mlyr-header {
     display: flex !important;
@@ -693,71 +760,27 @@
     z-index: 20;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 20px 6px;
+    /* top padding includes iPhone 13 notch height */
+    padding: max(16px, calc(8px + env(safe-area-inset-top))) 20px 6px;
     flex-shrink: 0;
   }
 
-  .mlyr-tabs {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .mlyr-tab {
+  .mlyr-back-btn {
     background: none;
     border: none;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.88rem;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.85);
     cursor: pointer;
-    padding: 4px 0;
-    letter-spacing: 0.02em;
-    transition: color 0.3s ease;
-    text-transform: lowercase;
-  }
-
-  .mlyr-tab-active {
-    color: rgba(255, 255, 255, 0.95);
-    font-weight: 700;
-    font-style: italic;
-    position: relative;
-  }
-
-  /* Subtle underline glow on active tab */
-  .mlyr-tab-active::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: rgba(255, 200, 180, 0.5);
-    border-radius: 2px;
-    filter: blur(1px);
-  }
-
-  .mlyr-header-icons {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .mlyr-icon-btn {
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.4);
-    cursor: pointer;
-    padding: 4px;
+    padding: 8px;
+    margin-left: -8px; /* Offset padding to align visual edge */
     display: flex;
     align-items: center;
     justify-content: center;
     transition: color 0.2s ease, transform 0.15s ease;
   }
 
-  .mlyr-icon-btn:active {
-    transform: scale(0.88);
-    color: rgba(255, 200, 180, 0.8);
+  .mlyr-back-btn:active {
+    transform: scale(0.9);
+    color: #fff;
   }
 
   /* ── Floating Vinyl Disc — partially off-screen left ── */
@@ -866,7 +889,7 @@
   }
 
   .lyric-line-text {
-    font-size: 1.7rem;
+    font-size: clamp(1.2rem, 5.5vw, 1.7rem);
     font-weight: 800;
     line-height: 1.2;
     letter-spacing: -0.03em;
@@ -879,7 +902,7 @@
   }
 
   .lyric-line.active .lyric-line-text {
-    font-size: 2.1rem;
+    font-size: clamp(1.5rem, 7vw, 2.1rem);
     font-weight: 900;
     letter-spacing: -0.04em;
     line-height: 1.15;
@@ -1026,4 +1049,111 @@
   top: -6px;
   right: -8px;
 }
+
+/* ══════════════════════════════════════════════
+   EDGE TIMEBAR — slim seek bar pinned to screen bottom
+   Shared by LyricsPanel & KaraokePanel
+   ══════════════════════════════════════════════ */
+.edge-timebar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  /* No horizontal or bottom padding — stretches to edges and sits flush */
+  padding: 18px 0 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
+  
+  /* Hidden by default */
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.edge-timebar-range {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(
+    to right,
+    var(--accent, rgba(255,255,255,0.85)) var(--progress, 0%),
+    rgba(255,255,255,0.15) var(--progress, 0%)
+  );
+  outline: none;
+  cursor: pointer;
+  transition: height 0.2s ease;
+}
+
+.edge-timebar-range:hover,
+.edge-timebar:hover .edge-timebar-range {
+  height: 5px;
+}
+
+.edge-timebar-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 0;
+  height: 0;
+  background: transparent;
+  transition: width 0.2s ease, height 0.2s ease, box-shadow 0.2s ease;
+}
+
+.edge-timebar:hover .edge-timebar-range::-webkit-slider-thumb {
+  width: 13px;
+  height: 13px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent, rgba(255,255,255,0.7));
+}
+
+.edge-timebar-range::-moz-range-thumb {
+  width: 0;
+  height: 0;
+  background: transparent;
+  border: none;
+}
+
+.edge-timebar:hover .edge-timebar-range::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  background: #fff;
+  border-radius: 50%;
+}
+
+/* Show in cinematic mode */
+.cinematic-mode .edge-timebar {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Mobile: a touch bigger hit area */
+@media (max-width: 480px) {
+  .edge-timebar {
+    padding: 14px 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .edge-timebar-range {
+    height: 3px;
+  }
+
+  .edge-timebar:hover .edge-timebar-range,
+  .edge-timebar:active .edge-timebar-range {
+    height: 4px;
+  }
+
+  .edge-timebar:hover .edge-timebar-range::-webkit-slider-thumb,
+  .edge-timebar:active .edge-timebar-range::-webkit-slider-thumb {
+    width: 16px;
+    height: 16px;
+  }
+}
+
 

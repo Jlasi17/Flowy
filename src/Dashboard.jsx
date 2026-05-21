@@ -2,6 +2,7 @@ import { useState, useContext, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AudioContext } from "./AudioPlayerProvider";
 import SearchOverlay from "./components/SearchOverlay";
+import FastScrollHandle from "./components/FastScrollHandle";
 import "./Dashboard.css";
 import "./DashboardMobile.css";
 import { groupsData } from "./data/musicRegistry";
@@ -318,16 +319,43 @@ export default function Dashboard() {
             </button>
 
             {/* Dots */}
-            <div className="db-dots">
+            <div 
+              className="db-dots"
+              style={{ touchAction: 'none' }} /* Prevent page scroll while scrubbing */
+              onPointerMove={(e) => {
+                if (e.pointerType === 'mouse' && e.buttons !== 1) return;
+                const el = document.elementFromPoint(e.clientX, e.clientY);
+                if (el && el.hasAttribute('data-index')) {
+                  const idx = parseInt(el.getAttribute('data-index'), 10);
+                  if (idx !== active) setActive(idx);
+                }
+              }}
+              onTouchMove={(e) => {
+                const touch = e.touches[0];
+                const el = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (el && el.hasAttribute('data-index')) {
+                  const idx = parseInt(el.getAttribute('data-index'), 10);
+                  if (idx !== active) setActive(idx);
+                }
+              }}
+            >
               {albums.map((_, i) => (
                 <button
                   key={i}
+                  data-index={i}
                   className={`db-dot ${i === active ? "db-dot--on" : ""}`}
                   onClick={() => setActive(i)}
                   aria-label={`Go to album ${i + 1}`}
                 />
               ))}
             </div>
+
+            {/* Fast-scroll handle — mobile only */}
+            <FastScrollHandle
+              total={albums.length}
+              current={active}
+              onIndex={setActive}
+            />
           </div>
 
           {/* ── INFO PANEL ── */}

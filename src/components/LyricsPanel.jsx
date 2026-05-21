@@ -85,9 +85,16 @@ export default function LyricsPanel({ onClose }) {
   // Auto-scroll to keep active line centered
   useEffect(() => {
     if (activeLineRef.current && scrollRef.current && !userInteracting) {
-      activeLineRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
+      const container = scrollRef.current;
+      const activeLine = activeLineRef.current;
+      
+      const containerCenter = container.clientHeight / 2;
+      const lineCenter = activeLine.clientHeight / 2;
+      const scrollPosition = activeLine.offsetTop - containerCenter + lineCenter;
+      
+      container.scrollTo({
+        top: scrollPosition,
+        behavior: 'smooth'
       });
     }
   }, [activeIndex, userInteracting]);
@@ -169,6 +176,19 @@ export default function LyricsPanel({ onClose }) {
     activeSinger !== 'End' &&
     activeSinger !== 'NA';
 
+  // Calculate mobile gradient start color (if black, use white instead)
+  const getMobileBg = (colorStr) => {
+    if (!colorStr) return 'rgba(255, 255, 255, 0.8)';
+    const match = colorStr.match(/\d+/g);
+    if (match && match.length >= 3) {
+      const [r, g, b] = match.map(Number);
+      if (r < 30 && g < 30 && b < 30) {
+        return 'rgba(255, 255, 255, 0.8)'; // Use white if it's black
+      }
+    }
+    return colorStr;
+  };
+
   return (
     <div
       className={`lyrics-overlay ${isClosing ? 'closing' : ''} ${!isControlsVisible ? 'cinematic-mode' : ''} ${isSingleSinger ? 'single-singer-mode' : ''}`}
@@ -186,6 +206,7 @@ export default function LyricsPanel({ onClose }) {
         className="lyrics-bg-tint"
         style={{
           '--album-color': albumData?.color || 'rgba(20,20,40,1)',
+          '--mobile-bg': getMobileBg(albumData?.color)
         }}
       />
 
@@ -266,57 +287,30 @@ export default function LyricsPanel({ onClose }) {
         </div>
       </div>
 
-      {/* ── MOBILE: Header with Song/Lyrics tabs + icons ── */}
+      {/* ── MOBILE: Header with Back button & Karaoke ── */}
       <div className="mlyr-header">
-        <div className="mlyr-tabs">
-          <button className="mlyr-tab" onClick={handleClose}>Song</button>
-          <button className="mlyr-tab mlyr-tab-active">lyrics</button>
-        </div>
-        <div className="mlyr-header-icons">
-          <button className="mlyr-icon-btn" aria-label="Favorite">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
-          </button>
-          <button className="mlyr-icon-btn" aria-label="Star">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-            </svg>
-          </button>
-          <button className="mlyr-icon-btn" aria-label="Share">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <polyline points="23 4 23 10 17 10" />
-              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      {/* ── MOBILE: Floating Vinyl Disc on Left Edge ── */}
-      <div className="mlyr-vinyl-float">
-        <div className="mlyr-vinyl-disc">
-          <img src={albumData?.cover} alt={albumData?.title} className="mlyr-vinyl-art" />
-          <div className="mlyr-vinyl-hole" />
-        </div>
-        <div
-          className="mlyr-vinyl-progress-dot"
-          style={{
-            transform: `rotate(${(progress / 100) * 360 - 90}deg) translateX(72px)`,
-          }}
+        <button className="mlyr-back-btn" onClick={handleClose} aria-label="Back">
+          <svg fill="currentColor" width="28" height="28" viewBox="0 0 24 24">
+            <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z" />
+          </svg>
+        </button>
+        <KaraokeButton
+          isActive={karaokeMode}
+          onClick={() => karaokeMode ? cancelKaraoke() : startKaraoke()}
         />
       </div>
 
+
+
       {/* Main lyrics area */}
       {loading ? (
-        <div className="lyrics-empty">
-          <div className="lyrics-empty-icon">
-            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20,16a2.9,2.9,0,0,0-3-3v6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-              <path d="M17,19a2,2,0,1,1-2-2A2,2,0,0,1,17,19ZM8,11h5M8,15h3" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-              <path d="M9,19H5a1,1,0,0,1-1-1V4A1,1,0,0,1,5,3H16a1,1,0,0,1,1,1V9" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-            </svg>
-          </div>
-          <p className="lyrics-empty-text">Loading lyrics…</p>
+        <div className="lyrics-skeleton-container">
+          <div className="lyrics-skeleton-line short" />
+          <div className="lyrics-skeleton-line medium" />
+          <div className="lyrics-skeleton-line long" />
+          <div className="lyrics-skeleton-line full" />
+          <div className="lyrics-skeleton-line medium" />
+          <div className="lyrics-skeleton-line short" />
         </div>
       ) : hasLyrics ? (
         <div className="lyrics-scroll-area" ref={scrollRef}>
@@ -570,6 +564,23 @@ export default function LyricsPanel({ onClose }) {
           </svg>
         </button>
       )}
+
+      {/* ── Edge Timebar — pinned to absolute bottom, appears in cinematic mode ── */}
+      <div className="edge-timebar">
+        <input
+          type="range"
+          className="edge-timebar-range"
+          min="0"
+          max="100"
+          value={progress}
+          onChange={handleSeek}
+          aria-label="Seek"
+          style={{
+            '--progress': `${progress}%`,
+            '--accent': activeSingerColor.primary,
+          }}
+        />
+      </div>
     </div>
   );
 }

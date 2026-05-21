@@ -1043,21 +1043,21 @@
   }
 
   .vinyl-platter {
-    width: 290px;
-    height: 290px;
+    width: clamp(200px, 75vw, 290px);
+    height: clamp(200px, 75vw, 290px);
     transform: var(--platter-rest);
     margin-top: 24px;
   }
 
   .vinyl-record {
-    width: 272px;
-    height: 272px;
+    width: clamp(188px, 70vw, 272px);
+    height: clamp(188px, 70vw, 272px);
   }
 
   .vinyl-label {
-    width: 128px;
-    height: 128px;
-    padding: 14px;
+    width: clamp(88px, 33vw, 128px);
+    height: clamp(88px, 33vw, 128px);
+    padding: clamp(8px, 3vw, 14px);
   }
 
   .label-song {
@@ -1149,7 +1149,8 @@
     position: relative;
     z-index: 10;
     flex: 1;
-    padding: 0 0 24px;
+    /* padding-bottom respects iPhone home indicator */
+    padding: 0 0 max(24px, env(safe-area-inset-bottom));
     width: 100%;
     animation: mobileFadeIn 0.4s ease-out;
     background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 100%);
@@ -1166,7 +1167,8 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 32px 24px 0;
+    /* top padding includes the iPhone notch / Dynamic Island height */
+    padding: max(32px, calc(16px + env(safe-area-inset-top))) 24px 0;
     flex-shrink: 0;
   }
 

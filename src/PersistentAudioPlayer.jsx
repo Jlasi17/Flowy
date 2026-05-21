@@ -48,7 +48,10 @@ export default function PersistentAudioPlayer() {
     karaokeMode,
     startKaraoke,
     cancelKaraoke,
+    isKaraokeMinimized,
     isCinematicActive,
+    karaokeStatus,
+    karaokeProgress,
   } = useContext(AudioContext);
 
   const [isMaximized, setIsMaximized] = useState(false);
@@ -199,6 +202,22 @@ export default function PersistentAudioPlayer() {
             />
             <button className="ctrl-btn" onClick={playNext} aria-label="Next">⏭</button>
             <button
+              className="ctrl-btn mobile-lyrics-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsLyricsOpen(true);
+              }}
+              aria-label="Lyrics"
+              title="Show Lyrics"
+              style={{ color: isLyricsOpen ? '#1db954' : '#fff' }}
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20,16a2.9,2.9,0,0,0-3-3v6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                <path d="M17,19a2,2,0,1,1-2-2A2,2,0,0,1,17,19ZM8,11h5M8,15h3" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                <path d="M9,19H5a1,1,0,0,1-1-1V4A1,1,0,0,1,5,3H16a1,1,0,0,1,1,1V9" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+              </svg>
+            </button>
+            <button
               className={`ctrl-btn ctrl-mode-btn ${repeatMode !== 'off' ? 'ctrl-active' : ''}`}
               onClick={cycleRepeat}
               aria-label="Repeat"
@@ -281,7 +300,7 @@ export default function PersistentAudioPlayer() {
       {isQueueOpen && <QueuePanel onClose={() => setIsQueueOpen(false)} />}
       {isMaximized && <MaximizedPlayer onClose={() => setIsMaximized(false)} />}
       {isLyricsOpen && !karaokeMode && <LyricsPanel onClose={() => setIsLyricsOpen(false)} />}
-      {karaokeMode && (
+      {karaokeMode && !isKaraokeMinimized && (
         <KaraokePanel onClose={() => {
           // No longer needed to set isKaraokeOpen(false)
         }} />
@@ -306,6 +325,17 @@ export default function PersistentAudioPlayer() {
           }}
         >
           {toastMessage.message}
+        </div>
+      )}
+
+      {isKaraokeMinimized && karaokeStatus === 'processing' && (
+        <div 
+          className="karaoke-top-progress-bar" 
+          onClick={() => setIsKaraokeMinimized(false)} 
+          aria-label="Show Karaoke Processing" 
+          title="Return to Karaoke"
+        >
+          <div className="karaoke-top-progress-fill" style={{ width: `${karaokeProgress}%` }} />
         </div>
       )}
     </>

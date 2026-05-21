@@ -317,13 +317,8 @@ export default function MaximizedPlayer({ onClose }) {
             </svg>
           </button>
           <span className="mobile-playlist-name">{displayMetadata.title || "Now Playing"}</span>
-          <button className="mobile-menu-btn" aria-label="More">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-              <circle cx="12" cy="5" r="2" />
-              <circle cx="12" cy="12" r="2" />
-              <circle cx="12" cy="19" r="2" />
-            </svg>
-          </button>
+          {/* Spacer to keep title centred */}
+          <div style={{ width: 44 }} />
         </div>
 
         {/* Song info (above circle) */}
@@ -359,20 +354,14 @@ export default function MaximizedPlayer({ onClose }) {
 
         {/* Main playback controls */}
         <div className="mobile-controls-main">
-          <button className="mobile-ctrl-btn mobile-ctrl-accent" aria-label="Remove">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="8" y1="12" x2="16" y2="12" />
-            </svg>
-          </button>
           <button className="mobile-ctrl-btn mobile-ctrl-accent-filled" onClick={handlePrev} disabled={isTransitioning} aria-label="Previous">
             <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
               <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
             </svg>
           </button>
-          
-          <button 
-            className="mobile-play-btn" 
+
+          <button
+            className="mobile-play-btn"
             onClick={() => setIsPlaying(!isPlaying)}
             aria-label={isPlaying ? "Pause" : "Play"}
           >
@@ -392,11 +381,6 @@ export default function MaximizedPlayer({ onClose }) {
               <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
             </svg>
           </button>
-          <button className="mobile-ctrl-btn mobile-ctrl-heart" aria-label="Like">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-            </svg>
-          </button>
         </div>
 
         {/* Secondary controls */}
@@ -408,16 +392,6 @@ export default function MaximizedPlayer({ onClose }) {
           >
             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
               <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
-            </svg>
-          </button>
-          <button className="mobile-secondary-btn" aria-label="Queue">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-              <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h12v2H4z" />
-            </svg>
-          </button>
-          <button className="mobile-secondary-btn" aria-label="Volume">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
             </svg>
           </button>
           <button
