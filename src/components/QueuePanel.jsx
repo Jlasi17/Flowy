@@ -425,10 +425,47 @@ export default function QueuePanel({ onClose }) {
 
   const upNextSongs = songs.slice((currentIndex ?? 0) + 1);
 
+  /* ─── Swipe to close on Mobile ─── */
+  const panelTouchStartRef = useRef(null);
+
+  const handlePanelTouchStart = (e) => {
+    if (e.touches.length !== 1) return;
+    if (e.target.tagName.toLowerCase() === 'input' || e.target.closest('button')) return;
+    
+    panelTouchStartRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+      time: Date.now()
+    };
+  };
+
+  const handlePanelTouchEnd = (e) => {
+    if (!panelTouchStartRef.current) return;
+    const startY = panelTouchStartRef.current.y;
+    const endY = e.changedTouches[0].clientY;
+    const deltaY = endY - startY;
+    const timeDiff = Date.now() - panelTouchStartRef.current.time;
+
+    panelTouchStartRef.current = null;
+
+    if (timeDiff > 600) return;
+
+    if (deltaY > 120) {
+      const scrollArea = e.target.closest('.queue-content');
+      if (!scrollArea || scrollArea.scrollTop <= 5) {
+        handleClose();
+      }
+    }
+  };
+
   return (
     <>
       <div className={`queue-overlay ${isClosing ? 'closing' : ''}`} onClick={handleClose} />
-      <div className={`queue-panel ${isClosing ? 'closing' : ''}`}>
+      <div 
+        className={`queue-panel ${isClosing ? 'closing' : ''}`}
+        onTouchStart={handlePanelTouchStart}
+        onTouchEnd={handlePanelTouchEnd}
+      >
 
         {/* ─── Header ─── */}
         <div className="queue-header">

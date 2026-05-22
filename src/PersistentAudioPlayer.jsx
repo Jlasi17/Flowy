@@ -1,4 +1,5 @@
 import { useContext, useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { AudioContext } from "./AudioPlayerProvider";
 import MaximizedPlayer from "./MaximizedPlayer";
@@ -22,6 +23,15 @@ const MarqueeText = ({ text, className }) => {
     </div>
   );
 };
+
+const AudioWaveform = ({ isPlaying, color }) => (
+  <div className={`audio-waveform ${isPlaying ? 'playing' : ''}`}>
+    <div className="bar" style={{ backgroundColor: color }}></div>
+    <div className="bar" style={{ backgroundColor: color }}></div>
+    <div className="bar" style={{ backgroundColor: color }}></div>
+    <div className="bar" style={{ backgroundColor: color }}></div>
+  </div>
+);
 
 export default function PersistentAudioPlayer() {
   const {
@@ -62,6 +72,9 @@ export default function PersistentAudioPlayer() {
 
   const lastVolumeRef = useRef(volume || 80);
   const touchStartRef = useRef(null);
+  const location = useLocation();
+
+  const isHeroPage = location.pathname === '/';
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -211,7 +224,7 @@ export default function PersistentAudioPlayer() {
   return (
     <>
       <div 
-        className={`audio-player ${isPlaying ? "active" : ""}`}
+        className={`audio-player ${isPlaying ? "active" : ""} ${isHeroPage ? 'dynamic-island-mode' : ''}`}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         style={{ '--accent-color': accentColor }}
@@ -314,6 +327,10 @@ export default function PersistentAudioPlayer() {
               </svg>
               {repeatMode === 'one' && <span className="repeat-one-badge">1</span>}
             </button>
+          </div>
+          
+          <div className="dynamic-island-waveform" onClick={() => setIsMaximized(true)}>
+            <AudioWaveform isPlaying={isPlaying} color={accentColor} />
           </div>
 
           <div className="time-bar">

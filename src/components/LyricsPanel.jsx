@@ -258,11 +258,6 @@ export default function LyricsPanel({ onClose }) {
         }}
       />
 
-      {/* ── Single Singer Diffused Frame ── */}
-      {isSingleSinger && (
-        <div className={`singer-edge-frame ${isCurrentlySinging ? 'singing' : 'quiet'}`} />
-      )}
-
       {/* Atmospheric Orbs Constellation — hidden on mobile via CSS */}
       {!isSingleSinger && (
         <div className="ambient-orbs-container">
