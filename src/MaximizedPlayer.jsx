@@ -4,6 +4,7 @@ import { AudioContext } from "./AudioPlayerProvider";
 import MaximizedRadialVolume from "./components/MaximizedRadialVolume";
 import PlayPauseAnimButton from "./components/PlayPauseAnimButton";
 import { useCinematicControls } from "./hooks/useCinematicControls";
+import { getHeartColor } from "./utils/singerColors";
 import "./MaximizedPlayer.css";
 
 // Must match the CSS animation duration (3.2s)
@@ -46,6 +47,8 @@ export default function MaximizedPlayer({ onClose }) {
     playPrev,
     isCinematicActive,
     setIsCinematicActive,
+    likedSongs,
+    toggleLike
   } = useContext(AudioContext);
 
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -546,6 +549,18 @@ export default function MaximizedPlayer({ onClose }) {
               <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
             </svg>
           </button>
+          
+          <button
+            className={`mobile-secondary-btn ${activeSong && likedSongs[activeSong.name] ? 'heart-anim-active' : ''}`}
+            onClick={(e) => activeSong && toggleLike(activeSong.name, e)}
+            aria-label="Like"
+            style={{ color: activeSong && likedSongs[activeSong.name] ? getHeartColor(albumData?.color) : 'rgba(255,255,255,0.6)' }}
+          >
+            <svg viewBox="0 0 24 24" width="22" height="22" fill={activeSong && likedSongs[activeSong.name] ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={activeSong && likedSongs[activeSong.name] ? 0 : 2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+          </button>
+
           <button
             className={`mobile-secondary-btn ${repeatMode !== "off" ? "mobile-sec-active" : ""}`}
             onClick={cycleRepeat}

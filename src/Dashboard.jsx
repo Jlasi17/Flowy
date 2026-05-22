@@ -45,22 +45,18 @@ export default function Dashboard() {
 
   const [soloistIdx, setSoloistIdx] = useState(() => Number(sessionStorage.getItem(`${groupId}DashboardSoloIdx`) || 0));
   const dotsRef = useRef(null);
+  const dragStartRef = useRef(null);
+  const dragActiveRef = useRef(0);
+  const [isScrubbing, setIsScrubbing] = useState(false);
 
-  // Non-passive touchmove for db-dots scrubbing on mobile
+  // Staged rendering for heavy cinematic effects
+  const [visualsLoaded, setVisualsLoaded] = useState(false);
   useEffect(() => {
-    const el = dotsRef.current;
-    if (!el) return;
-    const handleTouchMove = (e) => {
-      if (e.cancelable) e.preventDefault();
-      const touch = e.touches[0];
-      const target = document.elementFromPoint(touch.clientX, touch.clientY);
-      if (target && target.hasAttribute('data-index')) {
-        const idx = parseInt(target.getAttribute('data-index'), 10);
-        setActive(idx);
-      }
-    };
-    el.addEventListener('touchmove', handleTouchMove, { passive: false });
-    return () => el.removeEventListener('touchmove', handleTouchMove);
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        setVisualsLoaded(true);
+      }, 300); // Wait 300ms after first paint to fade in heavy backgrounds
+    });
   }, []);
 
   const prevSoloist = () => { setSoloistIdx(p => (p - 1 + meta.soloists.length) % meta.soloists.length); setActive(0); };
@@ -193,8 +189,8 @@ export default function Dashboard() {
 
   return (
     <div className="db-root">
-      {/* Ambient background blobs */}
-      <div className="db-bg">
+      {/* Ambient background blobs (Deferred for performance) */}
+      <div className={`db-bg ${visualsLoaded ? 'db-bg--loaded' : ''}`}>
         <div className="blob blob-1" style={current ? { backgroundImage: `url(${current.cover})` } : {}} />
         <div className="blob blob-2" />
         <div className="blob blob-3" />
@@ -338,16 +334,32 @@ export default function Dashboard() {
 
             {/* Dots */}
             <div 
-              className="db-dots"
+              className={`db-dots ${isScrubbing ? 'db-dots--scrubbing' : ''}`}
               ref={dotsRef}
               style={{ touchAction: 'none' }} /* Prevent page scroll while scrubbing */
+              onPointerDown={(e) => {
+                dragStartRef.current = e.clientX;
+                dragActiveRef.current = active;
+                setIsScrubbing(true);
+                e.currentTarget.setPointerCapture(e.pointerId);
+              }}
               onPointerMove={(e) => {
-                if (e.pointerType === 'mouse' && e.buttons !== 1) return;
-                const el = document.elementFromPoint(e.clientX, e.clientY);
-                if (el && el.hasAttribute('data-index')) {
-                  const idx = parseInt(el.getAttribute('data-index'), 10);
-                  if (idx !== active) setActive(idx);
-                }
+                if (dragStartRef.current === null) return;
+                const deltaX = e.clientX - dragStartRef.current;
+                const itemsChange = Math.round(deltaX / 10); // Higher sensitivity: 10px per item
+                let newIndex = dragActiveRef.current + itemsChange;
+                newIndex = Math.max(0, Math.min(newIndex, albums.length - 1));
+                if (newIndex !== active) setActive(newIndex);
+              }}
+              onPointerUp={(e) => {
+                dragStartRef.current = null;
+                setIsScrubbing(false);
+                try { e.currentTarget.releasePointerCapture(e.pointerId); } catch(err){}
+              }}
+              onPointerCancel={(e) => {
+                dragStartRef.current = null;
+                setIsScrubbing(false);
+                try { e.currentTarget.releasePointerCapture(e.pointerId); } catch(err){}
               }}
             >
               {albums.map((_, i) => (

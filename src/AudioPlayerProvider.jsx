@@ -1,7 +1,8 @@
 import { createContext, useRef, useState, useEffect, useCallback, useMemo } from "react";
+import confetti from "canvas-confetti";
 import "./AlbumPage.css";
 
-export const AudioContext = createContext();
+export const AudioContext = createContext({});
 
 export const EQ_BANDS = [32, 64, 125, 250, 500, 1000, 2000, 4000, 8000, 16000];
 
@@ -107,6 +108,7 @@ export default function AudioPlayerProvider({ children }) {
   const karaokeWsRef = useRef(null);
   const preloadedJobRef = useRef(null); // { jobId, instrumentalUrl, vocalsUrl }
   const originalSrcRef = useRef(null); // Store original audio src to restore on cancel
+  const isTransitioningRef = useRef(false); // Prevent double-start glitches on rapid skips
 
   const [lastProcessingDuration, setLastProcessingDuration] = useState(60); // Default 60s
   const processingStartTimeRef = useRef(null);
@@ -126,6 +128,44 @@ export default function AudioPlayerProvider({ children }) {
       return saved ? JSON.parse(saved) : {};
     } catch { return {}; }
   });
+
+  const [likedSongs, setLikedSongs] = useState(() => {
+    try {
+      const saved = localStorage.getItem('flowy_liked_songs');
+      return saved ? JSON.parse(saved) : {};
+    } catch { return {}; }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('flowy_liked_songs', JSON.stringify(likedSongs));
+  }, [likedSongs]);
+
+  const toggleLike = (songName, e) => {
+    const isLiking = !likedSongs[songName];
+    if (isLiking && e && e.clientX && e.clientY) {
+      const x = e.clientX / window.innerWidth;
+      const y = e.clientY / window.innerHeight;
+      confetti({
+        particleCount: 35,
+        spread: 60,
+        origin: { x, y },
+        colors: ['#ff4d4d', '#ffffff', '#ff9999', '#ffcc00'],
+        zIndex: 99999,
+        disableForReducedMotion: true,
+        scalar: 0.8
+      });
+    }
+
+    setLikedSongs(prev => {
+      const newLiked = { ...prev };
+      if (prev[songName]) {
+        delete newLiked[songName];
+      } else {
+        newLiked[songName] = true;
+      }
+      return newLiked;
+    });
+  };
 
   useEffect(() => {
     localStorage.setItem('flowy_album_progress', JSON.stringify(albumProgress));
@@ -743,19 +783,68 @@ export default function AudioPlayerProvider({ children }) {
     setActiveSong(songs[currentIndex]);
   }, [currentIndex, songs]);
 
-  // When activeSong changes, physically play it
+  // Lightweight queue preloading
   useEffect(() => {
-    if (!activeSong) return;
+    // 1. Cleanup old preload links
+    const existingAudioPreloads = document.querySelectorAll(`link[data-preload-audio="true"]`);
+    existingAudioPreloads.forEach(el => el.remove());
 
-    if (karaokeMode) {
+    const existingImagePreloads = document.querySelectorAll(`link[data-preload-image="true"]`);
+    existingImagePreloads.forEach(el => el.remove());
+
+    if (queue.length > 0) {
+      const nextTrack = queue[0];
+      
+      if (nextTrack.filePath) {
+        const audioLink = document.createElement('link');
+        audioLink.rel = 'preload';
+        audioLink.as = 'audio';
+        audioLink.href = nextTrack.filePath;
+        audioLink.dataset.preloadAudio = 'true';
+        document.head.appendChild(audioLink);
+      }
+
+      if (nextTrack.cover) {
+        const imgLink = document.createElement('link');
+        imgLink.rel = 'preload';
+        imgLink.as = 'image';
+        imgLink.href = nextTrack.cover;
+        imgLink.dataset.preloadImage = 'true';
+        document.head.appendChild(imgLink);
+      }
+    }
+  }, [queue]);
+
+  // Main playback trigger when active song changes
+  useEffect(() => {
+    if (!activeSong) {
+      audioRef.current.pause();
+      vocalAudioRef.current.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    if (karaokeMode && activeSong.hasVocals) {
       // If we are already in karaoke mode, automatically start processing the new track
       startKaraoke(activeSong);
     } else {
       vocalAudioRef.current.pause();
       // Standard playback - only reset if different song
-      if (audioRef.current.src !== activeSong.filePath) {
+      const newSrc = new URL(activeSong.filePath, window.location.href).href;
+      if (audioRef.current.src !== newSrc) {
+        audioRef.current.pause();
         audioRef.current.src = activeSong.filePath;
-        audioRef.current.play().catch(() => console.log("Playback interrupted"));
+        audioRef.current.preload = "metadata"; // Ensure metadata warmup
+        audioRef.current.load(); // Prevent Safari decoder instability
+        
+        isTransitioningRef.current = true;
+        audioRef.current.play().then(() => {
+          isTransitioningRef.current = false;
+        }).catch(() => {
+          isTransitioningRef.current = false;
+          console.log("Playback interrupted");
+        });
+        
         setIsPlaying(true);
         setCurrentTime(0);
       }
@@ -875,6 +964,8 @@ export default function AudioPlayerProvider({ children }) {
     questStatus,
     acceptQuest,
     resetQuest,
+    likedSongs,
+    toggleLike,
   }), [
     songs, currentIndex, albumData, albumId, queue, isQueueOpen, toastMessage,
     shuffleMode, repeatMode, flyAnimData, isPlaying, currentTime, volume,
@@ -885,8 +976,42 @@ export default function AudioPlayerProvider({ children }) {
     startKaraoke, playNext, playPrev, toggleShuffle, cycleRepeat,
     triggerFlyAnimation, addToQueue, removeFromQueue, clearQueue, playFromQueue, reorderQueue,
     isCinematicActive, setIsCinematicActive, albumProgress,
-    questStatus, acceptQuest, resetQuest
+    questStatus, acceptQuest, resetQuest, likedSongs
   ]);
+
+  // --- MEDIA SESSION API for Background Playback ---
+  useEffect(() => {
+    if ('mediaSession' in navigator && activeSong) {
+      navigator.mediaSession.metadata = new window.MediaMetadata({
+        title: activeSong.name,
+        artist: activeSong.member || (albumData && albumData.member) || 'Unknown Artist',
+        album: (albumData && albumData.title) || '',
+        artwork: [
+          { src: activeSong.cover || (albumData && albumData.cover) || '', sizes: '512x512', type: 'image/jpeg' },
+          { src: activeSong.cover || (albumData && albumData.cover) || '', sizes: '192x192', type: 'image/jpeg' }
+        ]
+      });
+
+      navigator.mediaSession.setActionHandler('play', () => {
+        audioRef.current.play();
+        setIsPlaying(true);
+      });
+      navigator.mediaSession.setActionHandler('pause', () => {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      });
+      navigator.mediaSession.setActionHandler('previoustrack', playPrev);
+      navigator.mediaSession.setActionHandler('nexttrack', playNext);
+      navigator.mediaSession.setActionHandler('seekto', (details) => {
+        if (details.fastSeek && 'fastSeek' in audioRef.current) {
+          audioRef.current.fastSeek(details.seekTime);
+        } else {
+          audioRef.current.currentTime = details.seekTime;
+        }
+      });
+    }
+  }, [activeSong, albumData, playNext, playPrev]);
+
 
   const finalContextValue = {
     ...contextValue,

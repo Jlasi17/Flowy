@@ -3,6 +3,7 @@ import { useContext, useEffect, useState, useRef, useMemo } from 'react';
 import { AudioContext } from './AudioPlayerProvider';
 import { groupsData } from './data/musicRegistry';
 import SwipeableTrack from './components/SwipeableTrack';
+import { getHeartColor } from './utils/singerColors';
 import './AlbumPage.css';
 
 export default function AlbumPage() {
@@ -21,6 +22,8 @@ export default function AlbumPage() {
     activeSong,
     addToQueue,
     triggerFlyAnimation,
+    likedSongs,
+    toggleLike
   } = useContext(AudioContext);
 
 
@@ -232,7 +235,29 @@ export default function AlbumPage() {
                       )}
                     </span>
 
-                    <span className="song-duration-minimal">{song.duration || songDurations[song.name] || "—"}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+                      <button
+                        className={`album-like-btn ${likedSongs[song.name] ? 'heart-anim-active' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); toggleLike(song.name, e); }}
+                        aria-label="Like"
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: likedSongs[song.name] ? getHeartColor(album?.color) : 'rgba(255,255,255,0.2)',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: 0,
+                          transition: 'color 0.2s'
+                        }}
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill={likedSongs[song.name] ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={likedSongs[song.name] ? 0 : 2} strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                      </button>
+                      <span className="song-duration-minimal">{song.duration || songDurations[song.name] || "—"}</span>
+                    </div>
                   </div>
                 </SwipeableTrack>
               );

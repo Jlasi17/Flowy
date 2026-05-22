@@ -9,6 +9,7 @@ import RadialVolumeControl from "./components/RadialVolumeControl";
 import PlayPauseAnimButton from "./components/PlayPauseAnimButton";
 import LyricsPanel from "./components/LyricsPanel";
 import KaraokePanel from "./components/KaraokePanel";
+import { getHeartColor } from "./utils/singerColors";
 import "./musicplayer.css";
 
 const MarqueeText = ({ text, className }) => {
@@ -56,7 +57,6 @@ export default function PersistentAudioPlayer() {
     mobileQueueBtnRef,
     volume,
     updateVolume,
-    // Karaoke
     karaokeMode,
     startKaraoke,
     cancelKaraoke,
@@ -64,6 +64,13 @@ export default function PersistentAudioPlayer() {
     isCinematicActive,
     karaokeStatus,
     karaokeProgress,
+    setKaraokeVocalsUrl,
+    vocalVolume,
+    setVocalVolume,
+    instVolume,
+    setInstVolume,
+    likedSongs,
+    toggleLike
   } = useContext(AudioContext);
 
   const [isMaximized, setIsMaximized] = useState(false);
@@ -172,7 +179,7 @@ export default function PersistentAudioPlayer() {
   const getSafeAccentColor = (colorStr) => {
     const fallback = "#1db954";
     if (!colorStr) return fallback;
-    
+
     if (colorStr.startsWith('rgb') || colorStr.startsWith('rgba')) {
       const match = colorStr.match(/\d+/g);
       if (match && match.length >= 3) {
@@ -207,7 +214,7 @@ export default function PersistentAudioPlayer() {
     const deltaX = e.changedTouches[0].clientX - touchStartRef.current.x;
     const deltaY = e.changedTouches[0].clientY - touchStartRef.current.y;
     touchStartRef.current = null;
-    
+
     if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
       if (deltaX < 0) {
         setSwipeDirection('next');
@@ -223,7 +230,7 @@ export default function PersistentAudioPlayer() {
 
   return (
     <>
-      <div 
+      <div
         className={`audio-player ${isPlaying ? "active" : ""} ${isHeroPage ? 'dynamic-island-mode' : ''}`}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
@@ -231,7 +238,7 @@ export default function PersistentAudioPlayer() {
       >
 
         {/* ── LEFT: disc + song info ── */}
-        <div 
+        <div
           className="player-left"
           onClick={() => setIsMaximized(true)}
           style={{ cursor: 'pointer', overflow: 'hidden', display: 'flex', alignItems: 'center' }}
@@ -245,10 +252,10 @@ export default function PersistentAudioPlayer() {
               animate={{ opacity: 1, x: 0 }}
               exit={(d) => ({ opacity: 0, x: d === 'next' ? -60 : 60, transition: { duration: 0.2 } })}
               transition={{ type: "spring", stiffness: 350, damping: 30 }}
-              style={{ display: 'flex', alignItems: 'center', width: '100%' }}
+              style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '16px' }}
             >
               <div className={`disc ${isPlaying ? "rotate" : ""}`}>
-                <img src={albumData?.cover} alt="album art" />
+                <img src={activeSong?.cover || albumData?.cover} alt="album art" />
               </div>
 
               <div className="song-info">
@@ -276,7 +283,7 @@ export default function PersistentAudioPlayer() {
               </svg>
             </button>
             <button className="ctrl-btn skip-btn" onClick={playPrev} aria-label="Previous">⏮</button>
-            
+
             <button
               className="ctrl-btn mobile-queue-btn"
               ref={mobileQueueBtnRef}
@@ -314,7 +321,7 @@ export default function PersistentAudioPlayer() {
               onClick={() => setIsPlaying(!isPlaying)}
               className="ctrl-btn play-pause premium-anim-override"
             />
-            
+
             <button className="ctrl-btn skip-btn" onClick={playNext} aria-label="Next">⏭</button>
             <button
               className={`ctrl-btn ctrl-mode-btn btn-repeat skip-btn ${repeatMode !== 'off' ? 'ctrl-active' : ''}`}
@@ -328,7 +335,7 @@ export default function PersistentAudioPlayer() {
               {repeatMode === 'one' && <span className="repeat-one-badge">1</span>}
             </button>
           </div>
-          
+
           <div className="dynamic-island-waveform" onClick={() => setIsMaximized(true)}>
             <AudioWaveform isPlaying={isPlaying} color={accentColor} />
           </div>
@@ -356,6 +363,27 @@ export default function PersistentAudioPlayer() {
             volume={volume}
             onVolumeChange={handleVolume}
           />
+          {/* Like Button */}
+          <button
+            className={`like-btn ${activeSong && likedSongs[activeSong.name] ? 'heart-anim-active' : ''}`}
+            onClick={(e) => activeSong && toggleLike(activeSong.name, e)}
+            aria-label="Like"
+            title="Like Song"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: activeSong && likedSongs[activeSong.name] ? getHeartColor(albumData?.color) : 'rgba(255,255,255,0.4)',
+              cursor: 'pointer',
+              marginLeft: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill={activeSong && likedSongs[activeSong.name] ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={activeSong && likedSongs[activeSong.name] ? 0 : 2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+          </button>
           {/* Mic / Lyrics button */}
           <button
             onClick={() => setIsLyricsOpen(true)}
@@ -436,10 +464,10 @@ export default function PersistentAudioPlayer() {
       )}
 
       {isKaraokeMinimized && karaokeStatus === 'processing' && (
-        <div 
-          className="karaoke-top-progress-bar" 
-          onClick={() => setIsKaraokeMinimized(false)} 
-          aria-label="Show Karaoke Processing" 
+        <div
+          className="karaoke-top-progress-bar"
+          onClick={() => setIsKaraokeMinimized(false)}
+          aria-label="Show Karaoke Processing"
           title="Return to Karaoke"
         >
           <div className="karaoke-top-progress-fill" style={{ width: `${karaokeProgress}%` }} />

@@ -427,6 +427,11 @@
   font-size: 0.95rem;
   font-weight: 500;
   transition: color 0.2s;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 16px;
 }
 
 .song-row-minimal:hover .song-title-minimal {
