@@ -80,55 +80,6 @@ Inspired by artists under the HYBE label — including BTS, Tomorrow X Together,
 
 ---
 
-## 📂 Project Structure
-
-```text
-src/
-│
-├── components/
-│   ├── PersistentAudioPlayer.jsx
-│   ├── MaximizedPlayer.jsx
-│   ├── QueuePanel.jsx
-│   ├── LyricsPanel.jsx
-│   ├── SearchOverlay.jsx
-│   ├── SwipeableTrack.jsx
-│   ├── FlyToQueue.jsx
-│   ├── KaraokePanel.jsx
-│   ├── DualEqualizer.jsx
-│   └── ...
-│
-├── pages/
-│   ├── Dashboard.jsx
-│   ├── AlbumPage.jsx
-│   ├── MuseumGallery.jsx
-│   ├── LyricsSyncPage.jsx
-│   └── ...
-│
-├── data/
-│   ├── musicRegistry.js
-│   ├── btsAlbums.js
-│   ├── txtAlbums.js
-│   ├── lesserafimAlbums.js
-│   └── ...
-│
-├── hooks/
-│   ├── useLyrics.js
-│   ├── useCinematicControls.js
-│   └── ...
-│
-├── utils/
-│   ├── parseLrc.js
-│   ├── singerColors.js
-│   └── ...
-│
-├── AudioPlayerProvider.jsx
-├── App.jsx
-├── main.jsx
-└── index.css
-```
-
----
-
 ## 🚀 Core Architectural Highlights
 
 ### 🎡 3D Album Carousel
@@ -200,17 +151,7 @@ You must manually place:
 * album covers
 * artist images
 
-inside the `public/` directory following the expected structure:
-
-```text
-public/
-├── btssongs/
-├── txtsongs/
-├── lesserafimsongs/
-├── covers/
-└── lyrics/
-```
-
+inside the `public/` directory.
 ---
 
 ## ▶️ Running the Project
@@ -281,6 +222,11 @@ Rather than behaving like a traditional music player, Flowy aims to feel alive �
 
 ## 👩‍💻 Developer
 Built with passion by Lasya Jetti.
+
+---
+
+## 🤝 Contributions
+I am always open to contributions, suggestions, and any help in developing this project further! Whether it's adding new features, fixing bugs, or improving the design, feel free to open an issue or submit a pull request.
 
 ---
 
