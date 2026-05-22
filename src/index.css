@@ -358,6 +358,9 @@ section {
   .dashboard h1 {
     font-size: 36px;
   }
+  .home-gallery-btn {
+    display: none !important;
+  }
 }
 
 @keyframes mFadeUp {

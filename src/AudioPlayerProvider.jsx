@@ -69,6 +69,7 @@ export default function AudioPlayerProvider({ children }) {
   // Fly-to-queue animation state
   const [flyAnimData, setFlyAnimData] = useState(null);
   const queueBtnRef = useRef(null);
+  const mobileQueueBtnRef = useRef(null); // mobile mini-player queue button
 
   useEffect(() => {
     console.log("Global Queue Updated:", queue);
@@ -314,11 +315,14 @@ export default function AudioPlayerProvider({ children }) {
     showToast("Added to queue", song.color);
   }, [showToast]);
 
-  const triggerFlyAnimation = useCallback((sourceRect, songName) => {
-    const targetEl = queueBtnRef.current;
-    if (!targetEl) { return; }
+  const triggerFlyAnimation = useCallback((sourceRect, songName, cover) => {
+    // On mobile (≤900px) use the mini-player queue btn, else use desktop queue btn
+    const isMobile = window.innerWidth <= 900;
+    const targetEl = isMobile ? mobileQueueBtnRef.current : queueBtnRef.current;
+    if (!targetEl) return;
+
     const targetRect = targetEl.getBoundingClientRect();
-    setFlyAnimData({ sourceRect, targetRect, songName });
+    setFlyAnimData({ sourceRect, targetRect, songName, cover });
   }, []);
 
   const removeFromQueue = useCallback((index) => {
@@ -439,6 +443,12 @@ export default function AudioPlayerProvider({ children }) {
       setKaraokeVocalsUrl(vocalsUrl);
       setKaraokeStatus('countdown');
       setNextKaraokeCountdown(5);
+
+      // Stop any media currently playing in the background so it doesn't overlap the countdown
+      setIsPlaying(false);
+      if (audioRef.current) audioRef.current.pause();
+      if (vocalAudioRef.current) vocalAudioRef.current.pause();
+
       playBeep(800, 0.1); 
 
       let count = 5;
@@ -828,6 +838,7 @@ export default function AudioPlayerProvider({ children }) {
     setFlyAnimData,
     triggerFlyAnimation,
     queueBtnRef,
+    mobileQueueBtnRef,
 
     karaokeMode,
     setKaraokeMode,

@@ -98,13 +98,16 @@ function CardSection() {
   return (
     <section className="card-section">
       {/* Art Gallery Quest Symbol - Top Right */}
-      <div style={{
-        position: 'absolute',
-        top: '25px',
-        right: '40px',
-        zIndex: 1000,
-        animation: 'mFadeUp 0.8s ease 0.2s both'
-      }}>
+      <div 
+        className="home-gallery-btn"
+        style={{
+          position: 'absolute',
+          top: '25px',
+          right: '40px',
+          zIndex: 1000,
+          animation: 'mFadeUp 0.8s ease 0.2s both'
+        }}
+      >
         <ArtGallerySymbol 
           onClick={() => navigate("/gallery")}
           style={{ 

@@ -11,14 +11,16 @@
   color: #f0f0f0;
   position: relative;
   view-transition-name: page-bg;
+  background-attachment: fixed !important;
 }
 
 .album-overlay {
-  position: absolute;
+  position: fixed;
   inset: 0;
   pointer-events: none;
   backdrop-filter: blur(80px) saturate(140%);
   background: linear-gradient(180deg, rgba(20, 20, 20, 0.5) 0%, rgba(10, 10, 10, 0.95) 100%);
+  z-index: 0;
 }
 
 /* Top Left Back Button */
@@ -476,7 +478,8 @@
 @media (max-width: 768px) {
   .album-page {
     height: 100dvh;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .album-content-two-col {
@@ -484,8 +487,8 @@
     align-items: stretch;
     padding: 0;
     gap: 0;
-    height: 100dvh;
-    overflow: hidden;
+    height: auto;
+    overflow: visible;
   }
 
   /* ── BACK BUTTON → Inline with header row ── */
@@ -502,20 +505,28 @@
     height: 24px;
   }
 
-  /* ── LEFT COL → Single horizontal line: back | cover | info | play ── */
+  /* ── LEFT COL → Sticky collapsing header ── */
   .album-left-col {
     flex: none;
     width: 100%;
     flex-direction: row;
     align-items: center;
     gap: 14px;
-    padding: 50px 16px 14px;
+    padding: max(44px, calc(16px + env(safe-area-inset-top))) 16px 14px;
     box-sizing: border-box;
-    position: relative;
-    z-index: 10;
-    /* Transparent — blurred album BG shows through */
+    
+    /* Sticky magic */
+    position: -webkit-sticky;
+    position: sticky;
+    top: -20px; /* Scrolls up 20px to compress slightly before pinning */
+    z-index: 50; /* Ensure tracks slide underneath */
+    
+    /* Glass blur effect without black bg */
     background: transparent;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: none;
+    transition: background 0.3s ease;
   }
 
   /* Smaller 3D cover on mobile */
@@ -633,14 +644,13 @@
     display: none;
   }
 
-  /* ── RIGHT COL → Scrollable track list ── */
+  /* ── RIGHT COL → Track list ── */
   .album-right-col {
-    flex: 1;
+    flex: none;
     width: 100%;
     padding: 8px 16px 0;
     box-sizing: border-box;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: visible;
     padding-bottom: 140px;
   }
 

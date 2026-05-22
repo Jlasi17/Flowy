@@ -210,6 +210,11 @@
   -webkit-font-smoothing: antialiased;
   transform: translateZ(0);
   backface-visibility: hidden;
+  
+  /* Prevent text selection and magnifier on long press */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 .queue-item:hover {
   background: rgba(255, 255, 255, 0.055);
@@ -389,8 +394,9 @@
   cursor: grab;
   touch-action: none;
   border-radius: 4px;
-  color: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.45); /* Made more visible */
   transition: color 0.15s, background 0.15s;
+  order: -1; /* Move to left side by default (desktop) */
 }
 .drag-handle:hover {
   color: rgba(255, 255, 255, 0.45);
@@ -544,4 +550,43 @@
 @keyframes toastIn {
   0%   { opacity: 0; transform: translate(-50%, 12px) scale(0.9); }
   100% { opacity: 1; transform: translate(-50%, 0)   scale(1);   }
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE (MOBILE)
+   ═══════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  /* Full screen queue on mobile */
+  .queue-panel {
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+  }
+
+  /* Slide animations */
+  @keyframes qSlideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  @keyframes qSlideDown {
+    from { transform: translateY(0); }
+    to { transform: translateY(100%); }
+  }
+
+  .queue-header {
+    padding: 24px 24px 16px;
+  }
+  
+  .queue-title {
+    font-size: 1.5rem;
+  }
+
+  .queue-content {
+    padding: 0 16px 120px;
+  }
+
+  /* Hide the 3-line drag handle on mobile (relying on long-press instead) */
+  .drag-handle {
+    display: none;
+  }
 }

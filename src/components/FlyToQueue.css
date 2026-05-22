@@ -1,83 +1,121 @@
-.fly-to-queue-ghost {
+/* ──────────────────────────────────────────────
+   FlyToQueue — Album art ghost + burst effect
+   ────────────────────────────────────────────── */
+
+/* ── Ghost (flying album art) ── */
+.ftq-ghost {
   position: fixed;
-  z-index: 10000;
+  z-index: 99999;
   pointer-events: none;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
   overflow: hidden;
-  opacity: 0.9;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 0 2px rgba(255, 255, 255, 0.15);
+  /* transform & opacity animated via JS */
+  will-change: transform, opacity;
   transform-origin: center center;
 }
 
-.fly-ghost-content {
-  padding: 8px 16px;
+.ftq-ghost-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ftq-ghost-fallback {
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.12);
   display: flex;
   align-items: center;
-  height: 100%;
+  justify-content: center;
 }
 
-.fly-ghost-text {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #fff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-family: 'Inter', sans-serif;
+/* Glassy shine overlay */
+.ftq-ghost-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.25) 0%,
+    transparent 55%
+  );
+  pointer-events: none;
 }
 
-/* ─── Arc flight animation ─── */
-/* Separate X and Y with different timings create a curved path */
-/* Rotation adds natural feel */
-.fly-to-queue-ghost.flying {
-  animation:
-    flyX 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards,
-    flyY 0.45s cubic-bezier(0.5, 0, 0.8, 0.4) forwards,
-    flyScale 0.45s cubic-bezier(0.4, 0, 1, 1) forwards,
-    flyRotate 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+/* ── Burst at queue icon ── */
+.ftq-burst {
+  position: fixed;
+  z-index: 99999;
+  pointer-events: none;
 }
 
-@keyframes flyX {
-  from {
-    translate: 0 0;
-  }
-  to {
-    translate: var(--fly-dx) 0;
-  }
+/* Expanding ring */
+.ftq-burst-ring {
+  position: absolute;
+  inset: 0;
+  width: 28px;
+  height: 28px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  animation: burstRing 0.35s cubic-bezier(0.2, 0, 0.8, 0.6) forwards;
 }
 
-@keyframes flyY {
-  from {
-    margin-top: 0;
-  }
-  to {
-    margin-top: var(--fly-dy);
-  }
+.ftq-burst-ring-2 {
+  animation-delay: 0.06s;
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
-@keyframes flyScale {
+@keyframes burstRing {
   0% {
-    scale: 1;
-    opacity: 0.9;
-  }
-  60% {
-    scale: 0.6;
-    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 1;
   }
   100% {
-    scale: 0.2;
+    transform: translate(-50%, -50%) scale(2.8);
     opacity: 0;
   }
 }
 
-@keyframes flyRotate {
+/* Particle dots that spray out */
+.ftq-burst-dots {
+  position: absolute;
+  inset: 0;
+}
+
+.ftq-burst-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  transform-origin: center;
+  animation: burstDot 0.38s cubic-bezier(0.2, 0, 0.8, 0.6) forwards;
+  animation-delay: calc(var(--i) * 10ms);
+  /* Each dot flies in a different direction */
+  --angle: calc(var(--i) * 60deg);
+  transform: translate(-50%, -50%) rotate(var(--angle)) translateY(0);
+}
+
+@keyframes burstDot {
   0% {
-    rotate: 0deg;
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(0);
+    opacity: 1;
+    width: 5px;
+    height: 5px;
+  }
+  60% {
+    opacity: 0.9;
   }
   100% {
-    rotate: -12deg;
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(-22px);
+    opacity: 0;
+    width: 3px;
+    height: 3px;
   }
 }

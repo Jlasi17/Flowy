@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AudioContext } from "./AudioPlayerProvider";
 import SearchOverlay from "./components/SearchOverlay";
@@ -44,6 +44,24 @@ export default function Dashboard() {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768);
 
   const [soloistIdx, setSoloistIdx] = useState(() => Number(sessionStorage.getItem(`${groupId}DashboardSoloIdx`) || 0));
+  const dotsRef = useRef(null);
+
+  // Non-passive touchmove for db-dots scrubbing on mobile
+  useEffect(() => {
+    const el = dotsRef.current;
+    if (!el) return;
+    const handleTouchMove = (e) => {
+      if (e.cancelable) e.preventDefault();
+      const touch = e.touches[0];
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (target && target.hasAttribute('data-index')) {
+        const idx = parseInt(target.getAttribute('data-index'), 10);
+        setActive(idx);
+      }
+    };
+    el.addEventListener('touchmove', handleTouchMove, { passive: false });
+    return () => el.removeEventListener('touchmove', handleTouchMove);
+  }, []);
 
   const prevSoloist = () => { setSoloistIdx(p => (p - 1 + meta.soloists.length) % meta.soloists.length); setActive(0); };
   const nextSoloist = () => { setSoloistIdx(p => (p + 1) % meta.soloists.length); setActive(0); };
@@ -321,18 +339,11 @@ export default function Dashboard() {
             {/* Dots */}
             <div 
               className="db-dots"
+              ref={dotsRef}
               style={{ touchAction: 'none' }} /* Prevent page scroll while scrubbing */
               onPointerMove={(e) => {
                 if (e.pointerType === 'mouse' && e.buttons !== 1) return;
                 const el = document.elementFromPoint(e.clientX, e.clientY);
-                if (el && el.hasAttribute('data-index')) {
-                  const idx = parseInt(el.getAttribute('data-index'), 10);
-                  if (idx !== active) setActive(idx);
-                }
-              }}
-              onTouchMove={(e) => {
-                const touch = e.touches[0];
-                const el = document.elementFromPoint(touch.clientX, touch.clientY);
                 if (el && el.hasAttribute('data-index')) {
                   const idx = parseInt(el.getAttribute('data-index'), 10);
                   if (idx !== active) setActive(idx);
@@ -349,13 +360,6 @@ export default function Dashboard() {
                 />
               ))}
             </div>
-
-            {/* Fast-scroll handle — mobile only */}
-            <FastScrollHandle
-              total={albums.length}
-              current={active}
-              onIndex={setActive}
-            />
           </div>
 
           {/* ── INFO PANEL ── */}

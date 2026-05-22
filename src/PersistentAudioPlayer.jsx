@@ -1,4 +1,5 @@
 import { useContext, useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { AudioContext } from "./AudioPlayerProvider";
 import MaximizedPlayer from "./MaximizedPlayer";
 import QueuePanel from "./components/QueuePanel";
@@ -42,6 +43,7 @@ export default function PersistentAudioPlayer() {
     flyAnimData,
     setFlyAnimData,
     queueBtnRef,
+    mobileQueueBtnRef,
     volume,
     updateVolume,
     // Karaoke
@@ -56,8 +58,10 @@ export default function PersistentAudioPlayer() {
 
   const [isMaximized, setIsMaximized] = useState(false);
   const [isLyricsOpen, setIsLyricsOpen] = useState(false);
+  const [swipeDirection, setSwipeDirection] = useState('next');
 
   const lastVolumeRef = useRef(volume || 80);
+  const touchStartRef = useRef(null);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -152,40 +156,104 @@ export default function PersistentAudioPlayer() {
     updateVolume(val);
   };
 
+  const getSafeAccentColor = (colorStr) => {
+    const fallback = "#1db954";
+    if (!colorStr) return fallback;
+    
+    if (colorStr.startsWith('rgb') || colorStr.startsWith('rgba')) {
+      const match = colorStr.match(/\d+/g);
+      if (match && match.length >= 3) {
+        const [r, g, b] = match.map(Number);
+        if (r < 40 && g < 40 && b < 40) return '#ffffff';
+      }
+    } else if (colorStr.startsWith('#')) {
+      let hex = colorStr.replace('#', '');
+      if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+      if (hex.length === 6) {
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        if (r < 40 && g < 40 && b < 40) return '#ffffff';
+      }
+    }
+    return colorStr;
+  };
+
+  const accentColor = getSafeAccentColor(albumData?.color);
   const duration = audioRef.current?.duration || 0;
   const progress = duration ? (currentTime / duration) * 100 : 0;
 
+  const handleTouchStart = (e) => {
+    if (e.touches.length !== 1) return;
+    if (e.target.closest('button') || e.target.tagName.toLowerCase() === 'input') return;
+    touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, time: Date.now() };
+  };
+
+  const handleTouchEnd = (e) => {
+    if (!touchStartRef.current) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartRef.current.x;
+    const deltaY = e.changedTouches[0].clientY - touchStartRef.current.y;
+    touchStartRef.current = null;
+    
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (deltaX < 0) {
+        setSwipeDirection('next');
+        playNext();
+      } else {
+        setSwipeDirection('prev');
+        playPrev();
+      }
+    } else if (deltaY < -40 && Math.abs(deltaY) > Math.abs(deltaX)) {
+      setIsMaximized(true); // Swipe up to maximize
+    }
+  };
+
   return (
     <>
-      <div className={`audio-player ${isPlaying ? "active" : ""}`}>
+      <div 
+        className={`audio-player ${isPlaying ? "active" : ""}`}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        style={{ '--accent-color': accentColor }}
+      >
 
         {/* ── LEFT: disc + song info ── */}
         <div 
           className="player-left"
           onClick={() => setIsMaximized(true)}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: 'pointer', overflow: 'hidden', display: 'flex', alignItems: 'center' }}
           title="Open Maximized Player"
         >
-          <div className={`disc ${isPlaying ? "rotate" : ""}`}>
-            <img src={albumData?.cover} alt="album art" />
-          </div>
+          <AnimatePresence mode="popLayout" initial={false} custom={swipeDirection}>
+            <motion.div
+              key={activeSong?.id || activeSong?.name}
+              custom={swipeDirection}
+              initial={(d) => ({ opacity: 0, x: d === 'next' ? 60 : -60 })}
+              animate={{ opacity: 1, x: 0 }}
+              exit={(d) => ({ opacity: 0, x: d === 'next' ? -60 : 60, transition: { duration: 0.2 } })}
+              transition={{ type: "spring", stiffness: 350, damping: 30 }}
+              style={{ display: 'flex', alignItems: 'center', width: '100%' }}
+            >
+              <div className={`disc ${isPlaying ? "rotate" : ""}`}>
+                <img src={albumData?.cover} alt="album art" />
+              </div>
 
-          <div className="song-info">
-            <MarqueeText
-              text={activeSong?.name || ""}
-              className="song-title-mini"
-            />
-            <div className="song-album-mini">{albumData?.title} · {albumData?.member}</div>
-          </div>
-
-
+              <div className="song-info">
+                <MarqueeText
+                  text={activeSong?.name || ""}
+                  className="song-title-mini"
+                />
+                <div className="song-album-mini">{albumData?.title} · {albumData?.member}</div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* ── CENTER: controls + scrubber ── */}
         <div className="player-center">
           <div className="player-controls">
             <button
-              className={`ctrl-btn ctrl-mode-btn ${shuffleMode ? 'ctrl-active' : ''}`}
+              className={`ctrl-btn ctrl-mode-btn btn-shuffle skip-btn ${shuffleMode ? 'ctrl-active' : ''}`}
               onClick={toggleShuffle}
               aria-label="Shuffle"
               title={shuffleMode ? 'Shuffle on' : 'Shuffle off'}
@@ -194,13 +262,23 @@ export default function PersistentAudioPlayer() {
                 <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
               </svg>
             </button>
-            <button className="ctrl-btn" onClick={playPrev} aria-label="Previous">⏮</button>
-            <PlayPauseAnimButton
-              isPlaying={isPlaying}
-              onClick={() => setIsPlaying(!isPlaying)}
-              className="ctrl-btn play-pause premium-anim-override"
-            />
-            <button className="ctrl-btn" onClick={playNext} aria-label="Next">⏭</button>
+            <button className="ctrl-btn skip-btn" onClick={playPrev} aria-label="Previous">⏮</button>
+            
+            <button
+              className="ctrl-btn mobile-queue-btn"
+              ref={mobileQueueBtnRef}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsQueueOpen(!isQueueOpen);
+              }}
+              aria-label="Queue"
+              style={{ color: isQueueOpen ? '#1db954' : '#fff' }}
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h12v2H4z" />
+              </svg>
+            </button>
+
             <button
               className="ctrl-btn mobile-lyrics-btn"
               onClick={(e) => {
@@ -217,8 +295,16 @@ export default function PersistentAudioPlayer() {
                 <path d="M9,19H5a1,1,0,0,1-1-1V4A1,1,0,0,1,5,3H16a1,1,0,0,1,1,1V9" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
               </svg>
             </button>
+
+            <PlayPauseAnimButton
+              isPlaying={isPlaying}
+              onClick={() => setIsPlaying(!isPlaying)}
+              className="ctrl-btn play-pause premium-anim-override"
+            />
+            
+            <button className="ctrl-btn skip-btn" onClick={playNext} aria-label="Next">⏭</button>
             <button
-              className={`ctrl-btn ctrl-mode-btn ${repeatMode !== 'off' ? 'ctrl-active' : ''}`}
+              className={`ctrl-btn ctrl-mode-btn btn-repeat skip-btn ${repeatMode !== 'off' ? 'ctrl-active' : ''}`}
               onClick={cycleRepeat}
               aria-label="Repeat"
               title={repeatMode === 'off' ? 'Repeat off' : repeatMode === 'all' ? 'Repeat all' : 'Repeat one'}
@@ -239,6 +325,9 @@ export default function PersistentAudioPlayer() {
               value={progress}
               onChange={handleSeek}
               aria-label="Seek"
+              style={{
+                background: `linear-gradient(to right, ${accentColor} ${progress}%, rgba(255, 255, 255, 0.2) ${progress}%)`
+              }}
             />
             <span>{formatTime(duration)}</span>
           </div>
@@ -311,6 +400,7 @@ export default function PersistentAudioPlayer() {
           sourceRect={flyAnimData.sourceRect}
           targetRect={flyAnimData.targetRect}
           songName={flyAnimData.songName}
+          cover={flyAnimData.cover}
           onComplete={() => setFlyAnimData(null)}
         />
       )}

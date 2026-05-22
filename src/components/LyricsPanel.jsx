@@ -189,6 +189,52 @@ export default function LyricsPanel({ onClose }) {
     return colorStr;
   };
 
+  const touchStartRef = useRef(null);
+
+  const handleTouchStart = (e) => {
+    if (e.touches.length !== 1) return;
+    if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'button' || e.target.closest('button')) return;
+    
+    touchStartRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+      time: Date.now()
+    };
+  };
+
+  const handleTouchEnd = (e) => {
+    if (!touchStartRef.current) return;
+    const startX = touchStartRef.current.x;
+    const startY = touchStartRef.current.y;
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
+    const timeDiff = Date.now() - touchStartRef.current.time;
+
+    touchStartRef.current = null;
+
+    if (timeDiff > 600) return;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      // Horizontal swipe
+      if (Math.abs(deltaX) > 40) {
+        if (deltaX < 0) playNext();
+        else if (deltaX > 0) playPrev();
+      }
+    } else {
+      // Vertical swipe down
+      // Increased threshold to 120 so that normal scrolling near the top doesn't accidentally close the panel.
+      if (deltaY > 120) {
+        const scrollArea = e.target.closest('.lp-scroll-area');
+        if (!scrollArea || scrollArea.scrollTop <= 5) {
+          handleClose();
+        }
+      }
+    }
+  };
+
   return (
     <div
       className={`lyrics-overlay ${isClosing ? 'closing' : ''} ${!isControlsVisible ? 'cinematic-mode' : ''} ${isSingleSinger ? 'single-singer-mode' : ''}`}
@@ -196,6 +242,8 @@ export default function LyricsPanel({ onClose }) {
         '--singer-color': singleSingerColor.primary,
         '--singer-glow': singleSingerColor.glow,
       } : {}}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       {/* Blurred album art background */}
       <div

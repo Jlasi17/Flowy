@@ -1,4 +1,5 @@
 import { useContext, useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { AudioContext } from "./AudioPlayerProvider";
 import MaximizedRadialVolume from "./components/MaximizedRadialVolume";
 import PlayPauseAnimButton from "./components/PlayPauseAnimButton";
@@ -7,6 +8,26 @@ import "./MaximizedPlayer.css";
 
 // Must match the CSS animation duration (3.2s)
 const TRANSITION_DURATION = 3000;
+
+// SVG Arc Math Helpers
+const ARC_START = 325;
+const ARC_SWEEP = 290;
+
+const polarToCartesian = (cx, cy, r, angleInDegrees) => {
+  const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+  return {
+    x: cx + r * Math.cos(angleInRadians),
+    y: cy + r * Math.sin(angleInRadians)
+  };
+};
+
+const getArcPath = (cx, cy, r, startAngle, sweepAngle) => {
+  const endAngle = startAngle - sweepAngle;
+  const start = polarToCartesian(cx, cy, r, startAngle);
+  const end = polarToCartesian(cx, cy, r, endAngle);
+  const largeArcFlag = sweepAngle <= 180 ? "0" : "1";
+  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
+};
 
 export default function MaximizedPlayer({ onClose }) {
   const {
@@ -237,11 +258,116 @@ export default function MaximizedPlayer({ onClose }) {
   const duration = audioRef.current?.duration || 0;
   const progress = duration ? (currentTime / duration) * 100 : 0;
 
+  const handleArcScrub = (e) => {
+    if (e.cancelable) e.preventDefault();
+    if (!audioRef.current || !duration) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    let angleDeg = (Math.atan2(clientY - cy, clientX - cx) * 180) / Math.PI;
+    let svgAngle = angleDeg + 90;
+    if (svgAngle < 0) svgAngle += 360;
+
+    let offsetAngle = ARC_START - svgAngle;
+    if (offsetAngle < 0) offsetAngle += 360;
+
+    if (offsetAngle > ARC_SWEEP) {
+      if (offsetAngle > ARC_SWEEP + (360 - ARC_SWEEP) / 2) offsetAngle = 0;
+      else offsetAngle = ARC_SWEEP;
+    }
+
+    const newProgress = offsetAngle / ARC_SWEEP;
+    audioRef.current.currentTime = newProgress * duration;
+  };
+
+  const touchStartRef = useRef(null);
+
+  const handleTouchStart = (e) => {
+    if (e.touches.length !== 1) return;
+    // Don't interfere with scrubber or inputs
+    if (e.target.closest('.mobile-arc-progress') || e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'button') return;
+    
+    touchStartRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+      time: Date.now()
+    };
+  };
+
+  const handleTouchEnd = (e) => {
+    if (!touchStartRef.current) return;
+    const startX = touchStartRef.current.x;
+    const startY = touchStartRef.current.y;
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
+    const timeDiff = Date.now() - touchStartRef.current.time;
+
+    touchStartRef.current = null;
+
+    if (timeDiff > 600) return; // Ignore long presses
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      // Horizontal swipe
+      if (Math.abs(deltaX) > 40) {
+        if (deltaX < 0 && !isTransitioning) handleNext(); // Swipe left
+        else if (deltaX > 0 && !isTransitioning) handlePrev(); // Swipe right
+      }
+    } else {
+      // Vertical swipe
+      if (deltaY > 50) {
+        handleClose(); // Swipe down
+      }
+    }
+  };
+
   const { isControlsVisible } = useCinematicControls({ isActive: true });
 
   // ── Render ───────────────────────────────────────────────────
 
-  const accentColor = albumData?.color || "#F3CEB0"; // Fallback to warm cream
+  const getSafeAccentColor = (colorStr) => {
+    const fallback = "#F3CEB0";
+    if (!colorStr) return fallback;
+    
+    if (colorStr.startsWith('rgb') || colorStr.startsWith('rgba')) {
+      const match = colorStr.match(/\d+/g);
+      if (match && match.length >= 3) {
+        const [r, g, b] = match.map(Number);
+        if (r < 40 && g < 40 && b < 40) {
+          return '#ffffff';
+        }
+      }
+    } else if (colorStr.startsWith('#')) {
+      let hex = colorStr.replace('#', '');
+      if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+      if (hex.length === 6) {
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        if (r < 40 && g < 40 && b < 40) {
+          return '#ffffff';
+        }
+      }
+    }
+    return colorStr;
+  };
+
+  const accentColor = getSafeAccentColor(albumData?.color);
+
+  const arcCx = 50;
+  const arcCy = 50;
+  const arcR = 48;
+  const trackPath = getArcPath(arcCx, arcCy, arcR, ARC_START, ARC_SWEEP);
+  const currentSweep = duration ? (progress / 100) * ARC_SWEEP : 0;
+  const progressPath = currentSweep > 0.5 ? getArcPath(arcCx, arcCy, arcR, ARC_START, currentSweep) : "";
+  const thumbAngle = ARC_START - currentSweep;
+  const thumbPos = polarToCartesian(arcCx, arcCy, arcR, thumbAngle);
 
   return (
     <div
@@ -251,6 +377,8 @@ export default function MaximizedPlayer({ onClose }) {
       style={{
         "--accent-color": accentColor,
       }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       {/* Base blurred album background */}
       <div className="maximized-bg" style={{ backgroundImage: `url(${albumData.cover})` }} />
@@ -321,35 +449,59 @@ export default function MaximizedPlayer({ onClose }) {
           <div style={{ width: 44 }} />
         </div>
 
-        {/* Song info (above circle) */}
-        <div className="mobile-song-info">
-          <h2>{displayMetadata.name}</h2>
-          <p>{displayMetadata.member}</p>
-        </div>
+        <div style={{ position: 'relative', flex: 1, width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <AnimatePresence mode="popLayout" initial={false} custom={direction}>
+            <motion.div
+              key={activeSong?.id || activeSong?.name}
+              custom={direction}
+              initial={(d) => ({ opacity: 0, x: d === 'next' ? 120 : -120 })}
+              animate={{ opacity: 1, x: 0 }}
+              exit={(d) => ({ opacity: 0, x: d === 'next' ? -120 : 120, transition: { duration: 0.25 } })}
+              transition={{ type: "spring", stiffness: 350, damping: 30 }}
+              style={{ width: '100%', height: '100%', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+            >
+              {/* Song info (above circle) */}
+              <div className="mobile-song-info">
+                <h2>{displayMetadata.name}</h2>
+                <p>{displayMetadata.member}</p>
+              </div>
 
-        {/* Circular album art */}
-        <div className="mobile-art-container">
-          <div className="mobile-album-circle">
-            <div className="light-reflection" />
-            <img src={albumData.cover} alt={albumData.title} />
-          </div>
-        </div>
+              {/* Circular album art */}
+              <div className="mobile-art-container">
+                <div className="mobile-album-circle">
+                  <div className="light-reflection" />
+                  <img src={albumData.cover} alt={albumData.title} />
+                </div>
 
-        {/* Straight progress bar */}
-        <div className="mobile-progress-section">
-          <input
-            type="range"
-            className="mobile-straight-progress"
-            min="0"
-            max="100"
-            value={progress}
-            onChange={handleSeek}
-            style={{ "--progress": `${progress}%` }}
-          />
-          <div className="mobile-time-row">
-            <span>{formatTime(currentTime)}</span>
-            <span>{formatTime(duration)}</span>
-          </div>
+                <div className="mobile-vinyl-timestamp cinematic-hide">
+                  {formatTime(currentTime)} <span style={{ opacity: 0.5 }}>|</span> {formatTime(duration)}
+                </div>
+
+                {/* ── Arc Progress Bar (Mobile) ── */}
+                <div 
+                  className="mobile-arc-progress cinematic-hide"
+                  onPointerDown={handleArcScrub}
+                  onPointerMove={(e) => {
+                    if (e.buttons === 1) handleArcScrub(e);
+                  }}
+                  onTouchMove={handleArcScrub}
+                  style={{ touchAction: 'none' }}
+                >
+                  <svg viewBox="0 0 100 100" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+                    {/* Invisible thick path for easier touch targeting */}
+                    <path className="arc-touch-target" d={trackPath} fill="none" stroke="transparent" strokeWidth="15" strokeLinecap="round" />
+                    <path className="arc-track" d={trackPath} fill="none" stroke="var(--accent-color)" opacity="0.25" strokeWidth="1" strokeLinecap="round" />
+                    {progressPath && (
+                      <path className="arc-fill" d={progressPath} fill="none" stroke="var(--accent-color)" strokeWidth="1.5" strokeLinecap="round" />
+                    )}
+                    {duration > 0 && (
+                      <circle className="arc-thumb" cx={thumbPos.x} cy={thumbPos.y} r="2.5" fill="var(--accent-color)" />
+                    )}
+                  </svg>
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Main playback controls */}
@@ -463,6 +615,23 @@ export default function MaximizedPlayer({ onClose }) {
           </button>
 
         </div>
+      </div>
+
+      {/* ── Edge Timebar — pinned to absolute bottom, appears in cinematic mode ── */}
+      <div className="max-edge-timebar">
+        <input
+          type="range"
+          className="max-edge-timebar-range"
+          min="0"
+          max="100"
+          value={progress}
+          onChange={handleSeek}
+          aria-label="Seek"
+          style={{
+            '--progress': `${progress}%`,
+            '--accent': accentColor,
+          }}
+        />
       </div>
     </div>
   );

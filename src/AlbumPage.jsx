@@ -61,6 +61,11 @@ export default function AlbumPage() {
     const loadDurations = async () => {
       const durations = {};
       for (let song of albumSongs) {
+        if (song.duration) {
+          durations[song.name] = song.duration;
+          continue;
+        }
+        
         const path = isSolo ? `${basePath}${song.file}` : `${basePath}${id}/${song.file}`;
         const audio = new Audio(path);
         await new Promise((resolve) => {
@@ -175,10 +180,10 @@ export default function AlbumPage() {
                       albumTitle: album?.title || "Album",
                       cover: album?.cover,
                       member: album?.member || groupTitle,
-                      duration: songDurations[song.name] || "—",
+                      duration: song.duration || songDurations[song.name] || "—",
                       color: album?.color
                     });
-                    if (sourceRect) triggerFlyAnimation(sourceRect, song.name);
+                    if (sourceRect) triggerFlyAnimation(sourceRect, song.name, album?.cover);
                   }}
                   actionColor={album?.color ? album.color : "rgba(29, 185, 84, 0.4)"}
                   onClick={() => {
@@ -227,7 +232,7 @@ export default function AlbumPage() {
                       )}
                     </span>
 
-                    <span className="song-duration-minimal">{songDurations[song.name] || "—"}</span>
+                    <span className="song-duration-minimal">{song.duration || songDurations[song.name] || "—"}</span>
                   </div>
                 </SwipeableTrack>
               );

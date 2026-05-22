@@ -60,6 +60,11 @@ export default function QueuePanel({ onClose }) {
   /* ─── Auto-play drag ─── */
   const [apDragging, setApDragging] = useState(false);
   const [apTargetIdx, setApTargetIdx] = useState(null); // insert position in queue
+  const [apDragSongState, setApDragSongState] = useState(null); // For rendering
+  
+  const isDragging = dragIdx !== null;
+  const draggedSong = isDragging ? queue[dragIdx] : null;
+
   const apTargetIdxRef = useRef(null);
   const apDragSong = useRef(null);
   const apPreviewRef = useRef(null);
@@ -76,6 +81,58 @@ export default function QueuePanel({ onClose }) {
   const handleClose = () => {
     setIsClosing(true);
     setTimeout(onClose, 400);
+  };
+
+  /* ─── Long Press for Mobile Drag ─── */
+  const longPressTimerRef = useRef(null);
+  const touchStartPosRef = useRef(null);
+
+  const startLongPress = (e, idx, isAutoPlay = false, song = null) => {
+    if (e.pointerType === "mouse") return; // Mouse uses the visible drag handle
+    
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+    const target = e.currentTarget;
+    const pointerId = e.pointerId;
+    
+    touchStartPosRef.current = { x: clientX, y: clientY };
+    
+    longPressTimerRef.current = setTimeout(() => {
+      const dragEvent = {
+        clientX, clientY, currentTarget: target, pointerId,
+        stopPropagation: () => {},
+        preventDefault: () => {}
+      };
+      
+      if (isAutoPlay) {
+        handleApDragStart(dragEvent, song);
+      } else {
+        handleDragStart(dragEvent, idx);
+      }
+      longPressTimerRef.current = null;
+      touchStartPosRef.current = null;
+    }, 350);
+  };
+
+  const handlePossibleScroll = (e) => {
+    if (longPressTimerRef.current && touchStartPosRef.current) {
+      const dx = Math.abs(e.clientX - touchStartPosRef.current.x);
+      const dy = Math.abs(e.clientY - touchStartPosRef.current.y);
+      // Cancel long press only if the finger moved more than 10 pixels (actual scroll)
+      if (dx > 10 || dy > 10) {
+        clearTimeout(longPressTimerRef.current);
+        longPressTimerRef.current = null;
+        touchStartPosRef.current = null;
+      }
+    }
+  };
+
+  const cancelLongPress = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    touchStartPosRef.current = null;
   };
 
   /* ─── Scroll to now-playing on open ─── */
@@ -142,6 +199,25 @@ export default function QueuePanel({ onClose }) {
   }, []);
 
   /* ─────────────────────────────────────────────────────────────────
+     GLOBAL TOUCH/POINTER INTERCEPTS (Fixes mobile long-press drag)
+  ───────────────────────────────────────────────────────────────── */
+  useEffect(() => {
+    const handleTouchMove = (e) => {
+      // If we are currently dragging, prevent the browser from scrolling
+      if (isDraggingRef.current || apDragRef.current) {
+        e.preventDefault();
+      }
+    };
+    
+    // We must use passive: false to be allowed to call e.preventDefault()
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    
+    return () => {
+      document.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, []);
+
+  /* ─────────────────────────────────────────────────────────────────
      AUTO-PLAY RAF — tracks insert position inside the queue list
   ───────────────────────────────────────────────────────────────── */
   const apRafRef = useRef(null);
@@ -202,22 +278,25 @@ export default function QueuePanel({ onClose }) {
     setDragIdx(index);
     setTargetIdx(index);
     haptic(12);
-    e.currentTarget.setPointerCapture(e.pointerId);
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // Ignore InvalidStateError on async pointer capture
+    }
     startRaf(index, queue.length);
   }, [queue.length, startRaf]);
 
-  /* ─────────────────────────────────────────────────────────────────
-     POINTER MOVE
-  ───────────────────────────────────────────────────────────────── */
   const handlePointerMove = useCallback((e) => {
-    pointerRef.current = { x: e.clientX, y: e.clientY };
+    if (isDraggingRef.current || apDragRef.current) {
+      pointerRef.current = { x: e.clientX, y: e.clientY };
 
-    if (isDraggingRef.current) {
-      queueDragMovedRef.current = true;
-    }
+      if (isDraggingRef.current) {
+        queueDragMovedRef.current = true;
+      }
 
-    if (apDragRef.current) {
-      apDragMovedRef.current = true; // mark as a real drag, not a tap
+      if (apDragRef.current) {
+        apDragMovedRef.current = true; // mark as a real drag, not a tap
+      }
     }
   }, []);
 
@@ -225,6 +304,15 @@ export default function QueuePanel({ onClose }) {
      POINTER UP
   ───────────────────────────────────────────────────────────────── */
   const handlePointerUp = useCallback(() => {
+    cancelLongPress();
+    
+    // Reset drag-move flags after a short delay so the immediate click is still blocked,
+    // but subsequent clicks will work.
+    setTimeout(() => {
+      queueDragMovedRef.current = false;
+      apDragMovedRef.current = false;
+    }, 50);
+
     /* ── Queue reorder drag end ── */
     if (isDraggingRef.current) {
       cancelAnimationFrame(rafRef.current);
@@ -256,6 +344,7 @@ export default function QueuePanel({ onClose }) {
           addToQueue(song);
         }
         apDragSong.current = null;
+        setApDragSongState(null);
         setApTargetIdx(null);
         apTargetIdxRef.current = null;
       } else {
@@ -266,6 +355,24 @@ export default function QueuePanel({ onClose }) {
       setApDragging(false);
     }
   }, [reorderQueue, addToQueue, insertIntoQueue]);
+
+  // Bind global pointer events when dragging to ensure we don't lose the drag
+  useEffect(() => {
+    if (isDragging || apDragging) {
+      window.addEventListener('pointermove', handlePointerMove);
+      window.addEventListener('pointerup', handlePointerUp);
+      window.addEventListener('pointercancel', handlePointerUp);
+    } else {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerUp);
+    }
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerUp);
+    };
+  }, [isDragging, apDragging, handlePointerMove, handlePointerUp]);
 
   /* ─── Auto-play drag start ─── */
   const handleApDragStart = useCallback((e, song) => {
@@ -284,6 +391,7 @@ export default function QueuePanel({ onClose }) {
     apDragRef.current = true;
     apDragMovedRef.current = false;
     apDragSong.current = song;
+    setApDragSongState(song);
 
     pointerRef.current = { x: e.clientX, y: e.clientY };
 
@@ -295,7 +403,11 @@ export default function QueuePanel({ onClose }) {
     setApDragging(true);
     setApTargetIdx(queue.length); // default: append to end
     haptic(10);
-    e.currentTarget.setPointerCapture(e.pointerId);
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // Ignore
+    }
     startApRaf();
   }, [queue.length, startApRaf]);
 
@@ -312,8 +424,6 @@ export default function QueuePanel({ onClose }) {
   };
 
   const upNextSongs = songs.slice((currentIndex ?? 0) + 1);
-  const isDragging = dragIdx !== null;
-  const draggedSong = isDragging ? queue[dragIdx] : null;
 
   return (
     <>
@@ -344,9 +454,15 @@ export default function QueuePanel({ onClose }) {
         <div
           className={`queue-content ${isDragging || apDragging ? 'is-dragging' : ''}`}
           ref={scrollRef}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
+          onPointerMove={(e) => {
+            handlePossibleScroll(e);
+          }}
+          onPointerUp={() => {
+            cancelLongPress();
+          }}
+          onPointerCancel={() => {
+            cancelLongPress();
+          }}
         >
           {/* NOW PLAYING */}
           {activeSong && (
@@ -376,7 +492,6 @@ export default function QueuePanel({ onClose }) {
                 <span className="qi-title">{activeSong.name}</span>
                 <span className="qi-sub">{activeSong.member || albumData?.member || "Artist"}</span>
               </div>
-              {activeSong.duration && <span className="qi-duration">{activeSong.duration}</span>}
             </div>
           )}
 
@@ -389,8 +504,6 @@ export default function QueuePanel({ onClose }) {
             {/* ── Manual Queue ── */}
             {queue.map((qSong, i) => {
               const isGhost = isDragging && dragIdx === i;
-              const displacement = 0; // Displacement logic was removed
-
               // Drop line: show ABOVE the target when dragging down, BELOW when dragging up
               const showAbove = isDragging && !isGhost && i === targetIdx && dragIdx > targetIdx;
               const showBelow = isDragging && !isGhost && i === targetIdx && dragIdx < targetIdx;
@@ -420,24 +533,12 @@ export default function QueuePanel({ onClose }) {
                       <div
                         className={`queue-item draggable ${isGhost ? 'is-ghost' : ''}`}
                         ref={el => itemRefs.current[i] = el}
+                        onPointerDown={(e) => startLongPress(e, i)}
                         onClick={() => {
                           if (queueDragMovedRef.current) return;
                           if (!isDragging) playFromQueue(i);
                         }}
                       >
-                        {/* Drag handle */}
-                        <div
-                          className="drag-handle"
-                          onPointerDown={e => { e.stopPropagation(); handleDragStart(e, i); }}
-                        >
-                          <svg viewBox="0 0 20 20" fill="none" width="14" height="14">
-                            <rect x="3" y="5" width="14" height="2" rx="1" fill="currentColor" />
-                            <rect x="3" y="9" width="14" height="2" rx="1" fill="currentColor" />
-                            <rect x="3" y="13" width="14" height="2" rx="1" fill="currentColor" />
-                          </svg>
-                        </div>
-
-                        {/* Album art */}
                         <div className="qi-art-wrap">
                           {qSong.cover
                             ? <img src={qSong.cover} alt="" className="qi-art" onError={e => { e.currentTarget.style.display = 'none'; }} />
@@ -459,7 +560,18 @@ export default function QueuePanel({ onClose }) {
                           <span className="qi-title">{qSong.name}</span>
                           <span className="qi-sub">{qSong.member || "Artist"}</span>
                         </div>
-                        <span className="qi-duration">{qSong.duration || "—"}</span>
+                        
+                        {/* Drag handle on the right */}
+                        <div
+                          className="drag-handle"
+                          onPointerDown={e => { e.stopPropagation(); handleDragStart(e, i); }}
+                        >
+                          <svg viewBox="0 0 20 20" fill="none" width="14" height="14">
+                            <rect x="3" y="5" width="14" height="2" rx="1" fill="currentColor" />
+                            <rect x="3" y="9" width="14" height="2" rx="1" fill="currentColor" />
+                            <rect x="3" y="13" width="14" height="2" rx="1" fill="currentColor" />
+                          </svg>
+                        </div>
                       </div>
                     </div>
                   </SwipeableTrack>
@@ -500,6 +612,7 @@ export default function QueuePanel({ onClose }) {
                 <div key={`ap-${ns.filePath ?? ns.name}-${i}`} className="queue-row">
                   <div
                     className="queue-item auto-next"
+                    onPointerDown={(e) => startLongPress(e, null, true, apQueueSong)}
                     onClick={() => {
                       // Only fire click if this was NOT a drag
                       if (apDragMovedRef.current) return;
@@ -507,20 +620,6 @@ export default function QueuePanel({ onClose }) {
                       setIsPlaying(true);
                     }}
                   >
-                    {/* Drag handle — drags to insert at a specific queue position */}
-                    <div
-                      className="drag-handle ap-drag-handle"
-                      title="Drag to add to queue"
-                      onPointerDown={e => { e.stopPropagation(); handleApDragStart(e, apQueueSong); }}
-                    >
-                      <svg viewBox="0 0 20 20" fill="none" width="14" height="14">
-                        <rect x="3" y="5" width="14" height="2" rx="1" fill="currentColor" />
-                        <rect x="3" y="9" width="14" height="2" rx="1" fill="currentColor" />
-                        <rect x="3" y="13" width="14" height="2" rx="1" fill="currentColor" />
-                      </svg>
-                    </div>
-
-                    {/* Album art — per-song cover */}
                     <div className="qi-art-wrap">
                       {cover
                         ? <img src={cover} alt="" className="qi-art" onError={e => { e.currentTarget.style.display = 'none'; }} />
@@ -543,12 +642,18 @@ export default function QueuePanel({ onClose }) {
                       <span className="qi-sub">{member || "Artist"}</span>
                     </div>
 
-                    {/* Play hint icon */}
-                    <span className="qi-duration ap-play-icon">
-                      <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
-                        <path d="M5 3l14 9-14 9V3z" />
+                    {/* Drag handle — drags to insert at a specific queue position */}
+                    <div
+                      className="drag-handle ap-drag-handle"
+                      title="Drag to add to queue"
+                      onPointerDown={e => { e.stopPropagation(); handleApDragStart(e, apQueueSong); }}
+                    >
+                      <svg viewBox="0 0 20 20" fill="none" width="14" height="14">
+                        <rect x="3" y="5" width="14" height="2" rx="1" fill="currentColor" />
+                        <rect x="3" y="9" width="14" height="2" rx="1" fill="currentColor" />
+                        <rect x="3" y="13" width="14" height="2" rx="1" fill="currentColor" />
                       </svg>
-                    </span>
+                    </div>
                   </div>
                 </div>
               );
@@ -589,16 +694,16 @@ export default function QueuePanel({ onClose }) {
       )}
 
       {/* ── Floating preview: auto-play drag ── */}
-      {apDragging && apDragSong.current && createPortal(
+      {apDragging && apDragSongState && createPortal(
         <div
           ref={apPreviewRef}
           className="queue-drag-preview"
           style={{ left: 0, top: 0, transform: 'translateY(-50%)' }}
         >
-          {apDragSong.current.cover && <img src={apDragSong.current.cover} alt="" className="qdp-art" />}
+          {apDragSongState.cover && <img src={apDragSongState.cover} alt="" className="qdp-art" />}
           <div className="qdp-info">
-            <span className="qdp-title">{apDragSong.current.name}</span>
-            <span className="qdp-sub">{apDragSong.current.member || "Artist"}</span>
+            <span className="qdp-title">{apDragSongState.name}</span>
+            <span className="qdp-sub">{apDragSongState.member || "Artist"}</span>
           </div>
         </div>,
         document.body

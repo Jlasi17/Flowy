@@ -37,6 +37,20 @@ export default function KaraokePanel({ onClose }) {
   };
 
   const [isClosing, setIsClosing] = useState(false);
+  const [showPreloadToast, setShowPreloadToast] = useState(false);
+
+  useEffect(() => {
+    if (preloadingNext) {
+      setShowPreloadToast(true);
+      const timer = setTimeout(() => {
+        setShowPreloadToast(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowPreloadToast(false);
+    }
+  }, [preloadingNext]);
+
   const { lines, activeIndex, loading, hasLyrics } = useLyrics();
   const scrollRef = useRef(null);
   const activeLineRef = useRef(null);
@@ -146,8 +160,57 @@ export default function KaraokePanel({ onClose }) {
   // ── Cinematic auto-hide ──
   const { isControlsVisible } = useCinematicControls({ isActive: karaokeStatus === 'ready' });
 
+  const touchStartRef = useRef(null);
+
+  const handleTouchStart = (e) => {
+    if (e.touches.length !== 1) return;
+    if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'button' || e.target.closest('button')) return;
+    
+    touchStartRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+      time: Date.now()
+    };
+  };
+
+  const handleTouchEnd = (e) => {
+    if (!touchStartRef.current) return;
+    const startX = touchStartRef.current.x;
+    const startY = touchStartRef.current.y;
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
+    const timeDiff = Date.now() - touchStartRef.current.time;
+
+    touchStartRef.current = null;
+
+    if (timeDiff > 600) return;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      // Horizontal swipe
+      if (Math.abs(deltaX) > 40) {
+        if (deltaX < 0) playNext();
+        else if (deltaX > 0) playPrev();
+      }
+    } else {
+      // Vertical swipe down
+      if (deltaY > 50) {
+        const scrollArea = e.target.closest('.karaoke-lyrics-container');
+        if (!scrollArea || scrollArea.scrollTop <= 5) {
+          handleClose();
+        }
+      }
+    }
+  };
+
   return (
-    <div className={`karaoke-overlay ${isClosing ? 'closing' : ''} ${karaokeStatus === 'ready' && !isControlsVisible ? 'cinematic-mode' : ''}`}>
+    <div 
+      className={`karaoke-overlay ${isClosing ? 'closing' : ''} ${karaokeStatus === 'ready' && !isControlsVisible ? 'cinematic-mode' : ''}`}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Background */}
       <div
         className="karaoke-bg"
@@ -384,11 +447,17 @@ export default function KaraokePanel({ onClose }) {
             </div>
           </div>
 
-          {preloadingNext && (
+          {preloadingNext && showPreloadToast && (
             <div className="karaoke-preload-indicator">
               <div className="karaoke-preload-spinner" />
               <span className="preload-percent">{preloadProgress}%</span>
-              <span className="preload-text">Preloading next song…</span>
+              <span className="preload-text">Next song is getting processed...</span>
+            </div>
+          )}
+
+          {preloadingNext && !showPreloadToast && (
+            <div className="karaoke-top-progress-bar">
+              <div className="karaoke-top-progress-fill" style={{ width: `${preloadProgress}%` }} />
             </div>
           )}
 

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { groupsData } from "../data/musicRegistry";
 import { AudioContext } from "../AudioPlayerProvider";
 import { getArtistProfileImage } from "../utils/singerColors";
+import SwipeableTrack from "./SwipeableTrack";
 import "./SearchOverlay.css";
 
 // Build a flat searchable database for all groups
@@ -90,7 +91,8 @@ export default function SearchOverlay({ isOpen, onClose }) {
   const [query, setQuery] = useState("");
   const inputRef = useRef(null);
   const navigate = useNavigate();
-  const [artistTransition, setArtistTransition] = useState(null); // { name, cover, albumCount }
+  const [artistTransition, setArtistTransition] = useState(null);
+  const [addedQueueSongs, setAddedQueueSongs] = useState({});
 
   const {
     setSongs,
@@ -104,7 +106,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
     const groupId = artist.groupId || "bts";
     const group = groupsData[groupId];
     const soloists = group.soloists || [];
-    
+
     if (artist.name === group.title) {
       sessionStorage.setItem(`${groupId}DashboardTab`, "group");
       sessionStorage.setItem(`${groupId}DashboardActiveIndex`, "0");
@@ -114,13 +116,11 @@ export default function SearchOverlay({ isOpen, onClose }) {
       sessionStorage.setItem(`${groupId}DashboardSoloIdx`, String(idx >= 0 ? idx : 0));
       sessionStorage.setItem(`${groupId}DashboardActiveIndex`, "0");
     }
-    // Show transition overlay
     setArtistTransition({
       name: artist.name,
       cover: artist.profileImage || artist.covers[0],
       albumCount: artist.albumCount
     });
-    // Navigate after animation plays
     setTimeout(() => {
       onClose();
       navigate(`/dashboard/${groupId}`);
@@ -130,7 +130,6 @@ export default function SearchOverlay({ isOpen, onClose }) {
 
   const index = useMemo(() => buildSearchIndex(), []);
 
-  // Focus input on open
   useEffect(() => {
     if (isOpen) {
       setQuery("");
@@ -138,7 +137,6 @@ export default function SearchOverlay({ isOpen, onClose }) {
     }
   }, [isOpen]);
 
-  // Close on Escape
   useEffect(() => {
     const handler = (e) => {
       if (e.key === "Escape" && isOpen) onClose();
@@ -168,6 +166,31 @@ export default function SearchOverlay({ isOpen, onClose }) {
   }, [normalizedQuery, index]);
 
   const totalResults = results.songs.length + results.albums.length + results.artists.length;
+
+  // Shared helper — adds a song to queue and triggers the added animation
+  const handleAddToQueue = (song, e) => {
+    if (e) e.stopPropagation();
+    const group = groupsData[song.groupId];
+    const basePath = song.isSolo ? group.soloBasePath : group.basePath;
+    const folder = song.isSolo ? '' : `${song.albumId}/`;
+
+    addToQueue({
+      name: song.name,
+      filePath: `${basePath}${folder}${song.file}`,
+      albumTitle: song.albumTitle,
+      cover: song.albumCover,
+      member: song.artist,
+      color: song.albumColor,
+    });
+
+    // Trigger haptic feedback on supported devices
+    if (navigator.vibrate) navigator.vibrate(8);
+
+    setAddedQueueSongs(prev => ({ ...prev, [song.name]: true }));
+    setTimeout(() => {
+      setAddedQueueSongs(prev => ({ ...prev, [song.name]: false }));
+    }, 2000);
+  };
 
   const playSong = (song) => {
     const groupId = song.groupId || "bts";
@@ -224,7 +247,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
             />
             {query && (
               <button className="search-clear" onClick={() => { setQuery(""); inputRef.current?.focus(); }}>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
               </button>
             )}
           </div>
@@ -247,7 +270,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
               <span className="search-empty-hint">Find songs by name, album, or artist</span>
               <span className="search-swipe-hint">
                 <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" style={{ marginRight: 5, opacity: 0.5 }}>
-                  <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 5 5 12 12 19"/>
+                  <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 5 5 12 12 19" />
                 </svg>
                 Swipe a song left to add to queue
               </span>
@@ -258,46 +281,70 @@ export default function SearchOverlay({ isOpen, onClose }) {
           {results.songs.length > 0 && (
             <div className="search-section">
               <h3 className="search-section-title">Songs</h3>
-              {results.songs.map((song, i) => (
-                <button
-                  key={`song-${i}`}
-                  className="search-result-item"
-                  onClick={() => playSong(song)}
-                >
-                  <img src={song.albumCover} alt="" className="search-result-thumb" />
-                  <div className="search-result-info">
-                    <span className="search-result-name">{highlightMatch(song.name, normalizedQuery)}</span>
-                    <span className="search-result-meta">Song · {song.artist} · {song.albumTitle}</span>
-                  </div>
-                  <div className="search-song-actions">
-                    <button
-                      className="search-queue-btn"
-                      title="Add to queue"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const group = groupsData[song.groupId];
-                        const basePath = song.isSolo ? group.soloBasePath : group.basePath;
-                        const folder = song.isSolo ? '' : `${song.albumId}/`;
-                        
-                        addToQueue({
-                          name: song.name,
-                          filePath: `${basePath}${folder}${song.file}`,
-                          albumTitle: song.albumTitle,
-                          cover: song.albumCover,
-                          member: song.artist,
-                          color: song.albumColor,
-                        });
-                      }}
-                    >
-                      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                        <line x1="12" y1="5" x2="12" y2="19"/>
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                      </svg>
-                    </button>
-                    <svg className="search-result-play" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                  </div>
-                </button>
-              ))}
+              {results.songs.map((song, i) => {
+                const isAdded = !!addedQueueSongs[song.name];
+                return (
+                  <SwipeableTrack
+                    key={`song-${i}`}
+                    onSwipeAction={() => handleAddToQueue(song)}
+                    actionText={isAdded ? "✓ Added" : "＋ Queue"}
+                    actionColor={isAdded ? "#1db954" : (song.albumColor || "rgba(29, 185, 84, 0.4)")}
+                    onClick={() => playSong(song)}
+                  >
+                    <div className="search-result-item">
+                      <img src={song.albumCover} alt="" className="search-result-thumb" />
+                      <div className="search-result-info">
+                        <span className="search-result-name">{highlightMatch(song.name, normalizedQuery)}</span>
+                        <span className="search-result-meta">Song · {song.artist} · {song.albumTitle}</span>
+                      </div>
+                      <div className="search-song-actions">
+                        {/* ── Queue pill button ── */}
+                        <button
+                          className={`search-queue-btn${isAdded ? ' search-queue-btn--added' : ''}`}
+                          title={isAdded ? "Added to queue" : "Add to queue"}
+                          onClick={(e) => !isAdded && handleAddToQueue(song, e)}
+                          aria-label={isAdded ? "Added to queue" : "Add to queue"}
+                        >
+                          <span className="search-queue-btn-inner">
+                            {/* Plus icon — fades out when added */}
+                            <svg
+                              className="search-queue-icon search-queue-icon--plus"
+                              viewBox="0 0 24 24"
+                              width="13"
+                              height="13"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.8"
+                              strokeLinecap="round"
+                            >
+                              <line x1="12" y1="5" x2="12" y2="19" />
+                              <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                            {/* Check icon — fades in when added */}
+                            <svg
+                              className="search-queue-icon search-queue-icon--check"
+                              viewBox="0 0 24 24"
+                              width="13"
+                              height="13"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.8"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span className="search-queue-label">
+                              {isAdded ? "Added" : "Queue"}
+                            </span>
+                          </span>
+                        </button>
+                        <svg className="search-result-play" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+                      </div>
+                    </div>
+                  </SwipeableTrack>
+                );
+              })}
             </div>
           )}
 
@@ -316,7 +363,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
                     <span className="search-result-name">{highlightMatch(album.title, normalizedQuery)}</span>
                     <span className="search-result-meta">Album · {album.member || "BTS"} · {album.release || album.year}</span>
                   </div>
-                  <svg className="search-result-arrow" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                  <svg className="search-result-arrow" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" /></svg>
                 </button>
               ))}
             </div>
@@ -339,7 +386,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
                     <span className="search-result-name">{highlightMatch(artist.name, normalizedQuery)}</span>
                     <span className="search-result-meta">Artist · {artist.albumCount} album{artist.albumCount > 1 ? 's' : ''}</span>
                   </div>
-                  <svg className="search-result-arrow" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                  <svg className="search-result-arrow" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" /></svg>
                 </button>
               ))}
             </div>

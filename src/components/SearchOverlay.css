@@ -13,8 +13,13 @@
 }
 
 @keyframes searchFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .search-overlay-backdrop {
@@ -37,8 +42,15 @@
 }
 
 @keyframes searchSlideDown {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* ── HEADER ── */
@@ -145,9 +157,11 @@
 .search-results::-webkit-scrollbar {
   width: 5px;
 }
+
 .search-results::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .search-results::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 10px;
@@ -274,7 +288,7 @@
 .search-song-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
@@ -291,40 +305,169 @@
   opacity: 1;
 }
 
-/* + Queue button — appears on hover next to the play icon */
+/* ============================================================
+   QUEUE PILL BUTTON — animated add-to-queue interaction
+   ============================================================ */
+
 .search-queue-btn {
-  opacity: 0;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.7);
+  /* Base: circular icon-only button */
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 28px;
+  min-width: 28px;
+  padding: 0 8px;
+  border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
-  transition: opacity 0.18s ease, background 0.18s ease, transform 0.15s ease;
-  flex-shrink: 0;
+  overflow: hidden;
+
+  /* Hidden on idle; shown on row hover */
+  opacity: 0;
+  transform: scale(0.85);
+  transition:
+    opacity 0.18s ease,
+    background 0.22s ease,
+    border-color 0.22s ease,
+    color 0.22s ease,
+    transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+    min-width 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* Reveal on row hover */
 .search-result-item:hover .search-queue-btn {
   opacity: 1;
+  transform: scale(1);
 }
 
 .search-queue-btn:hover {
   background: rgba(255, 255, 255, 0.18);
   color: #fff;
-  transform: scale(1.12);
+  transform: scale(1.08);
 }
 
 .search-queue-btn:active {
-  transform: scale(0.92);
+  transform: scale(0.93);
+}
+
+/* ── ADDED STATE ── */
+.search-queue-btn--added {
+  /* Expand into pill, shift to green */
+  min-width: 72px;
+  background: rgba(29, 185, 84, 0.18);
+  border-color: rgba(29, 185, 84, 0.5);
+  color: #1db954;
+  cursor: default;
+  /* Force visible — stays visible regardless of hover */
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  /* Scale-pop on entry */
+  animation: queueAddedPop 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes queueAddedPop {
+  0% {
+    transform: scale(0.88);
+  }
+
+  55% {
+    transform: scale(1.1);
+  }
+
+  80% {
+    transform: scale(0.97);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Hover on added state does nothing */
+.search-queue-btn--added:hover {
+  background: rgba(29, 185, 84, 0.18);
+  color: #1db954;
+  transform: scale(1);
+}
+
+/* ── Inner layout (icon + label) ── */
+.search-queue-btn-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  /* Prevent layout shift during animation */
+  white-space: nowrap;
+}
+
+/* ── Icons — cross-fade between plus and check ── */
+.search-queue-icon {
+  position: absolute;
+  left: 0;
+  flex-shrink: 0;
+  transition:
+    opacity 0.2s ease,
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Reserve space for the icon so the label doesn't jump */
+.search-queue-btn-inner::before {
+  content: '';
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+/* Plus visible by default, hidden when added */
+.search-queue-icon--plus {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+.search-queue-btn--added .search-queue-icon--plus {
+  opacity: 0;
+  transform: rotate(45deg) scale(0.5);
+}
+
+/* Check hidden by default, visible when added */
+.search-queue-icon--check {
+  opacity: 0;
+  transform: scale(0.4) rotate(-20deg);
+}
+
+.search-queue-btn--added .search-queue-icon--check {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+  transition-delay: 0.06s;
+}
+
+/* ── Label text ── */
+.search-queue-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  /* Hidden when just a circle (no label needed for icon-only) */
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-width 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.2s ease 0.08s;
+}
+
+/* Expand label when added */
+.search-queue-btn--added .search-queue-label {
+  max-width: 56px;
+  opacity: 1;
 }
 
 /* Swipe hint label that appears inside the swipe action background */
 .swipeable-track-wrapper .swipe-action-bg {
-  /* ensures the white queue reveal looks good in search context */
   border-radius: 14px;
 }
 
@@ -370,6 +513,28 @@
   .search-results {
     padding: 0 16px 40px;
   }
+
+  /*
+   * Mobile: show the pill button always (not just on hover)
+   * — users can't hover on touch screens.
+   * Keep it compact as a circle until tapped.
+   */
+  .search-queue-btn {
+    display: flex;
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Slightly larger tap target on mobile */
+  .search-queue-btn {
+    height: 30px;
+    min-width: 30px;
+    padding: 0 9px;
+  }
+
+  .search-queue-btn--added {
+    min-width: 76px;
+  }
 }
 
 /* ============================================================
@@ -389,12 +554,15 @@
   0% {
     opacity: 0;
   }
+
   15% {
     opacity: 1;
   }
+
   70% {
     opacity: 1;
   }
+
   100% {
     opacity: 0;
   }
@@ -413,6 +581,7 @@
   0% {
     transform: scale(1.1);
   }
+
   100% {
     transform: scale(1.25);
   }
@@ -434,15 +603,18 @@
     transform: scale(0.8) translateY(20px);
     filter: blur(8px);
   }
+
   40% {
     opacity: 1;
     transform: scale(1) translateY(0);
     filter: blur(0);
   }
+
   70% {
     opacity: 1;
     transform: scale(1.02) translateY(-2px);
   }
+
   100% {
     opacity: 0;
     transform: scale(1.1) translateY(-8px);
