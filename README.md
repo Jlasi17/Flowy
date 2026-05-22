@@ -1,66 +1,289 @@
-# Flowy
+# 🌊 Flowy
 
-Flowy is a custom, self-made music application built specifically for artists under the HYBE label. It offers a premium, immersive listening experience featuring smooth animations, queue management, lyrics syncing, and a sleek aesthetic.
+A cinematic, gesture-first music experience built for HYBE artists.
 
-## Features
-- **Immersive UI/UX**: Smooth, dynamic layout with high-quality animations powered by Framer Motion.
-- **Queue Management**: Intuitive drag-and-drop queue reordering and auto-play functionality.
-- **Music Playback**: Integrated web audio player.
-- **Lyrics Sync**: Real-time synchronized lyrics display for supported tracks.
-- **Library**: Custom music registry spanning multiple artists including BTS, TXT, LE SSERAFIM, ENHYPEN, and more.
+Flowy is a premium React-based music player designed around immersion, motion, and emotion.
+Built with a strong focus on modern UI/UX, Flowy transforms music listening into a visually rich experience through dynamic animations, synchronized lyrics, cinematic transitions, queue interactions, and responsive mobile-first design.
 
-## Prerequisites & Requirements
-To run this project locally, you will need the following installed on your machine:
-- [Node.js](https://nodejs.org/en/download/) (v16.0 or higher recommended)
-- [npm](https://www.npmjs.com/) (usually comes with Node.js) or [Yarn](https://yarnpkg.com/)
-- [Python 3](https://www.python.org/downloads/) (for the backend server)
-- [Git](https://git-scm.com/)
+Inspired by artists under the HYBE label — including BTS, Tomorrow X Together, and LE SSERAFIM — Flowy blends aesthetic storytelling with powerful audio functionality.
 
-## Installation & Setup
+---
 
-1. **Clone the repository** (if you haven't already):
-   ```bash
-   git clone https://github.com/Jlasi17/Flowy.git
-   cd flowy
-   ```
+## ✨ Features
 
-2. **Install Frontend Dependencies**:
-   Navigate to the project root and install the required npm packages:
-   ```bash
-   npm install
-   ```
+### 🎵 Immersive Music Playback
+* Persistent global audio player
+* Dynamic queue system with next/previous controls
+* Shuffle and repeat modes
+* Hidden HTML5 audio engine managed through React Context
+* Smooth play/pause morph animations
 
-3. **Install Backend Dependencies**:
-   The backend relies on a lightweight Python server.
-   ```bash
-   cd backend
-   pip3 install -r requirements.txt
-   cd ..
-   ```
+### 🎤 Real-Time Synced Lyrics
+* `.lrc` lyric parsing and synchronization
+* Live active-line highlighting
+* Member-specific glow colors for group songs
+* Clean typography mode for solo tracks
+* Karaoke-inspired lyric experience
 
-4. **Add Media Files**:
-   Since music files and large images are ignored via `.gitignore` to prevent bloating the git history, you must manually place your media files (songs, lyrics, cover arts) into the `public/` directory following the expected folder structure (e.g., `public/btssongs/`, `public/lesongs/`, etc.).
+### 📱 Gesture-First Mobile Experience
+* Swipe-to-add queue interactions
+* Drag-to-reorder queue system
+* Swipe-down dismissible panels
+* Horizontal album carousel gestures
+* Dynamic Island inspired mini-player for mobile
 
-## Running the Application
+### 🎨 Cinematic UI & Motion Design
+* Glassmorphism and backdrop blur effects
+* Dynamic album-based accent theming
+* Animated background blobs
+* Smooth page transitions
+* Framer Motion powered interactions
+* 3D rotating album carousel
 
-To start the application, you need to run both the frontend development server and the backend server.
+### 🧠 Advanced Audio Architecture
+* Centralized global audio state management
+* Context-driven playback engine
+* Persistent playback across routes
+* Active album context tracking
+* Modular React hooks and utilities
 
-1. **Start the Frontend**:
-   From the root of the `flowy` directory, run:
-   ```bash
-   npm run dev
-   ```
-   *This will start the Vite server.*
+### 🖼️ Museum & Gallery Experience
+* Dedicated immersive gallery mode
+* High-resolution visual exploration UI
+* Experimental cinematic layouts
 
-2. **Start the Backend**:
-   Open a new terminal window, navigate to the backend directory, and run the start script:
-   ```bash
-   cd backend
-   ./start.sh
-   ```
-   *Or manually run `python3 server.py`.*
+### 🛠️ Lyrics Synchronization Utility
+* Internal lyrics syncing tool
+* Tap-based timestamp generation
+* `.lrc` creation workflow
 
-## Technologies Used
-- **Frontend**: React, Vite, Framer Motion
-- **Backend**: Python (Flask/FastAPI)
-- **Styling**: Custom CSS with dynamic theming
+---
+
+## 🏗️ Tech Stack
+
+**Frontend**
+* React
+* Vite
+* React Router
+* Framer Motion
+
+**Backend**
+* Python
+* Flask / FastAPI
+
+**Styling & UI**
+* Custom CSS Architecture
+* CSS Variables
+* Responsive Media Queries
+* Dynamic Theming
+* Glassmorphism Effects
+
+---
+
+## 📂 Project Structure
+
+```text
+src/
+│
+├── components/
+│   ├── PersistentAudioPlayer.jsx
+│   ├── MaximizedPlayer.jsx
+│   ├── QueuePanel.jsx
+│   ├── LyricsPanel.jsx
+│   ├── SearchOverlay.jsx
+│   ├── SwipeableTrack.jsx
+│   ├── FlyToQueue.jsx
+│   ├── KaraokePanel.jsx
+│   ├── DualEqualizer.jsx
+│   └── ...
+│
+├── pages/
+│   ├── Dashboard.jsx
+│   ├── AlbumPage.jsx
+│   ├── MuseumGallery.jsx
+│   ├── LyricsSyncPage.jsx
+│   └── ...
+│
+├── data/
+│   ├── musicRegistry.js
+│   ├── btsAlbums.js
+│   ├── txtAlbums.js
+│   ├── lesserafimAlbums.js
+│   └── ...
+│
+├── hooks/
+│   ├── useLyrics.js
+│   ├── useCinematicControls.js
+│   └── ...
+│
+├── utils/
+│   ├── parseLrc.js
+│   ├── singerColors.js
+│   └── ...
+│
+├── AudioPlayerProvider.jsx
+├── App.jsx
+├── main.jsx
+└── index.css
+```
+
+---
+
+## 🚀 Core Architectural Highlights
+
+### 🎡 3D Album Carousel
+The Dashboard experience uses advanced CSS transforms like:
+`translateZ()`, `rotateY()`, `perspective()`
+to create a cinematic rotating album showcase.
+
+### 🌈 Dynamic Color System
+Each album carries its own accent palette which dynamically themes:
+* backgrounds
+* glows
+* player UI
+* lyric highlights
+* shadows
+
+### 📲 Responsive UI Shifting
+Flowy completely changes interaction patterns depending on screen size.
+
+**Desktop**
+* Bottom persistent player
+* Wide immersive layouts
+* Expanded controls
+
+**Mobile**
+* Floating mini-player
+* Bottom sheet interactions
+* Gesture-heavy navigation
+* Dynamic Island inspired playback UI
+
+### 🎭 Motion-Driven UX
+Flowy heavily emphasizes animation as part of the experience:
+* morphing controls
+* fly-to-queue animations
+* kinetic transitions
+* swipe physics
+* smooth route transitions
+
+---
+
+## ⚙️ Installation & Setup
+
+**1. Clone Repository**
+```bash
+git clone https://github.com/Jlasi17/Flowy.git
+cd Flowy
+```
+
+**2. Install Frontend Dependencies**
+```bash
+npm install
+```
+
+**3. Install Backend Dependencies**
+```bash
+cd backend
+pip3 install -r requirements.txt
+cd ..
+```
+
+---
+
+## 📁 Media Setup
+
+Large media assets are excluded from GitHub to keep the repository lightweight.
+
+You must manually place:
+* songs
+* lyrics
+* album covers
+* artist images
+
+inside the `public/` directory following the expected structure:
+
+```text
+public/
+├── btssongs/
+├── txtsongs/
+├── lesserafimsongs/
+├── covers/
+└── lyrics/
+```
+
+---
+
+## ▶️ Running the Project
+
+**Start Frontend**
+```bash
+npm run dev
+```
+
+**Start Backend**
+```bash
+cd backend
+python3 server.py
+# or
+./start.sh
+```
+
+---
+
+## 📱 PWA Support
+
+Flowy is designed as a Progressive Web App and supports:
+* standalone installation
+* mobile home screen support
+* responsive fullscreen layouts
+* app-like mobile behavior
+
+---
+
+## 🧩 Important Components
+
+| Component | Purpose |
+| --- | --- |
+| `AudioPlayerProvider` | Global audio engine & playback state |
+| `PersistentAudioPlayer` | Floating/bottom music player |
+| `MaximizedPlayer` | Full immersive playback screen |
+| `QueuePanel` | Queue management UI |
+| `LyricsPanel` | Synchronized lyric rendering |
+| `SearchOverlay` | Search & add-to-queue system |
+| `SwipeableTrack` | Gesture interactions |
+| `Dashboard` | 3D album hero experience |
+
+---
+
+## 🎨 Design Philosophy
+
+Flowy focuses on:
+* emotional interaction
+* cinematic immersion
+* tactile gestures
+* minimal but expressive UI
+* music-first storytelling
+
+Rather than behaving like a traditional music player, Flowy aims to feel alive — reacting to music through motion, color, depth, and interaction.
+
+---
+
+## 🔮 Future Plans
+* AI-powered karaoke scoring
+* Real-time voice analysis
+* Advanced lyric animations
+* Visualizer enhancements
+* Multi-device sync
+* Playlist generation
+* Offline support improvements
+
+---
+
+## 👩‍💻 Developer
+Built with passion by Lasya Jetti.
+
+---
+
+## 📄 License
+This project is for educational and personal showcase purposes.
+Music and artist-related assets belong to their respective owners and labels.
