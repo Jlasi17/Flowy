@@ -439,12 +439,18 @@
 }
 
 .song-duration-minimal {
-  flex: 0 0 60px;
   text-align: right;
   color: rgba(255, 255, 255, 0.4);
   font-size: 0.8rem;
   font-variant-numeric: tabular-nums;
   padding-right: 14px;
+}
+
+.song-actions-minimal {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 .album-footer-stats {
@@ -678,9 +684,12 @@
   }
 
   .song-duration-minimal {
-    flex: 0 0 48px;
-    font-size: 0.72rem;
-    padding-right: 8px;
+    font-size: 0.75rem;
+    padding-right: 0;
+  }
+  
+  .song-actions-minimal {
+    gap: 8px;
   }
 
   .album-footer-stats {

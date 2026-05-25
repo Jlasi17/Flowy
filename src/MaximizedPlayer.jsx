@@ -338,24 +338,30 @@ export default function MaximizedPlayer({ onClose }) {
     const fallback = "#F3CEB0";
     if (!colorStr) return fallback;
     
+    let r, g, b;
     if (colorStr.startsWith('rgb') || colorStr.startsWith('rgba')) {
       const match = colorStr.match(/\d+/g);
       if (match && match.length >= 3) {
-        const [r, g, b] = match.map(Number);
-        if (r < 40 && g < 40 && b < 40) {
-          return '#ffffff';
-        }
+        [r, g, b] = match.map(Number);
       }
     } else if (colorStr.startsWith('#')) {
       let hex = colorStr.replace('#', '');
       if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
-      if (hex.length === 6) {
-        const r = parseInt(hex.substring(0, 2), 16);
-        const g = parseInt(hex.substring(2, 4), 16);
-        const b = parseInt(hex.substring(4, 6), 16);
-        if (r < 40 && g < 40 && b < 40) {
-          return '#ffffff';
-        }
+      if (hex.length >= 6) {
+        r = parseInt(hex.substring(0, 2), 16);
+        g = parseInt(hex.substring(2, 4), 16);
+        b = parseInt(hex.substring(4, 6), 16);
+      }
+    }
+    
+    if (r !== undefined) {
+      const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      if (luma < 60) {
+        const factor = luma < 20 ? 0.7 : (luma < 40 ? 0.5 : 0.3);
+        r = Math.floor(r + (255 - r) * factor);
+        g = Math.floor(g + (255 - g) * factor);
+        b = Math.floor(b + (255 - b) * factor);
+        return `rgb(${r}, ${g}, ${b})`;
       }
     }
     return colorStr;

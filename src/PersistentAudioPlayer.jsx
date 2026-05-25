@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { AudioContext } from "./AudioPlayerProvider";
 import MaximizedPlayer from "./MaximizedPlayer";
@@ -11,6 +11,7 @@ import LyricsPanel from "./components/LyricsPanel";
 import KaraokePanel from "./components/KaraokePanel";
 import { getHeartColor } from "./utils/singerColors";
 import "./musicplayer.css";
+import { useAuth } from "./contexts/AuthContext";
 
 const MarqueeText = ({ text, className }) => {
   const isOverflowing = text?.length > 25;
@@ -80,8 +81,18 @@ export default function PersistentAudioPlayer() {
   const lastVolumeRef = useRef(volume || 80);
   const touchStartRef = useRef(null);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { currentUser } = useAuth();
 
   const isHeroPage = location.pathname === '/';
+
+  const requireAuth = (callback) => {
+    if (currentUser) {
+      callback();
+    } else {
+      navigate('/auth', { state: { from: location } });
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -180,20 +191,30 @@ export default function PersistentAudioPlayer() {
     const fallback = "#1db954";
     if (!colorStr) return fallback;
 
+    let r, g, b;
     if (colorStr.startsWith('rgb') || colorStr.startsWith('rgba')) {
       const match = colorStr.match(/\d+/g);
       if (match && match.length >= 3) {
-        const [r, g, b] = match.map(Number);
-        if (r < 40 && g < 40 && b < 40) return '#ffffff';
+        [r, g, b] = match.map(Number);
       }
     } else if (colorStr.startsWith('#')) {
       let hex = colorStr.replace('#', '');
       if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
-      if (hex.length === 6) {
-        const r = parseInt(hex.substring(0, 2), 16);
-        const g = parseInt(hex.substring(2, 4), 16);
-        const b = parseInt(hex.substring(4, 6), 16);
-        if (r < 40 && g < 40 && b < 40) return '#ffffff';
+      if (hex.length >= 6) {
+        r = parseInt(hex.substring(0, 2), 16);
+        g = parseInt(hex.substring(2, 4), 16);
+        b = parseInt(hex.substring(4, 6), 16);
+      }
+    }
+    
+    if (r !== undefined) {
+      const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      if (luma < 60) {
+        const factor = luma < 20 ? 0.7 : (luma < 40 ? 0.5 : 0.3);
+        r = Math.floor(r + (255 - r) * factor);
+        g = Math.floor(g + (255 - g) * factor);
+        b = Math.floor(b + (255 - b) * factor);
+        return `rgb(${r}, ${g}, ${b})`;
       }
     }
     return colorStr;
@@ -289,7 +310,7 @@ export default function PersistentAudioPlayer() {
               ref={mobileQueueBtnRef}
               onClick={(e) => {
                 e.stopPropagation();
-                setIsQueueOpen(!isQueueOpen);
+                requireAuth(() => setIsQueueOpen(!isQueueOpen));
               }}
               aria-label="Queue"
               style={{ color: isQueueOpen ? '#1db954' : '#fff' }}
@@ -303,7 +324,7 @@ export default function PersistentAudioPlayer() {
               className="ctrl-btn mobile-lyrics-btn"
               onClick={(e) => {
                 e.stopPropagation();
-                setIsLyricsOpen(true);
+                requireAuth(() => setIsLyricsOpen(true));
               }}
               aria-label="Lyrics"
               title="Show Lyrics"
@@ -386,7 +407,7 @@ export default function PersistentAudioPlayer() {
           </button>
           {/* Mic / Lyrics button */}
           <button
-            onClick={() => setIsLyricsOpen(true)}
+            onClick={() => requireAuth(() => setIsLyricsOpen(true))}
             aria-label="Lyrics"
             title="Show Lyrics"
             style={{
@@ -410,7 +431,7 @@ export default function PersistentAudioPlayer() {
           <button
             className="queue-btn"
             ref={queueBtnRef}
-            onClick={() => setIsQueueOpen(!isQueueOpen)}
+            onClick={() => requireAuth(() => setIsQueueOpen(!isQueueOpen))}
             aria-label="Queue"
             style={{ background: 'transparent', border: 'none', color: isQueueOpen ? '#1db954' : '#fff', cursor: 'pointer', marginLeft: '12px', opacity: isQueueOpen ? 1 : 0.7 }}
           >

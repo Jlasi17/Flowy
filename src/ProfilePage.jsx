@@ -1,0 +1,433 @@
+import React, { useContext, useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { updateProfile } from 'firebase/auth';
+import { useAuth } from './contexts/AuthContext';
+import { AudioContext } from './AudioPlayerProvider';
+import './ProfilePage.css';
+
+export default function ProfilePage() {
+  const { currentUser } = useAuth();
+  const { activeSong, albumData, isPlaying } = useContext(AudioContext);
+  const navigate = useNavigate();
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editPhotoUrl, setEditPhotoUrl] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (currentUser) {
+      setEditName(currentUser.displayName || "Lasya Jetti");
+      setEditPhotoUrl(currentUser.photoURL || "");
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handleSaveProfile = async () => {
+    if (!currentUser) return;
+    setIsSaving(true);
+    try {
+      await updateProfile(currentUser, {
+        displayName: editName,
+        photoURL: editPhotoUrl
+      });
+      setIsEditing(false);
+      window.location.reload(); // Refresh to reflect new auth state
+    } catch (error) {
+      console.error("Error updating profile", error);
+    }
+    setIsSaving(false);
+  };
+
+  // Mock User Data
+  const displayName = currentUser?.displayName || "Lasya Jetti";
+  const emailPrefix = currentUser?.email ? currentUser.email.split('@')[0] : 'midnightflowy';
+  const handle = `@${emailPrefix}`;
+
+  // Avatar Initials
+  const getInitials = (name) => {
+    if (!name) return "U";
+    const parts = name.trim().split(" ");
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+  const initials = getInitials(displayName);
+
+  // Read Analytics Data
+  const totalSeconds = Number(localStorage.getItem('flowy_total_seconds') || 0);
+  const minutesListened = Math.floor(totalSeconds / 60);
+  const streak = Number(localStorage.getItem('flowy_streak') || 0);
+
+  const activeHoursStr = localStorage.getItem('flowy_active_hours');
+  let mostActiveHour = "N/A";
+  let activeHourAmPm = "";
+  if (activeHoursStr) {
+    const hours = JSON.parse(activeHoursStr);
+    let maxHour = -1;
+    let maxVal = -1;
+    for (const [hr, val] of Object.entries(hours)) {
+      if (val > maxVal) { maxVal = val; maxHour = Number(hr); }
+    }
+    if (maxHour !== -1) {
+      const ampm = maxHour >= 12 ? 'PM' : 'AM';
+      const displayHour = maxHour % 12 || 12;
+      mostActiveHour = `${displayHour}:00 ${ampm}`;
+      activeHourAmPm = ampm;
+    }
+  }
+
+  const historyStr = localStorage.getItem('flowy_play_history');
+  let history = [];
+  try {
+    const parsed = historyStr ? JSON.parse(historyStr) : [];
+    history = Array.isArray(parsed) ? parsed : [];
+  } catch (e) { }
+  const displayHistory = history.slice(0, 5);
+
+  const countsStr = localStorage.getItem('flowy_play_counts');
+  const counts = countsStr ? JSON.parse(countsStr) : {};
+
+  // Aura Colors
+  let auraColors = ['#5b21b6', '#db2777', '#1e3a8a']; // defaults
+  if (history.length > 0) {
+    const colors = history.map(h => h.color).filter(c => c && c.startsWith('#'));
+    if (colors.length >= 3) {
+      auraColors = [colors[0], colors[1], colors[2]];
+    } else if (colors.length > 0) {
+      auraColors = [colors[0], colors[0], colors[0]];
+    }
+  }
+  const animationDuration = totalSeconds > 3600 ? '8s' : '15s';
+
+  // Dynamic Bio
+  let bio = "Discovering new sounds ✨";
+  if (history.length > 3) {
+    const artistCounts = {};
+    history.forEach(h => {
+      artistCounts[h.artist] = (artistCounts[h.artist] || 0) + 1;
+    });
+    let topArtist = "";
+    let maxA = 0;
+    for (const [art, count] of Object.entries(artistCounts)) {
+      if (count > maxA) { maxA = count; topArtist = art; }
+    }
+    if (topArtist) bio = `Currently obsessed with ${topArtist} 🎧`;
+  }
+
+  // Dynamic Badges
+  const badges = [];
+  if (history.length === 0) {
+    badges.push("New Listener");
+  } else {
+    const hourNum = parseInt(mostActiveHour);
+    if (activeHourAmPm === 'PM' && (hourNum === 12 || hourNum >= 10 || hourNum < 4)) {
+      badges.push("Night Owl 🌙");
+    } else if (activeHourAmPm === 'AM' && hourNum >= 5 && hourNum < 10) {
+      badges.push("Early Bird 🌅");
+    } else {
+      badges.push("Daytime Vibez ☀️");
+    }
+    if (minutesListened > 120) badges.push("Music Junkie 🎧");
+    if (streak > 2) badges.push(`${streak}-Day Streak 🔥`);
+  }
+
+  // Mood Timeline
+  const getMoodEmoji = (color) => {
+    if (!color) return '✨';
+    const hex = color.replace('#', '');
+    if (hex.length === 6) {
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      if (brightness < 80) return '🖤';
+      if (brightness > 200) return '💫';
+      if (b > r && b > g) return '🌌';
+      if (r > b && r > g) return '🔥';
+    }
+    return '🎶';
+  };
+  const moodNodes = history.slice(0, 4).map(h => getMoodEmoji(h.color));
+  while (moodNodes.length < 4) moodNodes.push('✨');
+
+  // History Tags
+  const getHistoryTag = (item) => {
+    const playCount = counts[item.title] || 1;
+    if (playCount >= 5) return `on heavy repeat (${playCount} plays)`;
+    if (playCount >= 2) return `looped ${playCount} times`;
+    return `played ${timeAgo(item.timestamp)}`;
+  };
+
+  const timeAgo = (ts) => {
+    const diff = Math.floor((Date.now() - ts) / 60000);
+    if (diff < 1) return 'just now';
+    if (diff < 60) return `${diff}m ago`;
+    if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+    return `${Math.floor(diff / 1440)}d ago`;
+  };
+
+  // Activity Grid Data (Authentic GitHub Style)
+  let dailySecs = {};
+  try {
+    dailySecs = JSON.parse(localStorage.getItem('flowy_daily_seconds') || '{}');
+  } catch (e) { }
+
+  const gridColumns = isMobile ? 12 : 24; // Fit into Bento Tile
+  const gridRows = 7;
+  const todayDate = new Date();
+  const currentDayOfWeek = todayDate.getDay();
+  const startDay = new Date(todayDate);
+  startDay.setDate(todayDate.getDate() - ((gridColumns - 1) * 7) - currentDayOfWeek);
+
+  const gridSquares = [];
+  let totalMinutes = 0;
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthLabels = [];
+  let lastMonth = -1;
+
+  for (let col = 0; col < gridColumns; col++) {
+    const sundayOfCol = new Date(startDay);
+    sundayOfCol.setDate(startDay.getDate() + (col * 7));
+    const m = sundayOfCol.getMonth();
+
+    // Add month label if month changed
+    if (m !== lastMonth) {
+      // Avoid clipping label on the far left by ensuring it's not column 0 or it's mid-month
+      if (col > 0 || sundayOfCol.getDate() > 15) {
+        monthLabels.push({ label: monthNames[m], col });
+      }
+      lastMonth = m;
+    }
+
+    for (let row = 0; row < gridRows; row++) {
+      const d = new Date(startDay);
+      d.setDate(startDay.getDate() + (col * 7) + row);
+      const dateStr = d.toISOString().split('T')[0];
+      const seconds = dailySecs[dateStr] || 0;
+      const minutes = Math.round(seconds / 60);
+
+      const isFuture = d > todayDate;
+      if (!isFuture) totalMinutes += minutes;
+
+      let level = 0;
+      if (minutes > 0) level = 1;
+      if (minutes >= 15) level = 2;
+      if (minutes >= 30) level = 3;
+      if (minutes >= 60) level = 4;
+
+      gridSquares.push({
+        date: dateStr,
+        minutes,
+        level: isFuture ? 0 : level,
+        isFuture,
+        col,
+        row
+      });
+    }
+  }
+
+  return (
+    <div className="profile-page">
+      {/* Background Aura */}
+      <div className="profile-aura-bg">
+        <div className="aura-blob aura-1" style={{ background: auraColors[0], animationDuration }} />
+        <div className="aura-blob aura-2" style={{ background: auraColors[1], animationDuration }} />
+        <div className="aura-blob aura-3" style={{ background: auraColors[2], animationDuration }} />
+      </div>
+      <div className="profile-noise" />
+
+      {/* Main Content */}
+      <div className="bento-container">
+
+        {/* Tile 1: Profile Info */}
+        <motion.div
+          className="bento-tile profile-info-tile"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <button className="bento-back-btn" onClick={() => navigate(-1)}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+          </button>
+
+          {!isEditing && (
+            <button className="bento-edit-btn" onClick={() => setIsEditing(true)}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            </button>
+          )}
+
+          <div className="profile-pic-container">
+            <div className="profile-pic-pulse" />
+            <div className={`profile-vinyl ${isPlaying ? 'spinning' : ''}`} />
+            {currentUser?.photoURL ? (
+              <img
+                src={currentUser.photoURL}
+                alt="Profile"
+                className="profile-pic"
+              />
+            ) : (
+              <div className="profile-pic fallback-avatar">
+                {initials}
+              </div>
+            )}
+          </div>
+
+          {isEditing ? (
+            <div className="profile-edit-form">
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Display Name"
+                className="profile-edit-input"
+              />
+              <input
+                type="text"
+                value={editPhotoUrl}
+                onChange={(e) => setEditPhotoUrl(e.target.value)}
+                placeholder="Photo URL"
+                className="profile-edit-input"
+              />
+              <div className="profile-edit-actions">
+                <button className="profile-edit-cancel" onClick={() => setIsEditing(false)}>Cancel</button>
+                <button className="profile-edit-save" onClick={handleSaveProfile} disabled={isSaving}>
+                  {isSaving ? "Saving..." : "Save"}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <h1 className="profile-name">{displayName}</h1>
+              <p className="profile-handle">{handle}</p>
+              <p className="profile-bio">"{bio}"</p>
+
+              <div className="profile-badges">
+                {badges.map((b, i) => <span key={i} className="profile-badge">{b}</span>)}
+              </div>
+            </>
+          )}
+        </motion.div>
+
+        {/* Tile 2: Stats Grid */}
+        <motion.div
+          className="bento-tile stats-tile"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+        >
+          <div className="stats-bento-grid">
+            <div className="stat-card">
+              <div className="stat-label">Listening Streak</div>
+              <div className="stat-value">{streak} {streak === 1 ? 'Day' : 'Days'}</div>
+              <div className="stat-emotional orange">You can't let go 🔥</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-label">Most Active</div>
+              <div className="stat-value">{mostActiveHour}</div>
+              <div className="stat-emotional purple">
+                {activeHourAmPm === 'PM' && parseInt(mostActiveHour) >= 8 ? 'Night Owl 🌙' : 'Daylight ☀️'}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Tile 3: Live & Recent */}
+        <motion.div
+          className="bento-tile history-tile"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <h3 className="bento-tile-title">Live & Recent</h3>
+
+          {activeSong && (
+            <div className="live-status">
+              <div className="live-glow" />
+              <img src={activeSong.cover || albumData?.cover} alt="Now Playing" className="live-status-cover" />
+              <div className="live-status-info">
+                <p>Currently playing</p>
+                <h4>{activeSong.name}</h4>
+                <span>{albumData?.member || 'Unknown Artist'}</span>
+              </div>
+              {isPlaying && (
+                <div className="playing-eq" style={{ position: 'absolute', right: '16px' }}>
+                  <span></span><span></span><span></span>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="history-list bento-history">
+            {displayHistory.length > 0 ? (
+              displayHistory
+                .slice(0, 5)
+                .map((item) => (
+                  <div className="history-item" key={item.id}>
+                    <img src={item.cover} alt={item.title} className="history-cover" />
+                    <div className="history-details">
+                      <div className="history-title">{item.title}</div>
+                      <div className="history-artist">{item.artist}</div>
+                    </div>
+                    <div className="history-emotion">
+                      {getHistoryTag(item)}
+                    </div>
+                  </div>
+                ))
+            ) : (
+              !activeSong && <div style={{ color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', padding: '12px' }}>
+                Your history is waiting to be written. Play some tracks!
+              </div>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Tile 4: Activity Grid */}
+        <motion.div
+          className="bento-tile activity-tile"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          <div className="activity-grid-header">
+            <h3>{totalMinutes.toLocaleString()} mins</h3>
+          </div>
+
+          <div className="activity-wrapper">
+            <div className="activity-y-axis">
+              <span /><span>Mon</span><span /><span>Wed</span><span /><span>Fri</span><span />
+            </div>
+
+            <div className="activity-grid-scroll" ref={(el) => { if (el) el.scrollLeft = el.scrollWidth; }}>
+              <div className="activity-x-axis" style={{ gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }}>
+                {monthLabels.map((m, i) => (
+                  <span key={i} style={{ gridColumn: m.col + 1 }}>{m.label}</span>
+                ))}
+              </div>
+
+              <div className="activity-grid" style={{ gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }}>
+                {gridSquares.map((sq, i) => (
+                  <div
+                    key={i}
+                    className={`activity-square activity-level-${sq.level} ${sq.isFuture ? 'activity-future' : ''} ${sq.row <= 1 ? 'tooltip-bottom' : ''}`}
+                    data-tooltip={sq.isFuture ? null : `${sq.minutes} mins on ${sq.date}`}
+                    style={{ gridColumn: sq.col + 1, gridRow: sq.row + 1 }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+      </div>
+    </div>
+  );
+}

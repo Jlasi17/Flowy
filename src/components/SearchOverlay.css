@@ -201,9 +201,6 @@
   background: rgba(255,255,255,0.1);
 }
 
-@media (max-width: 768px) {
-  .recent-search-remove { opacity: 1; }
-}
 
 /* Loading Skeleton */
 .search-loading {
@@ -239,10 +236,6 @@
 /* Top Result */
 .search-top-result-container {
   margin-bottom: 32px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  align-self: start;
 }
 
 .top-result-card {
@@ -344,6 +337,13 @@
 @media (min-width: 1024px) {
   .search-content {
     grid-template-columns: 400px 1fr;
+  }
+  
+  .search-top-result-container {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    align-self: start;
   }
 }
 
@@ -526,19 +526,6 @@
   display: block;
 }
 
-@media (max-width: 768px) {
-  .search-song-actions { opacity: 1; }
-  .top-result-play-btn { opacity: 1; transform: none; }
-  .search-result-play-overlay { display: none; } /* Mobile doesn't need hover play */
-  
-  .search-queue-btn {
-    border: none;
-    padding: 8px;
-  }
-  .search-queue-label {
-    display: none;
-  }
-}
 
 /* Empty / No Results */
 .search-empty {
@@ -567,4 +554,104 @@
 .search-empty-hint {
   font-size: 14px;
   color: #b3b3b3;
+}
+
+@media (max-width: 768px) {
+  /* Layout & Spacing */
+  .search-panel {
+    padding: 0 16px;
+  }
+  .search-header {
+    padding: 16px 0;
+    margin-top: env(safe-area-inset-top, 0px);
+  }
+  .search-input-wrapper {
+    height: 44px;
+    padding: 0 12px;
+  }
+  .search-input {
+    font-size: 16px;
+  }
+  .search-section-title {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  /* Top Result */
+  .top-result-card {
+    padding: 16px;
+    gap: 12px;
+  }
+  .top-result-img {
+    width: 72px;
+    height: 72px;
+  }
+  .top-result-title {
+    font-size: 24px;
+  }
+  .top-result-play-btn { 
+    opacity: 1; 
+    transform: none; 
+    width: 40px;
+    height: 40px;
+    bottom: 16px;
+    right: 16px;
+  }
+
+  /* Lists & Results */
+  .search-lists {
+    gap: 24px;
+  }
+  .search-result-item {
+    padding: 6px 0;
+  }
+  .search-result-thumb-wrapper,
+  .search-artist-avatar,
+  .search-result-thumb {
+    width: 48px;
+    height: 48px;
+    margin-right: 12px;
+  }
+  .search-result-name {
+    font-size: 15px;
+  }
+  .search-result-meta {
+    font-size: 13px;
+  }
+
+  /* Interaction Elements */
+  .search-song-actions { 
+    opacity: 1; 
+  }
+  .search-result-play-overlay { 
+    display: none; 
+  }
+  .search-queue-btn {
+    border: none;
+    padding: 12px;
+    background: transparent;
+  }
+  .search-queue-btn:hover {
+    transform: none;
+  }
+  .search-queue-label {
+    display: none;
+  }
+  .recent-search-remove { 
+    opacity: 1; 
+    padding: 12px; 
+  }
+  
+  /* Empty States */
+  .search-empty {
+    padding: 40px 16px;
+    height: auto;
+    margin-top: 15vh;
+  }
+  .search-empty-icon {
+    font-size: 40px;
+  }
+  .search-empty p {
+    font-size: 18px;
+  }
 }

@@ -67,7 +67,17 @@ const lesserafimSongs = {
     ],
 
     "le9": [
-        { name: "Pureflow", file: "Pureflow.mp3", duration: "3:00" }
+        { name: "Pureflow", file: "01. Pureflow.mp3", duration: "1:49" },
+        { name: "BOOMPALA", file: "02. BOOMPALA.mp3", duration: "2:57" },
+        { name: "CELEBRATION", file: "03. CELEBRATION.mp3", duration: "2:33" },
+        { name: "Creatures", file: "04. Creatures.mp3", duration: "3:08" },
+        { name: "iffy iffy", file: "05. iffy iffy.mp3", duration: "2:09" },
+        { name: "Need Your Company", file: "06. Need Your Company.mp3", duration: "1:58" },
+        { name: "Sonder", file: "07. Sonder.mp3", duration: "2:46" },
+        { name: "Saki", file: "08. Saki.mp3", duration: "2:45" },
+        { name: "Irony", file: "09. Irony.mp3", duration: "2:24" },
+        { name: "Trust Exercise", file: "10. Trust Exercise.mp3", duration: "2:23" },
+        { name: "Liminal Space", file: "11. Liminal Space.mp3", duration: "2:11" }
     ]
 };
 export default lesserafimSongs;

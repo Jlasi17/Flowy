@@ -18,8 +18,8 @@ export const SINGER_COLORS = {
 
   // LE SSERAFIM members
   'CHAEWON': {
-    primary: '#c9ccd6',
-    glow: 'rgba(201, 204, 214, 0.5)'  // soft silver
+    primary: '#cda7e9ff',
+    glow: 'rgba(224, 191, 240, 0.5)'  // soft silver
   },
 
   'SAKURA': {
@@ -104,12 +104,18 @@ export function getArtistProfileImage(name) {
 export function getHeartColor(color) {
   if (!color) return '#b91d3cff';
   const hex = color.replace('#', '');
-  if (hex.length === 3 || hex.length === 6) {
-    const r = parseInt(hex.length === 3 ? hex[0] + hex[0] : hex.slice(0, 2), 16);
-    const g = parseInt(hex.length === 3 ? hex[1] + hex[1] : hex.slice(2, 4), 16);
-    const b = parseInt(hex.length === 3 ? hex[2] + hex[2] : hex.slice(4, 6), 16);
+  if (hex.length === 3 || hex.length >= 6) {
+    let r = parseInt(hex.length === 3 ? hex[0] + hex[0] : hex.slice(0, 2), 16);
+    let g = parseInt(hex.length === 3 ? hex[1] + hex[1] : hex.slice(2, 4), 16);
+    let b = parseInt(hex.length === 3 ? hex[2] + hex[2] : hex.slice(4, 6), 16);
     const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    if (luma < 40) return '#ffffff';
+    if (luma < 60) {
+      const factor = luma < 20 ? 0.7 : (luma < 40 ? 0.5 : 0.3);
+      r = Math.floor(r + (255 - r) * factor);
+      g = Math.floor(g + (255 - g) * factor);
+      b = Math.floor(b + (255 - b) * factor);
+      return `rgb(${r}, ${g}, ${b})`;
+    }
   }
   return color;
 }

@@ -140,7 +140,95 @@ export default function AudioPlayerProvider({ children }) {
     localStorage.setItem('flowy_liked_songs', JSON.stringify(likedSongs));
   }, [likedSongs]);
 
-  const toggleLike = (songName, e, forceLike = false) => {
+  // --- ANALYTICS TRACKING ---
+  const isPlayingRef = useRef(isPlaying);
+  useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
+
+  // Track listening time and active hours every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (audioRef.current && !audioRef.current.paused) {
+        let sec = Number(localStorage.getItem('flowy_total_seconds') || 0);
+        sec += 5;
+        localStorage.setItem('flowy_total_seconds', sec);
+
+        const today = new Date().toISOString().split('T')[0];
+        let dailySecs = {};
+        try {
+          dailySecs = JSON.parse(localStorage.getItem('flowy_daily_seconds') || '{}');
+        } catch(e) {}
+        dailySecs[today] = (dailySecs[today] || 0) + 5;
+        localStorage.setItem('flowy_daily_seconds', JSON.stringify(dailySecs));
+
+        // Update active hours
+        const hour = new Date().getHours();
+        let hoursMap = {};
+        try {
+          hoursMap = JSON.parse(localStorage.getItem('flowy_active_hours') || '{}');
+        } catch (e) {}
+        hoursMap[hour] = (hoursMap[hour] || 0) + 5;
+        localStorage.setItem('flowy_active_hours', JSON.stringify(hoursMap));
+      }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Track history and streak when active song changes
+  useEffect(() => {
+    if (activeSong && isPlaying) {
+      // History & Play Counts
+      let history = [];
+      try {
+        const parsed = JSON.parse(localStorage.getItem('flowy_play_history') || '[]');
+        history = Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+      } catch(e) {}
+      
+      let counts = {};
+      try {
+        counts = JSON.parse(localStorage.getItem('flowy_play_counts') || '{}');
+      } catch(e) {}
+
+      if (history.length === 0 || (history[0] && history[0].title !== activeSong.name)) {
+        history.unshift({
+          id: Date.now(),
+          title: activeSong.name,
+          artist: activeSong.member || albumData?.member || 'Unknown',
+          cover: activeSong.cover || albumData?.cover,
+          color: activeSong.color || albumData?.color || '#333333',
+          timestamp: Date.now()
+        });
+        if (history.length > 30) history = history.slice(0, 30);
+        localStorage.setItem('flowy_play_history', JSON.stringify(history));
+
+        counts[activeSong.name] = (counts[activeSong.name] || 0) + 1;
+        localStorage.setItem('flowy_play_counts', JSON.stringify(counts));
+      }
+
+      // Streak
+      const today = new Date().toDateString();
+      const lastPlayDate = localStorage.getItem('flowy_last_play_date');
+      if (lastPlayDate !== today) {
+        let streak = Number(localStorage.getItem('flowy_streak') || 0);
+        if (lastPlayDate) {
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          if (lastPlayDate === yesterday.toDateString()) {
+            streak += 1;
+          } else {
+            streak = 1;
+          }
+        } else {
+          streak = 1;
+        }
+        localStorage.setItem('flowy_streak', streak);
+        localStorage.setItem('flowy_last_play_date', today);
+      }
+    }
+  }, [activeSong, isPlaying, albumData]);
+  // --------------------------
+
+  const toggleLike = (songOrName, e, forceLike = false) => {
+    const songName = typeof songOrName === 'string' ? songOrName : songOrName.name;
     const isCurrentlyLiked = !!likedSongs[songName];
     
     // Shoot confetti if forcing a like (double tap) or if it's a new like
@@ -164,13 +252,24 @@ export default function AudioPlayerProvider({ children }) {
 
     setLikedSongs(prev => {
       const newLiked = { ...prev };
+      // Fallback: If they passed a string, try to use activeSong if it matches
+      let songObj = typeof songOrName === 'object' ? songOrName : null;
+      if (!songObj && activeSong && activeSong.name === songName) {
+        songObj = { ...activeSong };
+        // attach albumData if needed
+        if (!songObj.cover) songObj.cover = albumData?.cover;
+        if (!songObj.albumTitle) songObj.albumTitle = albumData?.title;
+        if (!songObj.member) songObj.member = albumData?.member;
+      }
+      if (!songObj) songObj = { name: songName };
+
       if (forceLike) {
-        newLiked[songName] = true;
+        newLiked[songName] = songObj;
       } else {
         if (prev[songName]) {
           delete newLiked[songName];
         } else {
-          newLiked[songName] = true;
+          newLiked[songName] = songObj;
         }
       }
       return newLiked;
@@ -870,15 +969,13 @@ export default function AudioPlayerProvider({ children }) {
     };
     const handleEnded = () => {
       if (albumId && activeSong && !activeSong.isHidden) {
-        setAlbumProgress(prev => {
-          const currentAlbumPlays = prev[albumId] || [];
-          if (!currentAlbumPlays.includes(activeSong.name)) {
-            const nextPlays = [...currentAlbumPlays, activeSong.name];
-            console.log(`[Progress] Recorded "${activeSong.name}" for album ${albumId}. (${nextPlays.length} total)`);
-            return { ...prev, [albumId]: nextPlays };
-          }
-          return prev;
-        });
+        const currentAlbumPlays = albumProgress[albumId] || [];
+        if (!currentAlbumPlays.includes(activeSong.name)) {
+          const nextPlays = [...currentAlbumPlays, activeSong.name];
+          setAlbumProgress(prev => ({ ...prev, [albumId]: nextPlays }));
+          
+          console.log(`[Progress] Recorded "${activeSong.name}" for album ${albumId}. (${nextPlays.length} total)`);
+        }
       }
 
       if (karaokeMode || isCinematicActive) {

@@ -22,10 +22,7 @@
 
 
 
-/* No border on the overlay itself — layers below handle it */
-.lyrics-overlay.single-singer-mode {
-  /* clean canvas, variables flow down */
-}
+
 
 /* ─ Layer 1: Static rectangular base border + soft diffused glow ─ */
 .singer-edge-frame {

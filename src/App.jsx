@@ -9,6 +9,11 @@ import Dashboard from "./Dashboard";
 import AlbumPage from "./AlbumPage";
 import MuseumGallery from "./MuseumGallery";
 import LyricsSyncPage from "./LyricsSyncPage";
+import ProfilePage from "./ProfilePage";
+import PlaylistsPage from "./PlaylistsPage";
+import { AuthProvider } from "./contexts/AuthContext";
+import AuthPage from "./components/AuthPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function Home() {
   const [showHero, setShowHero] = React.useState(!sessionStorage.getItem("hasSeenHero"));
@@ -43,19 +48,24 @@ function Home() {
 
 function App() {
   return (
-    <AudioPlayerProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/dashboard/:groupId" element={<Dashboard />} />
-          <Route path="/album/:id" element={<AlbumPage />} />
-          <Route path="/gallery" element={<MuseumGallery />} />
-          <Route path="/lyrics-sync" element={<LyricsSyncPage />} />
-        </Routes>
+    <AuthProvider>
+      <AudioPlayerProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/dashboard/:groupId" element={<Dashboard />} />
+            <Route path="/album/:id" element={<AlbumPage />} />
+            <Route path="/gallery" element={<MuseumGallery />} />
+            <Route path="/lyrics-sync" element={<ProtectedRoute><LyricsSyncPage /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path="/playlists" element={<ProtectedRoute><PlaylistsPage /></ProtectedRoute>} />
+          </Routes>
 
-        <PersistentAudioPlayer />
-      </BrowserRouter>
-    </AudioPlayerProvider>
+          <PersistentAudioPlayer />
+        </BrowserRouter>
+      </AudioPlayerProvider>
+    </AuthProvider>
   );
 }
 

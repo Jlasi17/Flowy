@@ -235,7 +235,7 @@ export default function AlbumPage() {
                       )}
                     </span>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+                    <div className="song-actions-minimal">
                       <button
                         className={`album-like-btn ${likedSongs[song.name] ? 'heart-anim-active' : ''}`}
                         onClick={(e) => { e.stopPropagation(); toggleLike(song.name, e); }}
