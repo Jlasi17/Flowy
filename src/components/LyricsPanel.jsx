@@ -87,11 +87,11 @@ export default function LyricsPanel({ onClose }) {
     if (activeLineRef.current && scrollRef.current && !userInteracting) {
       const container = scrollRef.current;
       const activeLine = activeLineRef.current;
-      
+
       const containerCenter = container.clientHeight / 2;
       const lineCenter = activeLine.clientHeight / 2;
       const scrollPosition = activeLine.offsetTop - containerCenter + lineCenter;
-      
+
       container.scrollTo({
         top: scrollPosition,
         behavior: 'smooth'
@@ -194,7 +194,7 @@ export default function LyricsPanel({ onClose }) {
   const handleTouchStart = (e) => {
     if (e.touches.length !== 1) return;
     if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'button' || e.target.closest('button')) return;
-    
+
     touchStartRef.current = {
       x: e.touches[0].clientX,
       y: e.touches[0].clientY,
@@ -208,7 +208,7 @@ export default function LyricsPanel({ onClose }) {
     const startY = touchStartRef.current.y;
     const endX = e.changedTouches[0].clientX;
     const endY = e.changedTouches[0].clientY;
-    
+
     const deltaX = endX - startX;
     const deltaY = endY - startY;
     const timeDiff = Date.now() - touchStartRef.current.time;
@@ -561,7 +561,7 @@ export default function LyricsPanel({ onClose }) {
               <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
             </svg>
           </button>
-          
+
           <button className="mlyr-bottom-btn" onClick={playPrev} aria-label="Previous">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
               <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />

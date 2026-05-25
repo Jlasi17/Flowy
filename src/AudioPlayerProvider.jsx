@@ -140,28 +140,38 @@ export default function AudioPlayerProvider({ children }) {
     localStorage.setItem('flowy_liked_songs', JSON.stringify(likedSongs));
   }, [likedSongs]);
 
-  const toggleLike = (songName, e) => {
-    const isLiking = !likedSongs[songName];
-    if (isLiking && e && e.clientX && e.clientY) {
+  const toggleLike = (songName, e, forceLike = false) => {
+    const isCurrentlyLiked = !!likedSongs[songName];
+    
+    // Shoot confetti if forcing a like (double tap) or if it's a new like
+    if ((forceLike || !isCurrentlyLiked) && e && e.clientX && e.clientY) {
       const x = e.clientX / window.innerWidth;
       const y = e.clientY / window.innerHeight;
+      
+      const heart = confetti.shapeFromPath({ path: 'M167.1 50.1l-18.1-18.1c-24.2-24.2-63.5-24.2-87.7 0l-11.3 11.3-11.3-11.3c-24.2-24.2-63.5-24.2-87.7 0l-18.1 18.1c-24.2 24.2-24.2 63.5 0 87.7l117.1 117.1 117.1-117.1c24.2-24.2 24.2-63.5 0-87.7z' });
+      
       confetti({
-        particleCount: 35,
-        spread: 60,
+        particleCount: 20,
+        spread: 70,
         origin: { x, y },
-        colors: ['#ff4d4d', '#ffffff', '#ff9999', '#ffcc00'],
+        colors: ['#ff4d4d', '#ff1a1a', '#ff9999', '#ffffff'],
+        shapes: [heart],
         zIndex: 99999,
         disableForReducedMotion: true,
-        scalar: 0.8
+        scalar: 2.5
       });
     }
 
     setLikedSongs(prev => {
       const newLiked = { ...prev };
-      if (prev[songName]) {
-        delete newLiked[songName];
-      } else {
+      if (forceLike) {
         newLiked[songName] = true;
+      } else {
+        if (prev[songName]) {
+          delete newLiked[songName];
+        } else {
+          newLiked[songName] = true;
+        }
       }
       return newLiked;
     });

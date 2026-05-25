@@ -64,6 +64,10 @@ const lesserafimSongs = {
         { name: "Pearlies (My oyster is the world)", file: "02. Pearlies (My oyster is the world) (Explicit).mp3", duration: "3:07" },
         { name: "SPAGHETTI (Member ver.)", file: "03. SPAGHETTI (Member ver.) (Explicit).mp3", duration: "2:16" },
         { name: "SPAGHETTI (English ver.)", file: "04. SPAGHETTI (English ver.) (Explicit).mp3", duration: "2:51" }
+    ],
+
+    "le9": [
+        { name: "Pureflow", file: "Pureflow.mp3", duration: "3:00" }
     ]
 };
 export default lesserafimSongs;

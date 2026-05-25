@@ -97,6 +97,16 @@ const lesserafimAlbums = [
                 language: "Korean",
                 color: "#e25a1bff",
             },
+            {
+                id: "le9",
+                title: "Pureflow",
+                cover: "/le/le9.jpg",
+                release: "March 2025",
+                titleSong: "Pureflow",
+                type: "Single",
+                language: "English/Korean",
+                color: "#666666",
+            },
         ],
     },
 ];

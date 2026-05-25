@@ -149,6 +149,14 @@ const btsSoloSongs = {
   // Jungkook -> Seven
   "s17": [
     { name: "Seven (Clean Ver.)", file: "Jungkook/GOLDEN/Seven (feat. Latto) (Clean Ver.).mp3", duration: "3:04" }
+  ],
+  // Jimin -> Promise
+  "s18": [
+    { name: "Promise", file: "JIMIN/Promise.mp3", duration: "2:31" }
+  ],
+  // Jimin -> Closer Than This
+  "s19": [
+    { name: "Closer Than This", file: "JIMIN/Closer Than This.mp3", duration: "3:43" }
   ]
 };
 

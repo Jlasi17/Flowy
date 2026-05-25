@@ -471,7 +471,10 @@ export default function MaximizedPlayer({ onClose }) {
 
               {/* Circular album art */}
               <div className="mobile-art-container">
-                <div className="mobile-album-circle">
+                <div 
+                  className="mobile-album-circle"
+                  onDoubleClick={(e) => toggleLike(activeSong?.name || displayMetadata.name, e, true)}
+                >
                   <div className="light-reflection" />
                   <img src={albumData.cover} alt={albumData.title} />
                 </div>

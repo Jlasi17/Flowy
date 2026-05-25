@@ -33,7 +33,9 @@ const btsSoloAlbums = [
   {
     member: "JIMIN",
     albums: [
+      { id: "s18", title: "Promise", cover: "/bts/promise.png", release: "December 2018", titleSong: "Promise", type: "Single", language: "Korean", color: "#f2f2f2" },
       { id: "s12", title: "FACE", cover: "/solos/jimin_face.png", release: "2023", titleSong: "Like Crazy", type: "Mini Album", language: "Korean", color: "#d6c8c8" },
+      { id: "s19", title: "Closer Than This", cover: "/bts/closer_than_this.png", release: "December 2023", titleSong: "Closer Than This", type: "Single", language: "Korean", color: "#a5b4f2" },
       { id: "s13", title: "MUSE", cover: "/solos/jimin_muse.png", release: "2024", titleSong: "Who", type: "Mini Album", language: "Korean", color: "#3c8a82" }
     ]
   },

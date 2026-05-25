@@ -12,6 +12,10 @@ export const SINGER_COLORS = {
   'V': { primary: '#84d4a0', glow: 'rgba(132, 212, 160, 0.45)' },  // sage green
   'JungKook': { primary: '#b89fe8', glow: 'rgba(184, 159, 232, 0.5)' },   // soft lavender-purple
 
+  // Generic/Collaborators
+  'Female': { primary: '#ffa500', glow: 'rgba(255, 165, 0, 0.5)' },   // orange
+  'Male': { primary: '#add8e6', glow: 'rgba(173, 216, 230, 0.5)' },   // light blue
+
   // LE SSERAFIM members
   'CHAEWON': {
     primary: '#c9ccd6',
@@ -80,6 +84,10 @@ export function getArtistProfileImage(name) {
   if (lookup === "beomgyu") return "/soloartists/beomgyu.jpg";
   if (lookup === "taehyun") return "/soloartists/taehyun.jpg";
   if (lookup === "hueningkai" || lookup === "hyuka") return "/soloartists/hueningkai.jpg";
+
+  // Generics
+  if (lookup === "female") return "/soloartists/female.png";
+  if (lookup === "male") return "/soloartists/male.png";
 
   if (lookup === "bts") return "/homeimage/btsopening.jpg";
   if (lookup === "txt") return "/homeimage/txtopening.jpg";

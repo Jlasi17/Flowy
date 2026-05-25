@@ -267,6 +267,45 @@ const btsSongs = {
     { name: "Please", file: "13. Please.mp3", duration: "2:52" },
     { name: "Into the Sun", file: "14. Into the Sun.mp3", duration: "3:47" },
     { name: "Come Over", file: "15. Come Over.mp3", isHidden: true, duration: "2:56" }
+  ],
+  "18": [
+    { name: "Heartbeat", file: "Heartbeat.mp3", duration: "4:13" },
+    { name: "Dream Glow", file: "Dream Glow.mp3", duration: "3:07" },
+    { name: "A Brand New Day", file: "A Brand New Day.mp3", duration: "3:25" },
+    { name: "All Night", file: "All Night.mp3", duration: "3:36" }
+  ],
+  "19": [
+    { name: "Come Back Home", file: "Come Back Home.mp3", duration: "3:58" }
+  ],
+  "20": [
+    { name: "Waste It On Me", file: "Waste It On Me.mp3", duration: "3:12" }
+  ],
+  "21": [
+    { name: "Savage Love", file: "Savage Love.mp3", duration: "3:04" }
+  ],
+  "22": [
+    { name: "Film out", file: "Film out.mp3", duration: "3:34" }
+  ],
+  "23": [
+    { name: "My Universe", file: "My Universe.mp3", duration: "3:48" }
+  ],
+  "24": [
+    { name: "Stay Alive", file: "Stay Alive.mp3", duration: "3:30" }
+  ],
+  "25": [
+    { name: "Left and Right", file: "Left and Right.mp3", duration: "2:34" }
+  ],
+  "26": [
+    { name: "Bad Decisions", file: "Bad Decisions.mp3", duration: "2:52" }
+  ],
+  "27": [
+    { name: "Dreamers", file: "Dreamers.mp3", duration: "3:20" }
+  ],
+  "28": [
+    { name: "The Planet", file: "The Planet.mp3", duration: "2:55" }
+  ],
+  "29": [
+    { name: "Take Two", file: "Take Two.mp3", duration: "3:49" }
   ]
 };
 

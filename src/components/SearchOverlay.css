@@ -1,494 +1,399 @@
-/* ============================================================
-   SEARCH OVERLAY — Premium glassmorphism search experience
-   ============================================================ */
-
 .search-overlay {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #121212;
   z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  animation: searchFadeIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  overflow: hidden;
 }
 
-@keyframes searchFadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+.search-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .search-overlay-backdrop {
   position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(30px) saturate(1.6);
-  -webkit-backdrop-filter: blur(30px) saturate(1.6);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
 }
 
 .search-panel {
-  position: relative;
   width: 100%;
-  max-width: 640px;
-  margin-top: 60px;
-  max-height: calc(100vh - 120px);
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  animation: searchSlideDown 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  padding: 0 24px;
 }
 
-@keyframes searchSlideDown {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* ── HEADER ── */
 .search-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 0 20px;
-  margin-bottom: 16px;
+  gap: 16px;
+  padding: 24px 0;
+  flex-shrink: 0;
 }
 
 .search-input-wrapper {
-  flex: 1;
   position: relative;
+  flex: 1;
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1.5px solid rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
+  background: #242424;
+  border-radius: 500px;
   padding: 0 16px;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  transition: all 0.25s ease;
+  height: 48px;
+  transition: background 0.2s ease, border 0.2s ease;
+  border: 1px solid transparent;
 }
 
 .search-input-wrapper:focus-within {
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.14);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 0 3px rgba(29, 185, 84, 0.15);
+  background: #2a2a2a;
+  border-color: #ffffff33;
 }
 
 .search-icon {
-  flex-shrink: 0;
-  opacity: 0.5;
-  color: #fff;
-  margin-right: 10px;
+  color: #b3b3b3;
+  margin-right: 12px;
+}
+
+.search-input-container {
+  position: relative;
+  flex: 1;
+  height: 100%;
 }
 
 .search-input {
-  flex: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: transparent;
   border: none;
-  outline: none;
   color: #fff;
-  font-family: 'Inter', sans-serif;
-  font-size: 1.05rem;
+  font-size: 16px;
   font-weight: 500;
-  padding: 14px 0;
-  width: 100%;
-  letter-spacing: 0.2px;
+  outline: none;
+  font-family: inherit;
+  z-index: 2;
 }
 
 .search-input::placeholder {
-  color: rgba(255, 255, 255, 0.35);
-  font-weight: 400;
+  color: #757575;
+}
+
+.search-ghost {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: inherit;
+  color: transparent; /* Makes the typed part transparent */
+  z-index: 1;
+}
+
+.ghost-text {
+  color: #757575;
 }
 
 .search-clear {
-  flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
   border: none;
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
+  color: #b3b3b3;
+  cursor: pointer;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.6);
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
 .search-clear:hover {
-  background: rgba(255, 255, 255, 0.2);
   color: #fff;
 }
 
 .search-close-btn {
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.7);
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
+  color: #b3b3b3;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  padding: 8px 4px;
-  white-space: nowrap;
-  transition: color 0.2s ease;
 }
 
 .search-close-btn:hover {
   color: #fff;
 }
 
-/* ── RESULTS ── */
 .search-results {
   flex: 1;
   overflow-y: auto;
-  padding: 0 20px 40px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  padding-bottom: 100px;
+  scrollbar-width: none; /* Firefox */
 }
-
 .search-results::-webkit-scrollbar {
-  width: 5px;
+  display: none;
 }
 
-.search-results::-webkit-scrollbar-track {
-  background: transparent;
+/* Empty State & Browse */
+.search-empty-state {
+  margin-top: 24px;
 }
 
-.search-results::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-}
-
-.search-empty {
+.recent-searches-header {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.clear-recent-btn {
+  background: transparent;
+  border: none;
+  color: #b3b3b3;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.clear-recent-btn:hover {
+  color: #fff;
+}
+
+.recent-search-remove {
+  background: transparent;
+  border: none;
+  color: #b3b3b3;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  transition: all 0.2s;
 }
 
-.search-empty-icon {
-  font-size: 2.5rem;
-  margin-bottom: 16px;
-  filter: grayscale(0.3);
+.search-result-item:hover .recent-search-remove {
+  opacity: 1;
 }
 
-.search-empty p {
-  font-size: 1rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0 0 6px;
+.recent-search-remove:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
 }
 
-.search-empty-hint {
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.35);
+@media (max-width: 768px) {
+  .recent-search-remove { opacity: 1; }
 }
 
-.search-swipe-hint {
+/* Loading Skeleton */
+.search-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.skeleton-card {
+  width: 100%;
+  height: 200px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #181818 25%, #222 50%, #181818 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+.skeleton-line {
+  width: 100%;
+  height: 56px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #181818 25%, #222 50%, #181818 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Top Result */
+.search-top-result-container {
+  margin-bottom: 32px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  align-self: start;
+}
+
+.top-result-card {
+  background: #181818;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.top-result-card:hover {
+  background: #282828;
+}
+
+.top-result-img {
+  width: 92px;
+  height: 92px;
+  border-radius: 4px;
+  object-fit: cover;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+.top-result-img.is-artist {
+  border-radius: 50%;
+}
+
+.top-result-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.top-result-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-result-meta {
   display: flex;
   align-items: center;
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.2);
-  margin-top: 10px;
-  letter-spacing: 0.3px;
+  gap: 8px;
+  color: #b3b3b3;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-/* ── SECTION ── */
-.search-section {
-  margin-bottom: 24px;
+.top-result-badge {
+  background: #121212;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 500px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.top-result-play-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #fff;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 8px rgba(0,0,0,0.3);
+}
+
+.top-result-card:hover .top-result-play-btn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Search Content Layout */
+.search-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  margin-top: 16px;
+}
+
+@media (min-width: 1024px) {
+  .search-content {
+    grid-template-columns: 400px 1fr;
+  }
+}
+
+.search-lists {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }
 
 .search-section-title {
-  font-size: 0.72rem;
+  font-size: 24px;
   font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.45);
-  margin: 0 0 10px 4px;
+  color: #fff;
+  margin: 0 0 16px 0;
 }
 
-/* ── RESULT ITEM ── */
+/* Result Items */
 .search-result-item {
   display: flex;
   align-items: center;
-  gap: 14px;
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 14px;
-  border: none;
-  background: transparent;
-  color: #fff;
+  padding: 8px;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background 0.2s;
+  background: transparent;
+  border: none;
+  width: 100%;
   text-align: left;
-  font-family: 'Inter', sans-serif;
 }
 
 .search-result-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.search-result-item:active {
-  background: rgba(255, 255, 255, 0.12);
-  transform: scale(0.99);
+  background: rgba(255,255,255,0.1);
 }
 
 .search-result-thumb {
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
   object-fit: cover;
-  flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.search-result-thumb--album {
-  border-radius: 6px;
-}
-
-.search-result-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.search-result-name {
-  font-size: 0.92rem;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: #fff;
-}
-
-.search-result-meta {
-  font-size: 0.75rem;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.45);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* ── Song action buttons (play + queue) ── */
-.search-song-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  margin-right: 12px;
   flex-shrink: 0;
 }
 
-.search-result-play,
-.search-result-arrow {
-  flex-shrink: 0;
-  opacity: 0;
-  color: rgba(255, 255, 255, 0.5);
-  transition: opacity 0.2s ease;
-}
-
-.search-result-item:hover .search-result-play,
-.search-result-item:hover .search-result-arrow {
-  opacity: 1;
-}
-
-/* ============================================================
-   QUEUE PILL BUTTON — animated add-to-queue interaction
-   ============================================================ */
-
-.search-queue-btn {
-  /* Base: circular icon-only button */
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 28px;
-  min-width: 28px;
-  padding: 0 8px;
-  border-radius: 100px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.7);
-  cursor: pointer;
-  overflow: hidden;
-
-  /* Hidden on idle; shown on row hover */
-  opacity: 0;
-  transform: scale(0.85);
-  transition:
-    opacity 0.18s ease,
-    background 0.22s ease,
-    border-color 0.22s ease,
-    color 0.22s ease,
-    transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
-    min-width 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* Reveal on row hover */
-.search-result-item:hover .search-queue-btn {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.search-queue-btn:hover {
-  background: rgba(255, 255, 255, 0.18);
-  color: #fff;
-  transform: scale(1.08);
-}
-
-.search-queue-btn:active {
-  transform: scale(0.93);
-}
-
-/* ── ADDED STATE ── */
-.search-queue-btn--added {
-  /* Expand into pill, shift to green */
-  min-width: 72px;
-  background: rgba(29, 185, 84, 0.18);
-  border-color: rgba(29, 185, 84, 0.5);
-  color: #1db954;
-  cursor: default;
-  /* Force visible — stays visible regardless of hover */
-  opacity: 1 !important;
-  transform: scale(1) !important;
-  /* Scale-pop on entry */
-  animation: queueAddedPop 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-@keyframes queueAddedPop {
-  0% {
-    transform: scale(0.88);
-  }
-
-  55% {
-    transform: scale(1.1);
-  }
-
-  80% {
-    transform: scale(0.97);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
-/* Hover on added state does nothing */
-.search-queue-btn--added:hover {
-  background: rgba(29, 185, 84, 0.18);
-  color: #1db954;
-  transform: scale(1);
-}
-
-/* ── Inner layout (icon + label) ── */
-.search-queue-btn-inner {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  /* Prevent layout shift during animation */
-  white-space: nowrap;
-}
-
-/* ── Icons — cross-fade between plus and check ── */
-.search-queue-icon {
-  position: absolute;
-  left: 0;
-  flex-shrink: 0;
-  transition:
-    opacity 0.2s ease,
-    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* Reserve space for the icon so the label doesn't jump */
-.search-queue-btn-inner::before {
-  content: '';
-  display: inline-block;
-  width: 13px;
-  height: 13px;
-  flex-shrink: 0;
-}
-
-/* Plus visible by default, hidden when added */
-.search-queue-icon--plus {
-  opacity: 1;
-  transform: rotate(0deg) scale(1);
-}
-
-.search-queue-btn--added .search-queue-icon--plus {
-  opacity: 0;
-  transform: rotate(45deg) scale(0.5);
-}
-
-/* Check hidden by default, visible when added */
-.search-queue-icon--check {
-  opacity: 0;
-  transform: scale(0.4) rotate(-20deg);
-}
-
-.search-queue-btn--added .search-queue-icon--check {
-  opacity: 1;
-  transform: scale(1) rotate(0deg);
-  transition-delay: 0.06s;
-}
-
-/* ── Label text ── */
-.search-queue-label {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  /* Hidden when just a circle (no label needed for icon-only) */
-  max-width: 0;
-  overflow: hidden;
-  opacity: 0;
-  transition:
-    max-width 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity 0.2s ease 0.08s;
-}
-
-/* Expand label when added */
-.search-queue-btn--added .search-queue-label {
-  max-width: 56px;
-  opacity: 1;
-}
-
-/* Swipe hint label that appears inside the swipe action background */
-.swipeable-track-wrapper .swipe-action-bg {
-  border-radius: 14px;
-}
-
-/* highlight */
-.search-highlight {
-  background: rgba(29, 185, 84, 0.25);
-  color: #1db954;
-  border-radius: 3px;
-  padding: 0 2px;
-}
-
-/* ── ARTIST AVATAR ── */
 .search-artist-avatar {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   overflow: hidden;
+  margin-right: 12px;
   flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .search-artist-avatar img {
@@ -497,162 +402,169 @@
   object-fit: cover;
 }
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
-@media (max-width: 700px) {
-  .search-panel {
-    margin-top: 20px;
-    max-height: calc(100vh - 40px);
-  }
-
-  .search-header {
-    padding: 0 16px;
-  }
-
-  .search-results {
-    padding: 0 16px 40px;
-  }
-
-  /*
-   * Mobile: show the pill button always (not just on hover)
-   * — users can't hover on touch screens.
-   * Keep it compact as a circle until tapped.
-   */
-  .search-queue-btn {
-    display: flex;
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  /* Slightly larger tap target on mobile */
-  .search-queue-btn {
-    height: 30px;
-    min-width: 30px;
-    padding: 0 9px;
-  }
-
-  .search-queue-btn--added {
-    min-width: 76px;
-  }
+.search-result-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  justify-content: center;
 }
 
-/* ============================================================
-   ARTIST TRANSITION OVERLAY
-   ============================================================ */
-.artist-transition-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
+.search-result-name {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.search-result-meta {
+  color: #b3b3b3;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-highlight {
+  background: transparent;
+  color: #1db954;
+  font-weight: 700;
+}
+
+/* Thumb Wrapper and Play Overlay */
+.search-result-thumb-wrapper {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.search-result-thumb-wrapper .search-result-thumb {
+  margin-right: 0; /* Override */
+}
+
+.search-result-play-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: artistTransitionIn 0.9s cubic-bezier(0.22, 0.68, 0, 1.05) forwards;
+  opacity: 0;
+  transition: opacity 0.2s;
+  border-radius: 4px;
 }
 
-@keyframes artistTransitionIn {
-  0% {
-    opacity: 0;
-  }
+.search-result-play-overlay svg {
+  width: 20px;
+  height: 20px;
+  color: #fff;
+}
 
-  15% {
-    opacity: 1;
-  }
+.search-result-item:hover .search-result-play-overlay {
+  opacity: 1;
+}
 
-  70% {
-    opacity: 1;
-  }
+/* Queue Button Area */
+.search-song-actions {
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  margin-left: auto;
+}
 
-  100% {
-    opacity: 0;
+.search-result-item:hover .search-song-actions {
+  opacity: 1;
+}
+
+.search-queue-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  border-radius: 500px;
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-queue-btn:hover {
+  border-color: #fff;
+  transform: scale(1.04);
+}
+
+.search-queue-btn--added {
+  border-color: #1db954;
+  color: #1db954;
+}
+
+.search-queue-btn-inner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.search-queue-icon {
+  display: none;
+}
+.search-queue-btn:not(.search-queue-btn--added) .search-queue-icon--plus {
+  display: block;
+}
+.search-queue-btn--added .search-queue-icon--check {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .search-song-actions { opacity: 1; }
+  .top-result-play-btn { opacity: 1; transform: none; }
+  .search-result-play-overlay { display: none; } /* Mobile doesn't need hover play */
+  
+  .search-queue-btn {
+    border: none;
+    padding: 8px;
+  }
+  .search-queue-label {
+    display: none;
   }
 }
 
-.artist-transition-bg {
-  position: absolute;
-  inset: -40px;
-  background-size: cover;
-  background-position: center;
-  filter: blur(50px) brightness(0.3) saturate(1.5);
-  animation: artistBgZoom 0.9s cubic-bezier(0.22, 0.68, 0, 1.05) forwards;
-}
-
-@keyframes artistBgZoom {
-  0% {
-    transform: scale(1.1);
-  }
-
-  100% {
-    transform: scale(1.25);
-  }
-}
-
-.artist-transition-content {
-  position: relative;
-  z-index: 2;
+/* Empty / No Results */
+.search-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  animation: artistContentReveal 0.7s cubic-bezier(0.22, 0.68, 0, 1.05) forwards;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  height: 50vh;
 }
 
-@keyframes artistContentReveal {
-  0% {
-    opacity: 0;
-    transform: scale(0.8) translateY(20px);
-    filter: blur(8px);
-  }
-
-  40% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-    filter: blur(0);
-  }
-
-  70% {
-    opacity: 1;
-    transform: scale(1.02) translateY(-2px);
-  }
-
-  100% {
-    opacity: 0;
-    transform: scale(1.1) translateY(-8px);
-    filter: blur(2px);
-  }
+.search-empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
 }
 
-.artist-transition-avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 3px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 60px rgba(255, 255, 255, 0.08);
-}
-
-.artist-transition-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.artist-transition-name {
-  font-family: 'Inter', sans-serif;
-  font-size: 2.4rem;
-  font-weight: 800;
+.search-empty p {
+  font-size: 20px;
+  font-weight: 600;
   color: #fff;
-  letter-spacing: -0.5px;
-  margin: 0;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  margin: 0 0 8px 0;
 }
 
-.artist-transition-meta {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.6);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  margin: 0;
+.search-empty-hint {
+  font-size: 14px;
+  color: #b3b3b3;
 }
