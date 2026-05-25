@@ -1,5 +1,6 @@
 import { createContext, useRef, useState, useEffect, useCallback, useMemo } from "react";
 import confetti from "canvas-confetti";
+import { useAuth } from "./contexts/AuthContext";
 import "./AlbumPage.css";
 
 export const AudioContext = createContext({});
@@ -54,6 +55,18 @@ export default function AudioPlayerProvider({ children }) {
   const [activeSong, setActiveSong] = useState(null);
   const [isQueueOpen, setIsQueueOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
+
+  // AUTH MODAL
+  const { currentUser } = useAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  
+  const requireAuth = useCallback((callback) => {
+    if (currentUser) {
+      callback();
+    } else {
+      setIsAuthModalOpen(true);
+    }
+  }, [currentUser]);
 
   // SHUFFLE & REPEAT
   const [shuffleMode, setShuffleMode] = useState(false); // false = off, true = on
@@ -1025,6 +1038,10 @@ export default function AudioPlayerProvider({ children }) {
     playPrev,
     updateVolume,
 
+    isAuthModalOpen,
+    setIsAuthModalOpen,
+    requireAuth,
+
     shuffleMode,
     toggleShuffle,
     repeatMode,
@@ -1082,6 +1099,7 @@ export default function AudioPlayerProvider({ children }) {
     nextKaraokeCountdown, preloadingNext, preloadProgress,
     startKaraoke, playNext, playPrev, toggleShuffle, cycleRepeat,
     triggerFlyAnimation, addToQueue, removeFromQueue, clearQueue, playFromQueue, reorderQueue,
+    isAuthModalOpen, requireAuth,
     isCinematicActive, setIsCinematicActive, albumProgress,
     questStatus, acceptQuest, resetQuest, likedSongs
   ]);

@@ -23,10 +23,9 @@ export default function AlbumPage() {
     addToQueue,
     triggerFlyAnimation,
     likedSongs,
-    toggleLike
+    toggleLike,
+    requireAuth
   } = useContext(AudioContext);
-
-
 
   let foundGroup = null;
   let foundAlbum = null;
@@ -177,16 +176,18 @@ export default function AlbumPage() {
                   onSwipeAction={(e) => {
                     const wrapper = e?.target?.closest?.('.swipeable-track-wrapper');
                     const sourceRect = wrapper?.getBoundingClientRect() || null;
-                    addToQueue({
-                      name: song.name,
-                      filePath: computedPath,
-                      albumTitle: album?.title || "Album",
-                      cover: album?.cover,
-                      member: album?.member || groupTitle,
-                      duration: song.duration || songDurations[song.name] || "—",
-                      color: album?.color
+                    requireAuth(() => {
+                      addToQueue({
+                        name: song.name,
+                        filePath: computedPath,
+                        albumTitle: album?.title || "Album",
+                        cover: album?.cover,
+                        member: album?.member || groupTitle,
+                        duration: song.duration || songDurations[song.name] || "—",
+                        color: album?.color
+                      });
+                      if (sourceRect) triggerFlyAnimation(sourceRect, song.name, album?.cover);
                     });
-                    if (sourceRect) triggerFlyAnimation(sourceRect, song.name, album?.cover);
                   }}
                   actionColor={album?.color ? album.color : "rgba(29, 185, 84, 0.4)"}
                   onClick={() => {
@@ -238,7 +239,7 @@ export default function AlbumPage() {
                     <div className="song-actions-minimal">
                       <button
                         className={`album-like-btn ${likedSongs[song.name] ? 'heart-anim-active' : ''}`}
-                        onClick={(e) => { e.stopPropagation(); toggleLike(song.name, e); }}
+                        onClick={(e) => { e.stopPropagation(); requireAuth(() => toggleLike(song.name, e)); }}
                         aria-label="Like"
                         style={{
                           background: 'transparent',

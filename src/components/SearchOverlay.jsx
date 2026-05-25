@@ -21,7 +21,8 @@ export default function SearchOverlay({ isOpen, onClose }) {
     setIsPlaying,
     addToQueue,
     activeSong,
-    isPlaying
+    isPlaying,
+    requireAuth
   } = useContext(AudioContext);
 
   const { results, isSearching, ghostText } = useAdvancedSearch(query);
@@ -122,25 +123,27 @@ export default function SearchOverlay({ isOpen, onClose }) {
 
   const handleAddToQueue = (song, e) => {
     if (e) e.stopPropagation();
-    const group = groupsData[song.groupId];
-    const basePath = song.isSolo ? group.soloBasePath : group.basePath;
-    const folder = song.isSolo ? '' : `${song.albumId}/`;
+    requireAuth(() => {
+      const group = groupsData[song.groupId];
+      const basePath = song.isSolo ? group.soloBasePath : group.basePath;
+      const folder = song.isSolo ? '' : `${song.albumId}/`;
 
-    addToQueue({
-      name: song.name,
-      filePath: `${basePath}${folder}${song.file}`,
-      albumTitle: song.albumTitle,
-      cover: song.albumCover,
-      member: song.artist,
-      color: song.albumColor,
+      addToQueue({
+        name: song.name,
+        filePath: `${basePath}${folder}${song.file}`,
+        albumTitle: song.albumTitle,
+        cover: song.albumCover,
+        member: song.artist,
+        color: song.albumColor,
+      });
+
+      if (navigator.vibrate) navigator.vibrate(8);
+
+      setAddedQueueSongs(prev => ({ ...prev, [song.name]: true }));
+      setTimeout(() => {
+        setAddedQueueSongs(prev => ({ ...prev, [song.name]: false }));
+      }, 2000);
     });
-
-    if (navigator.vibrate) navigator.vibrate(8);
-
-    setAddedQueueSongs(prev => ({ ...prev, [song.name]: true }));
-    setTimeout(() => {
-      setAddedQueueSongs(prev => ({ ...prev, [song.name]: false }));
-    }, 2000);
   };
 
   const handleItemClick = (item) => {

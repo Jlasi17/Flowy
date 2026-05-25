@@ -4,6 +4,8 @@ import { AudioContext } from "./AudioPlayerProvider";
 import MaximizedRadialVolume from "./components/MaximizedRadialVolume";
 import PlayPauseAnimButton from "./components/PlayPauseAnimButton";
 import { useCinematicControls } from "./hooks/useCinematicControls";
+import { useAuth } from "./contexts/AuthContext";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getHeartColor } from "./utils/singerColors";
 import "./MaximizedPlayer.css";
 
@@ -48,7 +50,8 @@ export default function MaximizedPlayer({ onClose }) {
     isCinematicActive,
     setIsCinematicActive,
     likedSongs,
-    toggleLike
+    toggleLike,
+    requireAuth
   } = useContext(AudioContext);
 
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -479,7 +482,7 @@ export default function MaximizedPlayer({ onClose }) {
               <div className="mobile-art-container">
                 <div 
                   className="mobile-album-circle"
-                  onDoubleClick={(e) => toggleLike(activeSong?.name || displayMetadata.name, e, true)}
+                  onDoubleClick={(e) => requireAuth(() => toggleLike(activeSong?.name || displayMetadata.name, e, true))}
                 >
                   <div className="light-reflection" />
                   <img src={albumData.cover} alt={albumData.title} />
@@ -561,7 +564,7 @@ export default function MaximizedPlayer({ onClose }) {
           
           <button
             className={`mobile-secondary-btn ${activeSong && likedSongs[activeSong.name] ? 'heart-anim-active' : ''}`}
-            onClick={(e) => activeSong && toggleLike(activeSong.name, e)}
+            onClick={(e) => activeSong && requireAuth(() => toggleLike(activeSong.name, e))}
             aria-label="Like"
             style={{ color: activeSong && likedSongs[activeSong.name] ? getHeartColor(albumData?.color) : 'rgba(255,255,255,0.6)' }}
           >

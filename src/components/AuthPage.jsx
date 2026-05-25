@@ -294,6 +294,14 @@ export default function AuthPage() {
               </svg>
               Sign in with Google
             </button>
+            <button
+              type="button"
+              className="auth-ghost-btn"
+              onClick={() => navigate(from, { replace: true })}
+              style={{ marginTop: '20px' }}
+            >
+              Continue as guest
+            </button>
           </div>
         )}
 

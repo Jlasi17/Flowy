@@ -111,8 +111,10 @@ export default function PersistentAudioPlayer() {
           break;
         case 'l':
           e.preventDefault();
-          setIsLyricsOpen(prev => !prev);
-          setIsMaximized(false);
+          requireAuth(() => {
+            setIsLyricsOpen(prev => !prev);
+            setIsMaximized(false);
+          });
           break;
         case ' ': // spacebar
           e.preventDefault();
@@ -387,7 +389,7 @@ export default function PersistentAudioPlayer() {
           {/* Like Button */}
           <button
             className={`like-btn ${activeSong && likedSongs[activeSong.name] ? 'heart-anim-active' : ''}`}
-            onClick={(e) => activeSong && toggleLike(activeSong.name, e)}
+            onClick={(e) => activeSong && requireAuth(() => toggleLike(activeSong.name, e))}
             aria-label="Like"
             title="Like Song"
             style={{

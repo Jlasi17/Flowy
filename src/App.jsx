@@ -14,6 +14,7 @@ import PlaylistsPage from "./PlaylistsPage";
 import { AuthProvider } from "./contexts/AuthContext";
 import AuthPage from "./components/AuthPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AuthModal from "./components/AuthModal";
 
 function Home() {
   const [showHero, setShowHero] = React.useState(!sessionStorage.getItem("hasSeenHero"));
@@ -63,6 +64,7 @@ function App() {
           </Routes>
 
           <PersistentAudioPlayer />
+          <AuthModal />
         </BrowserRouter>
       </AudioPlayerProvider>
     </AuthProvider>
