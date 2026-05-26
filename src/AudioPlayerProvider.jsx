@@ -1,6 +1,8 @@
 import { createContext, useRef, useState, useEffect, useCallback, useMemo } from "react";
 import confetti from "canvas-confetti";
 import { useAuth } from "./contexts/AuthContext";
+import { db } from "./utils/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import "./AlbumPage.css";
 
 export const AudioContext = createContext({});
@@ -142,6 +144,81 @@ export default function AudioPlayerProvider({ children }) {
     } catch { return {}; }
   });
 
+  // --- FIRESTORE SYNC LOGIC ---
+  const [isCloudSynced, setIsCloudSynced] = useState(false);
+  const isCloudSyncedRef = useRef(false);
+  
+  useEffect(() => {
+    isCloudSyncedRef.current = isCloudSynced;
+  }, [isCloudSynced]);
+
+  const syncStateToCloud = useCallback(async (fields) => {
+    if (!currentUser || !isCloudSyncedRef.current) return;
+    try {
+      await setDoc(doc(db, 'users', currentUser.uid), fields, { merge: true });
+    } catch (e) {
+      console.error('Error syncing to cloud:', e);
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (!currentUser) {
+      setIsCloudSynced(false);
+      return;
+    }
+    
+    const initCloud = async () => {
+      try {
+        const userRef = doc(db, 'users', currentUser.uid);
+        const docSnap = await getDoc(userRef);
+        
+        if (docSnap.exists()) {
+          const d = docSnap.data();
+          // Update React states from cloud if they exist
+          if (d.likedSongs) setLikedSongs(d.likedSongs);
+          if (d.userPlaylists) setUserPlaylists(d.userPlaylists);
+          if (d.albumProgress) setAlbumProgress(d.albumProgress);
+          if (d.questStatus) setQuestStatus(d.questStatus);
+          
+          // Update local storage from cloud if they exist
+          if (d.totalSeconds !== undefined) localStorage.setItem('flowy_total_seconds', d.totalSeconds);
+          if (d.dailySeconds) localStorage.setItem('flowy_daily_seconds', JSON.stringify(d.dailySeconds));
+          if (d.activeHours) localStorage.setItem('flowy_active_hours', JSON.stringify(d.activeHours));
+          if (d.playHistory) localStorage.setItem('flowy_play_history', JSON.stringify(d.playHistory));
+          if (d.playCounts) localStorage.setItem('flowy_play_counts', JSON.stringify(d.playCounts));
+          if (d.streak !== undefined) localStorage.setItem('flowy_streak', d.streak);
+          if (d.lastPlayDate) localStorage.setItem('flowy_last_play_date', d.lastPlayDate);
+          
+          setIsCloudSynced(true);
+        } else {
+          // Document doesn't exist, migrate existing local data to cloud
+          const localData = {
+            likedSongs,
+            userPlaylists,
+            albumProgress,
+            questStatus,
+            totalSeconds: Number(localStorage.getItem('flowy_total_seconds') || 0),
+            dailySeconds: JSON.parse(localStorage.getItem('flowy_daily_seconds') || '{}'),
+            activeHours: JSON.parse(localStorage.getItem('flowy_active_hours') || '{}'),
+            playHistory: JSON.parse(localStorage.getItem('flowy_play_history') || '[]'),
+            playCounts: JSON.parse(localStorage.getItem('flowy_play_counts') || '{}'),
+            streak: Number(localStorage.getItem('flowy_streak') || 0),
+            lastPlayDate: localStorage.getItem('flowy_last_play_date') || ''
+          };
+          await setDoc(userRef, localData);
+          setIsCloudSynced(true);
+        }
+      } catch (e) {
+        console.error('Error syncing from cloud:', e);
+        setIsCloudSynced(true); // fall back to local changes being allowed
+      }
+    };
+    
+    initCloud();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser]);
+  // ----------------------------
+
   const [likedSongs, setLikedSongs] = useState(() => {
     try {
       const saved = localStorage.getItem('flowy_liked_songs');
@@ -151,7 +228,8 @@ export default function AudioPlayerProvider({ children }) {
 
   useEffect(() => {
     localStorage.setItem('flowy_liked_songs', JSON.stringify(likedSongs));
-  }, [likedSongs]);
+    if (isCloudSynced) syncStateToCloud({ likedSongs });
+  }, [likedSongs, isCloudSynced, syncStateToCloud]);
 
   const [userPlaylists, setUserPlaylists] = useState(() => {
     try {
@@ -172,7 +250,8 @@ export default function AudioPlayerProvider({ children }) {
 
   useEffect(() => {
     localStorage.setItem('flowy_user_playlists', JSON.stringify(userPlaylists));
-  }, [userPlaylists]);
+    if (isCloudSynced) syncStateToCloud({ userPlaylists });
+  }, [userPlaylists, isCloudSynced, syncStateToCloud]);
 
   const createPlaylist = useCallback((...args) => {
     let title, cover, color;
@@ -353,11 +432,37 @@ export default function AudioPlayerProvider({ children }) {
 
   useEffect(() => {
     localStorage.setItem('flowy_album_progress', JSON.stringify(albumProgress));
-  }, [albumProgress]);
+    if (isCloudSynced) syncStateToCloud({ albumProgress });
+  }, [albumProgress, isCloudSynced, syncStateToCloud]);
 
   useEffect(() => {
     localStorage.setItem('flowy_quest_status', JSON.stringify(questStatus));
-  }, [questStatus]);
+    if (isCloudSynced) syncStateToCloud({ questStatus });
+  }, [questStatus, isCloudSynced, syncStateToCloud]);
+
+  // Global Sync for Analytics stored purely in localStorage
+  useEffect(() => {
+    if (!currentUser) return;
+    const interval = setInterval(async () => {
+      if (!isCloudSyncedRef.current) return;
+      try {
+        const fields = {
+          totalSeconds: Number(localStorage.getItem('flowy_total_seconds') || 0),
+          dailySeconds: JSON.parse(localStorage.getItem('flowy_daily_seconds') || '{}'),
+          activeHours: JSON.parse(localStorage.getItem('flowy_active_hours') || '{}'),
+          playHistory: JSON.parse(localStorage.getItem('flowy_play_history') || '[]'),
+          playCounts: JSON.parse(localStorage.getItem('flowy_play_counts') || '{}'),
+          streak: Number(localStorage.getItem('flowy_streak') || 0),
+          lastPlayDate: localStorage.getItem('flowy_last_play_date') || ''
+        };
+        await setDoc(doc(db, 'users', currentUser.uid), fields, { merge: true });
+      } catch (e) {
+        console.error('Error syncing analytics to cloud:', e);
+      }
+    }, 30000); // sync analytics every 30 seconds
+    
+    return () => clearInterval(interval);
+  }, [currentUser]);
 
   const acceptQuest = (id) => {
     setQuestStatus(prev => ({ ...prev, [id]: true }));

@@ -18,6 +18,14 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const scrollContainerRef = useRef(null);
+  
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    // Force a re-render every 2 seconds so that profile stats 
+    // update live while listening, and instantly catch cloud sync data.
+    const interval = setInterval(() => setTick(t => t + 1), 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleScroll = (e) => {
     const scrolled = e.target.scrollTop > 80;
