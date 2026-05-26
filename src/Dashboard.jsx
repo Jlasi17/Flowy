@@ -1,6 +1,8 @@
 import { useState, useContext, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { AudioContext } from "./AudioPlayerProvider";
+import { useAuth } from "./contexts/AuthContext";
 import SearchOverlay from "./components/SearchOverlay";
 import FastScrollHandle from "./components/FastScrollHandle";
 import "./Dashboard.css";
@@ -95,7 +97,8 @@ export default function Dashboard() {
     }
   }, [isSearchOpen, groupId, meta.hasSolos]);
 
-  const { currentUser, requireAuth, setSongs, setAlbumData, setAlbumId, setCurrentIndex, setIsPlaying, albumData, isPlaying, activeSong } =
+  const { currentUser } = useAuth();
+  const { requireAuth, setSongs, setAlbumData, setAlbumId, setCurrentIndex, setIsPlaying, albumData, isPlaying, activeSong } =
     useContext(AudioContext);
 
   const albums = tab === "solos" && meta.hasSolos
@@ -241,53 +244,69 @@ export default function Dashboard() {
               </button>
             ) : (
               <>
-                <button 
+                <motion.button 
                   className="db-icon-btn db-more-toggle" 
                   aria-label="More" 
                   onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)} 
                   style={{ marginLeft: '8px', zIndex: 1001, position: 'relative' }}
+                  animate={{ rotate: isMoreMenuOpen ? 90 : 0 }}
+                  transition={{ duration: 0.3 }}
                 >
                   {isMoreMenuOpen ? (
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                   ) : (
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                   )}
-                </button>
+                </motion.button>
                 
-                {isMoreMenuOpen && (
-                  <>
-                    <div 
-                      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999 }} 
-                      onClick={() => setIsMoreMenuOpen(false)} 
-                    />
-                    <div className="db-more-dropdown">
-                      <button 
-                        className="db-circle-btn"
-                        onClick={() => { setIsMoreMenuOpen(false); requireAuth(() => navigate('/profile')); }}
-                        aria-label="Profile"
-                        title="Profile"
+                <AnimatePresence>
+                  {isMoreMenuOpen && (
+                    <>
+                      <div 
+                        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999 }} 
+                        onClick={() => setIsMoreMenuOpen(false)} 
+                      />
+                      <motion.div 
+                        className="db-more-dropdown"
+                        initial="hidden"
+                        animate="visible"
+                        exit="hidden"
+                        variants={{
+                          hidden: { opacity: 0, y: -10, transition: { staggerChildren: 0.05, staggerDirection: -1 } },
+                          visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.1, delayChildren: 0.05 } }
+                        }}
                       >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                      </button>
-                      <button 
-                        className="db-circle-btn"
-                        onClick={() => { setIsMoreMenuOpen(false); requireAuth(() => navigate('/playlists')); }}
-                        aria-label="Playlists"
-                        title="Playlists"
-                      >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                      </button>
-                      <button 
-                        className="db-circle-btn"
-                        onClick={() => { setIsMoreMenuOpen(false); requireAuth(() => navigate('/settings')); }}
-                        aria-label="Settings"
-                        title="Settings"
-                      >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                      </button>
-                    </div>
-                  </>
-                )}
+                        <motion.button 
+                          variants={{ hidden: { opacity: 0, scale: 0.8 }, visible: { opacity: 1, scale: 1 } }}
+                          className="db-circle-btn"
+                          onClick={() => { setIsMoreMenuOpen(false); requireAuth(() => navigate('/profile')); }}
+                          aria-label="Profile"
+                          title="Profile"
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        </motion.button>
+                        <motion.button 
+                          variants={{ hidden: { opacity: 0, scale: 0.8 }, visible: { opacity: 1, scale: 1 } }}
+                          className="db-circle-btn"
+                          onClick={() => { setIsMoreMenuOpen(false); requireAuth(() => navigate('/playlists')); }}
+                          aria-label="Playlists"
+                          title="Playlists"
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                        </motion.button>
+                        <motion.button 
+                          variants={{ hidden: { opacity: 0, scale: 0.8 }, visible: { opacity: 1, scale: 1 } }}
+                          className="db-circle-btn"
+                          onClick={() => { setIsMoreMenuOpen(false); requireAuth(() => navigate('/settings')); }}
+                          aria-label="Settings"
+                          title="Settings"
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                        </motion.button>
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
               </>
             )}
           </div>

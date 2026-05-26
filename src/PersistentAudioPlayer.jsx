@@ -85,7 +85,7 @@ export default function PersistentAudioPlayer() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
 
-  const isHeroPage = location.pathname === '/';
+  const isDynamicIslandPage = location.pathname === '/' || location.pathname === '/auth' || location.pathname === '/profile' || location.pathname === '/playlists' || location.pathname === '/settings';
 
 
 
@@ -249,7 +249,7 @@ export default function PersistentAudioPlayer() {
   return (
     <>
       <div
-        className={`audio-player ${isPlaying ? "active" : ""} ${isHeroPage ? 'dynamic-island-mode' : ''}`}
+        className={`audio-player ${isPlaying ? "active" : ""} ${isDynamicIslandPage ? 'dynamic-island-mode' : ''}`}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         style={{ '--accent-color': accentColor }}

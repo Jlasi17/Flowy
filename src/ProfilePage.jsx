@@ -1,5 +1,5 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useContext, useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { updateProfile } from 'firebase/auth';
 import { useAuth } from './contexts/AuthContext';
@@ -16,6 +16,15 @@ export default function ProfilePage() {
   const [editName, setEditName] = useState("");
   const [editPhotoUrl, setEditPhotoUrl] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const scrollContainerRef = useRef(null);
+
+  const handleScroll = (e) => {
+    const scrolled = e.target.scrollTop > 80;
+    if (scrolled !== isScrolled) {
+      setIsScrolled(scrolled);
+    }
+  };
 
   useEffect(() => {
     if (currentUser) {
@@ -236,7 +245,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="profile-page">
+    <div className="profile-page" onScroll={handleScroll} ref={scrollContainerRef}>
       {/* Background Aura */}
       <div className="profile-aura-bg">
         <div className="aura-blob aura-1" style={{ background: auraColors[0], animationDuration }} />
@@ -246,6 +255,147 @@ export default function ProfilePage() {
       <div className="profile-noise" />
 
       {/* Main Content */}
+      {isMobile ? (
+        <div className="mobile-profile-container">
+          
+          {/* Sticky Header Background (Fades in on scroll) */}
+          <div 
+            className="mobile-sticky-header"
+            style={{ 
+              opacity: isScrolled ? 1 : 0, 
+              pointerEvents: isScrolled ? 'auto' : 'none',
+              transition: 'opacity 0.3s ease'
+            }}
+          >
+             <div className="mobile-sticky-left" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+               {isScrolled && (
+                 <motion.div layoutId="avatar-container" className="mobile-sticky-user" style={{ margin: 0 }}>
+                    {currentUser?.photoURL ? (
+                      <motion.img layoutId="avatar-img" src={currentUser.photoURL} alt="Profile" className="sticky-avatar" />
+                    ) : (
+                      <motion.div layoutId="avatar-img" className="sticky-avatar fallback-avatar">{initials}</motion.div>
+                    )}
+                 </motion.div>
+               )}
+             </div>
+
+             <div className="mobile-sticky-right">
+               {!isEditing && (
+                 <button className="mobile-edit-btn sticky-edit-btn" onClick={() => setIsEditing(true)}>
+                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                 </button>
+               )}
+             </div>
+          </div>
+
+          {/* Normal Header (Fades out on scroll) */}
+          <div className="mobile-header" style={{ opacity: isScrolled ? 0 : 1, transition: 'opacity 0.3s ease' }}>
+            <button className="mobile-back-btn" onClick={() => navigate(-1)}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+            </button>
+            {!isEditing && (
+              <button className="mobile-edit-btn" onClick={() => setIsEditing(true)}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              </button>
+            )}
+          </div>
+
+          {/* Mobile Profile Info */}
+          <div className="mobile-profile-info">
+             {!isScrolled ? (
+               <motion.div layoutId="avatar-container" className="profile-pic-container" style={{ alignSelf: 'center', margin: '0 auto 20px' }}>
+                 <div className="profile-pic-pulse" />
+                 <div className={`profile-vinyl ${isPlaying ? 'spinning' : ''}`} />
+                 {currentUser?.photoURL ? (
+                   <motion.img layoutId="avatar-img" src={currentUser.photoURL} alt="Profile" className="profile-pic" />
+                 ) : (
+                   <motion.div layoutId="avatar-img" className="profile-pic fallback-avatar">{initials}</motion.div>
+                 )}
+               </motion.div>
+             ) : (
+               <div style={{ height: '130px', width: '100%', marginBottom: '20px' }} /> // Spacer to prevent layout shift
+             )}
+
+             {isEditing ? (
+               <div className="profile-edit-form" style={{ margin: '0 auto', textAlign: 'center' }}>
+                 <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Display Name" className="profile-edit-input" />
+                 <input type="text" value={editPhotoUrl} onChange={(e) => setEditPhotoUrl(e.target.value)} placeholder="Photo URL" className="profile-edit-input" />
+                 <div className="profile-edit-actions">
+                   <button className="profile-edit-cancel" onClick={() => setIsEditing(false)}>Cancel</button>
+                   <button className="profile-edit-save" onClick={handleSaveProfile} disabled={isSaving}>{isSaving ? "Saving..." : "Save"}</button>
+                 </div>
+               </div>
+             ) : (
+               <div style={{ textAlign: 'center' }}>
+                 <h1 className="profile-name">{displayName}</h1>
+                 <p className="profile-handle">{handle}</p>
+                 <p className="profile-bio" style={{ margin: '8px auto 16px' }}>"{bio}"</p>
+                 <div className="profile-badges">
+                   <span className="profile-badge streak-badge" style={{ borderColor: 'rgba(255,140,0,0.4)', color: '#ff9d00', background: 'rgba(255,140,0,0.1)' }}>🔥 {streak} {streak === 1 ? 'Day' : 'Days'}</span>
+                   {badges.map((b, i) => <span key={i} className="profile-badge">{b}</span>)}
+                 </div>
+               </div>
+             )}
+          </div>
+
+          {/* Activity Heatmap */}
+          <div className="mobile-heatmap-section bento-tile activity-tile">
+            <div className="activity-grid-header">
+              <h3>{totalMinutes.toLocaleString()} mins</h3>
+            </div>
+            <div className="activity-wrapper">
+              <div className="activity-y-axis">
+                <span /><span>Mon</span><span /><span>Wed</span><span /><span>Fri</span><span />
+              </div>
+              <div className="activity-grid-scroll" ref={(el) => { if (el) el.scrollLeft = el.scrollWidth; }}>
+                <div className="activity-x-axis" style={{ gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }}>
+                  {monthLabels.map((m, i) => (
+                    <span key={i} style={{ gridColumn: m.col + 1 }}>{m.label}</span>
+                  ))}
+                </div>
+                <div className="activity-grid" style={{ gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }}>
+                  {gridSquares.map((sq, i) => (
+                    <div
+                      key={i}
+                      className={`activity-square activity-level-${sq.level} ${sq.isFuture ? 'activity-future' : ''} ${sq.row <= 1 ? 'tooltip-bottom' : ''}`}
+                      data-tooltip={sq.isFuture ? null : `${sq.minutes} mins on ${sq.date}`}
+                      style={{ gridColumn: sq.col + 1, gridRow: sq.row + 1 }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* History List */}
+          <div className="mobile-history-section bento-tile history-tile">
+             <h3 className="bento-tile-title">Live & Recent</h3>
+             <div className="history-list bento-history">
+              {displayHistory.length > 0 ? (
+                displayHistory
+                  .slice(0, 5)
+                  .map((item) => (
+                    <div className="history-item" key={item.id}>
+                      <img src={item.cover} alt={item.title} className="history-cover" />
+                      <div className="history-details">
+                        <div className="history-title">{item.title}</div>
+                        <div className="history-artist">{item.artist}</div>
+                      </div>
+                      <div className="history-emotion">
+                        {getHistoryTag(item)}
+                      </div>
+                    </div>
+                  ))
+              ) : (
+                !activeSong && <div style={{ color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', padding: '12px' }}>
+                  Your history is waiting to be written. Play some tracks!
+                </div>
+              )}
+            </div>
+          </div>
+
+        </div>
+      ) : (
       <div className="bento-container">
 
         {/* Tile 1: Profile Info */}
@@ -428,6 +578,7 @@ export default function ProfilePage() {
         </motion.div>
 
       </div>
+      )}
     </div>
   );
 }

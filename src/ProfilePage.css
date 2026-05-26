@@ -921,9 +921,11 @@
   }
 
   .profile-page {
-    height: auto;
+    height: 100dvh;
     overflow-y: auto;
+    overflow-x: hidden;
     min-height: 100vh;
+    -webkit-overflow-scrolling: touch;
   }
 
   .profile-name {
@@ -932,5 +934,135 @@
 
   .stat-value {
     font-size: 1.5rem;
+  }
+
+  /* Mobile Custom Layout */
+  .mobile-profile-container {
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    gap: 24px;
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 8px;
+  }
+  
+  .mobile-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .mobile-back-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .mobile-edit-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .mobile-section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+  }
+
+  /* Heatmap */
+  .mobile-heatmap-section,
+  .mobile-history-section {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    backdrop-filter: blur(24px);
+    margin-bottom: 0;
+  }
+  
+  .mobile-history-section {
+    padding-bottom: 40px;
+  }
+
+  /* Sticky Header */
+  .mobile-sticky-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(10, 10, 16, 0.7);
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    /* Extra padding at top for potential safe area (notch), plus general breathing room */
+    padding-top: calc(env(safe-area-inset-top, 16px) + 12px);
+  }
+
+  .mobile-sticky-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .sticky-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--accent-1);
+    box-shadow: 0 2px 8px rgba(192, 132, 252, 0.4);
+  }
+
+  .sticky-avatar.fallback-avatar {
+    font-size: 0.8rem;
+    border: none;
+  }
+
+  .sticky-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .sticky-edit-btn {
+    width: 36px;
+    height: 36px;
   }
 }
