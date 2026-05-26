@@ -5,6 +5,7 @@ import { AudioContext } from "../AudioPlayerProvider";
 import { useAdvancedSearch } from "../hooks/useAdvancedSearch";
 import { recordPlayHistory } from "../utils/searchScoring";
 import SwipeableTrack from "./SwipeableTrack";
+import AddToPlaylistPopup from "./AddToPlaylistPopup";
 import "./SearchOverlay.css";
 
 export default function SearchOverlay({ isOpen, onClose }) {
@@ -13,6 +14,8 @@ export default function SearchOverlay({ isOpen, onClose }) {
   const navigate = useNavigate();
   const [artistTransition, setArtistTransition] = useState(null);
   const [addedQueueSongs, setAddedQueueSongs] = useState({});
+  const [playlistPopup, setPlaylistPopup] = useState(null); // { song, anchorRect }
+  const [addedToast, setAddedToast] = useState(null);
 
   const {
     setSongs,
@@ -144,6 +147,24 @@ export default function SearchOverlay({ isOpen, onClose }) {
         setAddedQueueSongs(prev => ({ ...prev, [song.name]: false }));
       }, 2000);
     });
+  };
+
+  const handleContextMenu = (song, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const group = groupsData[song.groupId];
+    const basePath = song.isSolo ? group.soloBasePath : group.basePath;
+    const folder = song.isSolo ? '' : `${song.albumId}/`;
+    const songObj = {
+      name: song.name,
+      filePath: `${basePath}${folder}${song.file}`,
+      cover: song.albumCover,
+      member: song.artist,
+      albumTitle: song.albumTitle,
+      color: song.albumColor,
+    };
+    setPlaylistPopup({ song: songObj, anchorRect: rect });
   };
 
   const handleItemClick = (item) => {
@@ -399,7 +420,12 @@ export default function SearchOverlay({ isOpen, onClose }) {
                           actionColor={isAdded ? "#1db954" : (song.albumColor || "rgba(29, 185, 84, 0.4)")}
                           onClick={() => handleItemClick(song)}
                         >
-                          <div className="search-result-item">
+                          <div
+                            className="search-result-item"
+                            onDoubleClick={(e) => handleContextMenu(song, e)}
+                            onContextMenu={(e) => handleContextMenu(song, e)}
+                            title="Double-click to add to playlist"
+                          >
                             <div className="search-result-thumb-wrapper">
                               <img src={song.albumCover} alt="" className="search-result-thumb" />
                               <div className="search-result-play-overlay">
@@ -443,7 +469,12 @@ export default function SearchOverlay({ isOpen, onClose }) {
                           actionColor={isAdded ? "#1db954" : (song.albumColor || "rgba(29, 185, 84, 0.4)")}
                           onClick={() => handleItemClick(song)}
                         >
-                          <div className="search-result-item">
+                          <div
+                            className="search-result-item"
+                            onDoubleClick={(e) => handleContextMenu(song, e)}
+                            onContextMenu={(e) => handleContextMenu(song, e)}
+                            title="Double-click to add to playlist"
+                          >
                             <div className="search-result-thumb-wrapper">
                               <img src={song.albumCover} alt="" className="search-result-thumb" />
                               <div className="search-result-play-overlay">
@@ -530,9 +561,39 @@ export default function SearchOverlay({ isOpen, onClose }) {
           </div>
         </div>
       )}
+
+      {/* Add-to-Playlist Popup */}
+      {playlistPopup && (
+        <AddToPlaylistPopup
+          song={playlistPopup.song}
+          anchorRect={playlistPopup.anchorRect}
+          onClose={({ added, playlistTitle } = {}) => {
+            setPlaylistPopup(null);
+            if (added) {
+              setAddedToast(playlistTitle);
+              setTimeout(() => setAddedToast(null), 2500);
+            }
+          }}
+        />
+      )}
+
+      {/* Toast */}
+      {addedToast && (
+        <div style={{
+          position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)',
+          background: 'rgba(14,14,20,0.95)', border: '1px solid rgba(255,255,255,0.1)',
+          color: '#fff', padding: '10px 20px', borderRadius: '100px',
+          fontSize: '13px', fontWeight: 500, zIndex: 3000,
+          backdropFilter: 'blur(20px)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+          letterSpacing: '0.3px', whiteSpace: 'nowrap'
+        }}>
+          ✓ Added to <strong>{addedToast?.title || addedToast}</strong>
+        </div>
+      )}
     </div>
   );
 }
+
 
 function highlightMatch(text, query) {
   if (!query) return text;

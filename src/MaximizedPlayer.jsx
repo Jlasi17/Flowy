@@ -227,8 +227,8 @@ export default function MaximizedPlayer({ onClose }) {
 
   const renderVinylUnit = (song, album, animClass, spin, isActive) => (
     <div className={`vinyl-unit ${animClass}`}>
-      <div className="vinyl-sleeve">
-        <img src={album?.cover} alt="Album sleeve" />
+      <div className="vinyl-sleeve" style={!(song?.cover || album?.cover) ? { backgroundColor: album?.color || '#C084FC' } : {}}>
+        <img src={song?.cover || album?.cover} alt="Album sleeve" style={!(song?.cover || album?.cover) ? { display: 'none' } : {}} />
       </div>
 
       <div
@@ -238,7 +238,7 @@ export default function MaximizedPlayer({ onClose }) {
       >
         <div
           className={`vinyl-record ${spin ? "spinning" : ""}`}
-          style={{ "--cover-url": `url(${album?.cover})` }}
+          style={{ "--cover-url": `url(${song?.cover || album?.cover})` }}
         >
           <div className="vinyl-label">
             <div className="vinyl-hole" />
@@ -392,8 +392,14 @@ export default function MaximizedPlayer({ onClose }) {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Base blurred album background */}
-      <div className="maximized-bg" style={{ backgroundImage: `url(${albumData.cover})` }} />
+      {/* Background glow / blur */}
+      <div 
+        className="maximized-bg" 
+        style={{ 
+          backgroundImage: (activeSong?.cover || albumData?.cover) ? `url(${activeSong?.cover || albumData?.cover})` : 'none',
+          backgroundColor: !(activeSong?.cover || albumData?.cover) ? albumData?.color : undefined 
+        }} 
+      />
       {isTransitioning && prevSongData && (
         <div
           className="maximized-bg prev-bg-fade"
@@ -483,9 +489,10 @@ export default function MaximizedPlayer({ onClose }) {
                 <div 
                   className="mobile-album-circle"
                   onDoubleClick={(e) => requireAuth(() => toggleLike(activeSong?.name || displayMetadata.name, e, true))}
+                  style={!(activeSong?.cover || albumData?.cover) ? { backgroundColor: albumData?.color || '#C084FC' } : {}}
                 >
                   <div className="light-reflection" />
-                  <img src={albumData.cover} alt={albumData.title} />
+                  <img src={activeSong?.cover || albumData?.cover} alt={albumData?.title || 'Unknown'} style={!(activeSong?.cover || albumData?.cover) ? { display: 'none' } : {}} />
                 </div>
 
                 <div className="mobile-vinyl-timestamp cinematic-hide">

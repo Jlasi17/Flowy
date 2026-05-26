@@ -214,7 +214,10 @@ export default function KaraokePanel({ onClose }) {
       {/* Background */}
       <div
         className="karaoke-bg"
-        style={{ backgroundImage: `url(${albumData?.cover})` }}
+        style={{ 
+          backgroundImage: (activeSong?.cover || albumData?.cover) ? `url(${activeSong?.cover || albumData?.cover})` : 'none',
+          backgroundColor: !(activeSong?.cover || albumData?.cover) ? albumData?.color : undefined 
+        }}
       />
       <div className="karaoke-bg-tint" />
 
@@ -294,7 +297,7 @@ export default function KaraokePanel({ onClose }) {
                 </svg>
               </button>
               <img
-                src={albumData?.cover}
+                src={activeSong?.cover || albumData?.cover}
                 alt={albumData?.title}
                 className="karaoke-header-art"
               />
@@ -492,7 +495,7 @@ export default function KaraokePanel({ onClose }) {
               <span className="karaoke-countdown-next-label">Starting...</span>
               <div className="karaoke-countdown-next-song">
                 <img
-                  src={albumData?.cover}
+                  src={activeSong?.cover || albumData?.cover}
                   alt="Next"
                   className="karaoke-countdown-art"
                 />

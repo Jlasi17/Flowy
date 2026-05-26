@@ -153,6 +153,68 @@ export default function AudioPlayerProvider({ children }) {
     localStorage.setItem('flowy_liked_songs', JSON.stringify(likedSongs));
   }, [likedSongs]);
 
+  const [userPlaylists, setUserPlaylists] = useState(() => {
+    try {
+      const saved = localStorage.getItem('flowy_user_playlists');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Fix any corrupted playlists where title was accidentally saved as an object
+        return parsed.map(p => {
+          if (p.title && typeof p.title === 'object') {
+            return { ...p, title: p.title.title || 'Untitled Playlist' };
+          }
+          return p;
+        });
+      }
+      return [];
+    } catch { return []; }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('flowy_user_playlists', JSON.stringify(userPlaylists));
+  }, [userPlaylists]);
+
+  const createPlaylist = useCallback((...args) => {
+    let title, cover, color;
+    if (typeof args[0] === 'object' && args[0] !== null) {
+      ({ title, cover, color } = args[0]);
+    } else {
+      [title, cover, color] = args;
+    }
+    
+    const newId = 'playlist_' + Date.now();
+    const newPlaylist = {
+      id: newId,
+      title,
+      tracks: 0,
+      songs: [],
+      cover: cover || `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=400&h=400&auto=format&fit=crop`,
+      color: color || '#C084FC'
+    };
+    setUserPlaylists(prev => [...prev, newPlaylist]);
+    return newId;
+  }, []);
+
+  const deletePlaylist = useCallback((playlistId) => {
+    setUserPlaylists(prev => prev.filter(p => p.id !== playlistId));
+  }, []);
+
+  const removeSongFromPlaylist = useCallback((playlistId, songIndex) => {
+    setUserPlaylists(prev => prev.map(p => {
+      if (p.id !== playlistId) return p;
+      const newSongs = p.songs.filter((_, i) => i !== songIndex);
+      return { ...p, songs: newSongs, tracks: newSongs.length };
+    }));
+  }, []);
+
+  const addSongToPlaylist = useCallback((playlistId, song) => {
+    setUserPlaylists(prev => prev.map(p => {
+      if (p.id !== playlistId) return p;
+      const newSongs = [...(p.songs || []), song];
+      return { ...p, songs: newSongs, tracks: newSongs.length };
+    }));
+  }, []);
+
   // --- ANALYTICS TRACKING ---
   const isPlayingRef = useRef(isPlaying);
   useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
@@ -1022,6 +1084,9 @@ export default function AudioPlayerProvider({ children }) {
     setAlbumData,
     albumId,
     setAlbumId,
+    userPlaylists,
+    setUserPlaylists,
+    createPlaylist,
 
     queue,
     activeSong,
@@ -1090,6 +1155,9 @@ export default function AudioPlayerProvider({ children }) {
     resetQuest,
     likedSongs,
     toggleLike,
+    deletePlaylist,
+    removeSongFromPlaylist,
+    addSongToPlaylist,
   }), [
     songs, currentIndex, albumData, albumId, queue, isQueueOpen, toastMessage,
     shuffleMode, repeatMode, flyAnimData, isPlaying, currentTime, volume,
@@ -1101,7 +1169,8 @@ export default function AudioPlayerProvider({ children }) {
     triggerFlyAnimation, addToQueue, removeFromQueue, clearQueue, playFromQueue, reorderQueue,
     isAuthModalOpen, requireAuth,
     isCinematicActive, setIsCinematicActive, albumProgress,
-    questStatus, acceptQuest, resetQuest, likedSongs
+    questStatus, acceptQuest, resetQuest, likedSongs,
+    userPlaylists, createPlaylist, deletePlaylist, removeSongFromPlaylist, addSongToPlaylist
   ]);
 
   // --- MEDIA SESSION API for Background Playback ---

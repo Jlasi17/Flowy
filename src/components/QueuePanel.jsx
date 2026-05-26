@@ -512,8 +512,8 @@ export default function QueuePanel({ onClose }) {
               onClick={() => setIsPlaying(!isPlaying)}
             >
               <div className="qi-art-wrap">
-                {albumData?.cover
-                  ? <img src={albumData.cover} alt="" className="qi-art" onError={e => { e.currentTarget.style.display = 'none'; }} />
+                {(activeSong?.cover || albumData?.cover)
+                  ? <img src={activeSong?.cover || albumData?.cover} alt="" className="qi-art" onError={e => { e.currentTarget.style.display = 'none'; }} />
                   : <div className="qi-art-no-cover">
                     <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
                       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
