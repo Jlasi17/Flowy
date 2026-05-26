@@ -71,7 +71,8 @@ export default function PersistentAudioPlayer() {
     instVolume,
     setInstVolume,
     likedSongs,
-    toggleLike
+    toggleLike,
+    requireAuth
   } = useContext(AudioContext);
 
   const [isMaximized, setIsMaximized] = useState(false);
@@ -86,13 +87,7 @@ export default function PersistentAudioPlayer() {
 
   const isHeroPage = location.pathname === '/';
 
-  const requireAuth = (callback) => {
-    if (currentUser) {
-      callback();
-    } else {
-      navigate('/auth', { state: { from: location } });
-    }
-  };
+
 
   useEffect(() => {
     const handleKeyDown = (e) => {

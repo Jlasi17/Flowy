@@ -127,52 +127,7 @@ function CardSection() {
         />
       </div>
 
-      {/* Auth Button - Top Left */}
-      <div 
-        className="auth-header-btn"
-        style={{
-          position: 'absolute',
-          top: '30px',
-          left: '40px',
-          zIndex: 1000,
-          animation: 'mFadeUp 0.8s ease 0.2s both'
-        }}
-      >
-        {currentUser ? (
-          <button 
-            onClick={() => logout()}
-            style={{
-              background: 'rgba(0, 0, 0, 0.4)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              color: 'white',
-              padding: '10px 20px',
-              borderRadius: '20px',
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontFamily: 'Inter, sans-serif'
-            }}
-          >
-            Log Out
-          </button>
-        ) : (
-          <button 
-            onClick={() => navigate('/auth')}
-            style={{
-              background: 'linear-gradient(135deg, #ffffff, #e0e0e0)',
-              border: 'none',
-              color: 'black',
-              padding: '10px 20px',
-              borderRadius: '20px',
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontFamily: 'Inter, sans-serif'
-            }}
-          >
-            Login / Sign Up
-          </button>
-        )}
-      </div>
+
 
       <div
         className={`bg-layer ${bgImage ? "active" : ""}`}

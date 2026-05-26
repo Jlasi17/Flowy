@@ -1153,7 +1153,7 @@ export default function AudioPlayerProvider({ children }) {
     questStatus,
     acceptQuest,
     resetQuest,
-    likedSongs,
+    likedSongs: currentUser ? likedSongs : [],
     toggleLike,
     deletePlaylist,
     removeSongFromPlaylist,
@@ -1169,7 +1169,7 @@ export default function AudioPlayerProvider({ children }) {
     triggerFlyAnimation, addToQueue, removeFromQueue, clearQueue, playFromQueue, reorderQueue,
     isAuthModalOpen, requireAuth,
     isCinematicActive, setIsCinematicActive, albumProgress,
-    questStatus, acceptQuest, resetQuest, likedSongs,
+    questStatus, acceptQuest, resetQuest, likedSongs, currentUser,
     userPlaylists, createPlaylist, deletePlaylist, removeSongFromPlaylist, addSongToPlaylist
   ]);
 
