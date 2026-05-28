@@ -16,6 +16,8 @@ import { AuthProvider } from "./contexts/AuthContext";
 import AuthPage from "./components/AuthPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthModal from "./components/AuthModal";
+import AddToPlaylistModal from "./AddToPlaylistModal";
+import { AudioContext } from "./AudioPlayerProvider";
 
 function Home() {
   const [showHero, setShowHero] = React.useState(!sessionStorage.getItem("hasSeenHero"));
@@ -67,9 +69,21 @@ function App() {
 
           <PersistentAudioPlayer />
           <AuthModal />
+          <GlobalModals />
         </BrowserRouter>
       </AudioPlayerProvider>
     </AuthProvider>
+  );
+}
+
+function GlobalModals() {
+  const { addToPlaylistSong, setAddToPlaylistSong } = React.useContext(AudioContext);
+  return (
+    <AddToPlaylistModal 
+      isOpen={!!addToPlaylistSong} 
+      onClose={() => setAddToPlaylistSong(null)} 
+      song={addToPlaylistSong} 
+    />
   );
 }
 

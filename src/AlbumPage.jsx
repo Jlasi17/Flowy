@@ -31,7 +31,8 @@ export default function AlbumPage() {
     toggleLike,
     requireAuth,
     createPlaylist,
-    addSongToPlaylist
+    addSongToPlaylist,
+    setAddToPlaylistSong
   } = useContext(AudioContext);
 
   const handleContextMenu = (song, e, index) => {
@@ -192,7 +193,19 @@ export default function AlbumPage() {
                 return (
                   <SwipeableTrack
                     key={index}
-                    onSwipeAction={(e) => {
+                    onSwipeRight={(e) => {
+                      const songObj = {
+                        name: song.name,
+                        filePath: computedPath,
+                        cover: album?.cover,
+                        member: album?.member || groupTitle,
+                        albumTitle: album?.title,
+                        color: album?.color,
+                        duration: song.duration || songDurations[song.name] || "—",
+                      };
+                      setAddToPlaylistSong(songObj);
+                    }}
+                    onSwipeLeft={(e) => {
                       const wrapper = e?.target?.closest?.('.swipeable-track-wrapper');
                       const sourceRect = wrapper?.getBoundingClientRect() || null;
                       requireAuth(() => {
@@ -208,7 +221,10 @@ export default function AlbumPage() {
                         if (sourceRect) triggerFlyAnimation(sourceRect, song.name, album?.cover);
                       });
                     }}
-                    actionColor={album?.color ? album.color : "rgba(29, 185, 84, 0.4)"}
+                    rightActionText="＋ Playlist"
+                    rightActionColor="#C084FC"
+                    leftActionText="＋ Queue"
+                    leftActionColor={album?.color ? album.color : "rgba(29, 185, 84, 0.4)"}
                     onClick={() => {
                       if (isRow) {
                         setIsPlaying(!isPlaying);

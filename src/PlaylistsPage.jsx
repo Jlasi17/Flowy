@@ -197,12 +197,175 @@ function SurfCard({ playlist, cardIndex, total, baseX, onClick }) {
   );
 }
 
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  HORIZONTAL 3D CAROUSEL LOGIC
+// ═══════════════════════════════════════════════════════════════════════════════
+const CARD_SPACING = 150;
+const PX_TO_DEG   = 180 / (Math.PI * 220);
+const MIN_ITEMS   = 12;
+
+function wrapAngle(deg) {
+  return ((deg + 180) % 360 + 360) % 360 - 180;
+}
+
+function Horizontal3DCard({ playlist, index, angleStepDeg, displayAngle, onClick }) {
+  const θ = useTransform(displayAngle, deg => wrapAngle(index * angleStepDeg - deg));
+  const xPos = useTransform(θ, a => (a / angleStepDeg) * CARD_SPACING);
+  const zPos = useTransform(θ, a => -Math.abs(a / angleStepDeg) * 110);
+  const rotY = useTransform(θ, a => Math.max(-55, Math.min(55, -(a / angleStepDeg) * 35)));
+  const alpha = useTransform(θ, a => Math.max(0, 1 - Math.abs(a / angleStepDeg) * 0.4));
+  const scl = useTransform(θ, a => Math.max(0.6, 1 - Math.abs(a / angleStepDeg) * 0.15));
+  const filt = useTransform(θ, a => {
+    const steps = Math.abs(a / angleStepDeg);
+    const blur = Math.max(0, (steps - 1) * 2);
+    const br   = Math.max(0.3, 1 - steps * 0.2);
+    return blur > 0.1 ? `blur(${blur.toFixed(1)}px) brightness(${br.toFixed(2)})` : `brightness(${br.toFixed(2)})`;
+  });
+  const zi = useTransform(θ, a => Math.max(1, 100 - Math.round(Math.abs(a))));
+  const isLiked = playlist.id === 'liked_songs';
+  const color   = playlist.color || '#7c3aed';
+
+  return (
+    <motion.div className="oc-wrapper" style={{ x: xPos, z: zPos, rotateY: rotY, scale: scl, opacity: alpha, filter: filt, zIndex: zi }} onClick={() => onClick(playlist)}>
+      <motion.div className="oc-breathe" animate={{ y: [0, -5, 0] }} transition={{ duration: 5.4, repeat: Infinity, ease: 'easeInOut', repeatType: 'mirror', delay: index * 0.7 }}>
+        <div className="oc-panel">
+          <div className="oc-cover" style={{ background: color }}>
+            <div className="oc-cover-icon">
+              {isLiked ? (
+                <svg width="52" height="52" viewBox="0 0 24 24" fill="white" opacity="0.18"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              ) : (
+                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" opacity="0.18"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              )}
+            </div>
+          </div>
+          <div className="oc-polaroid-footer">
+            <span className="oc-polaroid-title">{playlist.title}</span>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function Horizontal3DCarousel({ playlists, onOpen }) {
+  const base = playlists.length;
+  const orbit = [];
+  if (base > 0) {
+    let r = 0;
+    while (orbit.length < Math.max(base, MIN_ITEMS)) {
+      playlists.forEach((p, i) => orbit.push({ ...p, _k: `${p.id}-${r}-${i}`, _ri: i % base }));
+      r++;
+    }
+  }
+  const total = orbit.length;
+  const angleStepDeg = 360 / total;
+  const displayAngle = useSpring(0, { stiffness: 120, damping: 20, mass: 1 });
+  const targetAngle  = React.useRef(0);
+  const [selIdx,  setSelIdx]  = useState(0);
+  const [bgColor, setBgColor] = useState(playlists[0]?.color ?? '#6d28d9');
+  const lastX    = React.useRef(0);
+  const isDrag   = React.useRef(false);
+  const dragDist = React.useRef(0);
+  const velRef   = React.useRef(0);
+
+  useEffect(() => {
+    return displayAngle.onChange(v => {
+      const idx = ((Math.round(v / angleStepDeg) % total) + total) % total;
+      const ri  = orbit[idx]?._ri ?? 0;
+      setSelIdx(ri);
+      setBgColor(playlists[ri]?.color ?? '#6d28d9');
+    });
+  }, [displayAngle, angleStepDeg, total, orbit, playlists]);
+
+  const snapToNearest = useCallback(() => {
+    const flingDeg = velRef.current * 8;
+    targetAngle.current = Math.round((targetAngle.current + flingDeg) / angleStepDeg) * angleStepDeg;
+    displayAngle.set(targetAngle.current);
+  }, [displayAngle, angleStepDeg]);
+
+  const onDown = useCallback((e) => {
+    isDrag.current   = true;
+    dragDist.current = 0;
+    velRef.current   = 0;
+    targetAngle.current = displayAngle.get();
+    lastX.current    = e.clientX ?? e.touches?.[0]?.clientX;
+    e.currentTarget?.setPointerCapture?.(e.pointerId);
+  }, [displayAngle]);
+
+  const onMove = useCallback((e) => {
+    if (!isDrag.current) return;
+    const cx = e.clientX ?? e.touches?.[0]?.clientX;
+    const dx = cx - lastX.current;
+    dragDist.current += Math.abs(dx);
+    velRef.current = velRef.current * 0.7 + (-dx * PX_TO_DEG) * 0.3;
+    targetAngle.current -= dx * PX_TO_DEG;
+    displayAngle.set(targetAngle.current);
+    lastX.current = cx;
+  }, [displayAngle]);
+
+  const onUp = useCallback(() => {
+    if (!isDrag.current) return;
+    isDrag.current = false;
+    snapToNearest();
+  }, [snapToNearest]);
+
+  const handleOpen = useCallback((clickedPlaylist) => {
+    if (dragDist.current > 8) return;
+    onOpen(clickedPlaylist || playlists[selIdx]);
+  }, [onOpen, playlists, selIdx]);
+
+  const handleWheel = useCallback((e) => {
+    const dx = e.deltaX || e.deltaY;
+    velRef.current = velRef.current * 0.7 + (dx * PX_TO_DEG) * 0.3;
+    targetAngle.current += dx * PX_TO_DEG * 1.5;
+    displayAngle.set(targetAngle.current);
+    if (window.snapTimeout) clearTimeout(window.snapTimeout);
+    window.snapTimeout = setTimeout(() => snapToNearest(), 150);
+  }, [displayAngle, snapToNearest]);
+
+  const sel = playlists[selIdx];
+
+  return (
+    <div className="ot-scene" onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerLeave={onUp} onWheel={handleWheel} style={{ touchAction: 'none' }}>
+      <div className="ot-nebula" />
+      <AnimatePresence>
+        <motion.div key={`wash-${selIdx}`} className="ot-wash" style={{ '--wash': bgColor }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.1 }} />
+      </AnimatePresence>
+      <AnimatePresence>
+        <motion.div key={`bloom-${selIdx}`} className="ot-bloom" style={{ background: bgColor }} initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 0.18, scale: 1 }} exit={{ opacity: 0, scale: 0.7 }} transition={{ duration: 0.85 }} />
+      </AnimatePresence>
+      <div className="ot-stage">
+        {orbit.map((p, i) => (
+          <Horizontal3DCard key={p._k} playlist={p} index={i} angleStepDeg={angleStepDeg} displayAngle={displayAngle} onClick={handleOpen} />
+        ))}
+      </div>
+      <div className="ot-fog ot-fog--left" />
+      <div className="ot-fog ot-fog--right" />
+      <div className="ot-vignette" />
+      <AnimatePresence mode="wait">
+        <motion.div key={`info-${selIdx}`} className="ot-info" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}>
+          <p className="ot-info-name">{sel?.title}</p>
+          <p className="ot-info-meta">{sel?.songs?.length ?? 0}&nbsp;{(sel?.songs?.length ?? 0) === 1 ? 'song' : 'songs'}</p>
+        </motion.div>
+      </AnimatePresence>
+      <p className="ot-hint">SWIPE TO SPIN &bull; TAP TO OPEN</p>
+    </div>
+  );
+}
+
 // ─── PlaylistsPage ───────────────────────────────────────────────
 export default function PlaylistsPage() {
   const { userPlaylists, createPlaylist, likedSongs } = useContext(AudioContext);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   // baseX: raw accumulated scroll offset (grows as user drags/scrolls)
   const baseX = useMotionValue(0);
@@ -302,15 +465,50 @@ export default function PlaylistsPage() {
 
   return (
     <div className="playlists-surf-container">
-      <div
-        ref={sceneRef}
-        className="surf-scene"
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerUp}
-        style={{ cursor: isDragging.current ? 'grabbing' : 'grab' }}
-      >
+      {/* ═══════ MOBILE ═════════════════════════════════════════ */}
+      {isMobile && (
+        <div className="playlists-mobile-root" style={{ height: '100vh', width: '100vw' }}>
+          <div className="mob-header">
+            <button className="mob-back" onClick={() => navigate(-1)}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+              </svg>
+            </button>
+            <div className="mob-title-wrap">
+              <h1 className="mob-title">Playlists</h1>
+              <span className="mob-count">{basePlaylists.length}</span>
+            </div>
+            <button className="mob-add" onClick={() => setIsCreateModalOpen(true)}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </button>
+          </div>
+          <Horizontal3DCarousel playlists={basePlaylists} onOpen={p => setSelectedPlaylist(p)} />
+          {basePlaylists.length === 0 && (
+            <div className="mob-empty" style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" style={{ opacity: 0.18 }}>
+                <path d="M9 18V5l12-2v13" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+              </svg>
+              <p>No playlists yet</p>
+              <button onClick={() => setIsCreateModalOpen(true)} className="mob-create-btn">Create Playlist</button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ═══════ DESKTOP ════════════════════════════════════════ */}
+      {!isMobile && (
+        <div
+          ref={sceneRef}
+          className="surf-scene"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerUp}
+          style={{ cursor: isDragging.current ? 'grabbing' : 'grab' }}
+        >
         {/* Title */}
         <div className="surf-title-block">
           <button className="surf-back-btn" onClick={() => navigate(-1)}>
@@ -352,6 +550,8 @@ export default function PlaylistsPage() {
         )}
       </div>
 
+      )}
+      
       <CreatePlaylistModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}

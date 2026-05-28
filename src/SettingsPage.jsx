@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from './contexts/AuthContext';
+import { updateProfile, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 import './SettingsPage.css';
 
 const FluidToggle = ({ active, onClick }) => {
@@ -70,30 +72,138 @@ const SettingsSlider = ({ title, subtitle, min, max, value, onChange, formatValu
 
 export default function SettingsPage() {
   const navigate = useNavigate();
+  const { currentUser, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('account');
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editPhotoUrl, setEditPhotoUrl] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState("");
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
-  const [toggles, setToggles] = useState({
-    publicListening: false,
-    gapless: true,
-    normalize: true,
-    autoplay: false,
-    spatialAudio: false,
-    bassBoost: false,
-    visualizer: true,
-    dynamicBg: true,
-    particles: true,
-    haptic: true,
-    smartDownloads: true,
-    offlineMode: false,
-    autoDelete: true,
-    reduceMotion: false,
-    highContrast: false,
-    largerText: false,
-    monoAudio: false,
-    reduceParticles: false
+  useEffect(() => {
+    if (currentUser) {
+      setEditName(currentUser.displayName || "Lasya Jetti");
+      setEditPhotoUrl(currentUser.photoURL || "");
+    }
+  }, [currentUser]);
+
+  const handleSaveProfile = async () => {
+    if (!currentUser) return;
+    setIsSaving(true);
+    try {
+      await updateProfile(currentUser, {
+        displayName: editName,
+        photoURL: editPhotoUrl
+      });
+      setIsEditing(false);
+      window.location.reload();
+    } catch (error) {
+      console.error("Error updating profile", error);
+    }
+    setIsSaving(false);
+  };
+
+  const handleUpdatePassword = async () => {
+    if (!currentPassword) {
+      setPasswordMessage("Please enter your current password.");
+      return;
+    }
+    if (!newPassword || newPassword.length < 6) {
+      setPasswordMessage("New password must be at least 6 characters.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage("New passwords do not match.");
+      return;
+    }
+    setIsUpdatingPassword(true);
+    try {
+      const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+      await reauthenticateWithCredential(currentUser, credential);
+      
+      await updatePassword(currentUser, newPassword);
+      setPasswordMessage("Password updated successfully.");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setTimeout(() => {
+        setIsChangingPassword(false);
+        setPasswordMessage("");
+      }, 2000);
+    } catch (error) {
+      console.error("Error updating password", error);
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
+        setPasswordMessage("Incorrect current password.");
+      } else if (error.code === 'auth/requires-recent-login') {
+        setPasswordMessage("Please sign out and sign back in to change your password.");
+      } else {
+        setPasswordMessage("Failed to update password.");
+      }
+    }
+    setIsUpdatingPassword(false);
+  };
+
+  const getInitials = (name) => {
+    if (!name) return "U";
+    const parts = name.trim().split(" ");
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
+  const displayName = currentUser?.displayName || "Lasya Jetti";
+  const email = currentUser?.email || "lasya@example.com";
+  const initials = getInitials(displayName);
+
+  const [toggles, setToggles] = useState(() => {
+    try {
+      const saved = localStorage.getItem('flowy_settings_toggles');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return {
+      publicListening: false,
+      gapless: true,
+      normalize: true,
+      autoplay: false,
+      spatialAudio: false,
+      bassBoost: false,
+      visualizer: true,
+      dynamicBg: true,
+      particles: true,
+      haptic: true,
+      smartDownloads: true,
+      offlineMode: false,
+      autoDelete: true,
+      reduceMotion: false,
+      highContrast: false,
+      largerText: false,
+      monoAudio: false,
+      reduceParticles: false
+    };
   });
 
-  const [crossfade, setCrossfade] = useState(0);
+  useEffect(() => {
+    localStorage.setItem('flowy_settings_toggles', JSON.stringify(toggles));
+    window.dispatchEvent(new Event('flowy_settings_changed'));
+  }, [toggles]);
+
+  const [crossfade, setCrossfade] = useState(() => {
+    return Number(localStorage.getItem('flowy_settings_crossfade')) || 0;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('flowy_settings_crossfade', crossfade);
+    window.dispatchEvent(new Event('flowy_settings_changed'));
+  }, [crossfade]);
 
   const toggle = (key) => setToggles(prev => ({ ...prev, [key]: !prev[key] }));
 
@@ -175,27 +285,48 @@ export default function SettingsPage() {
                 <div className="account-profile-card">
                   <div className="profile-avatar-wrapper">
                     <div className="profile-aura"></div>
-                    <img src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="Profile" className="profile-avatar" />
+                    {currentUser?.photoURL ? (
+                      <img src={currentUser.photoURL} alt="Profile" className="profile-avatar" />
+                    ) : (
+                      <div className="profile-avatar" style={{ display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #2a2a35, #1a1a24)', color: '#fff', fontSize: '32px', fontWeight: '600' }}>
+                        {initials}
+                      </div>
+                    )}
                   </div>
-                  <div className="profile-details">
-                    <h2>Lasya Jetti</h2>
-                    <p>lasya@example.com</p>
+                  <div className="profile-details" style={{ flexGrow: 1 }}>
+                    {isEditing ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Display Name" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '12px', borderRadius: '12px', fontSize: '15px', outline: 'none' }} />
+                        <input type="text" value={editPhotoUrl} onChange={(e) => setEditPhotoUrl(e.target.value)} placeholder="Photo URL" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '12px', borderRadius: '12px', fontSize: '15px', outline: 'none' }} />
+                        <div style={{ display: 'flex', gap: '12px', marginTop: '4px' }}>
+                          <button onClick={() => setIsEditing(false)} style={{ flex: 1, padding: '10px', borderRadius: '10px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: '500' }} onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.15)'} onMouseOut={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}>Cancel</button>
+                          <button onClick={handleSaveProfile} disabled={isSaving} style={{ flex: 1, padding: '10px', borderRadius: '10px', background: 'var(--aurora-blue)', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: '500', opacity: isSaving ? 0.7 : 1 }} onMouseOver={(e) => { if (!isSaving) e.target.style.filter = 'brightness(1.1)' }} onMouseOut={(e) => e.target.style.filter = 'none'}>{isSaving ? "Saving..." : "Save"}</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <h2>{displayName}</h2>
+                          <p>{email}</p>
+                        </div>
+                        <button onClick={() => setIsEditing(true)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '8px 16px', borderRadius: '16px', cursor: 'pointer', transition: 'background 0.2s', fontWeight: '500' }} onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={(e) => e.target.style.background = 'rgba(255,255,255,0.05)'}>Edit</button>
+                      </div>
+                    )}
                   </div>
                 </div>
 
+
                 <div className="settings-grid">
-                  <SettingsModule icon={icons.creditCard} title="Subscription Plan" subtitle="Premium Member" glowClass="icon-glow-peach" rightElement={<span className="value-text">Manage</span>} onClick={() => { }} />
-                  <SettingsModule icon={icons.link} title="Connected Accounts" subtitle="Manage integrations" rightElement={icons.chevronRight} onClick={() => { }} />
-                  <SettingsModule icon={icons.share} title="Share Profile" subtitle="Your listening ID" rightElement={icons.chevronRight} onClick={() => { }} />
-                  <SettingsModule
-                    icon={icons.lock}
-                    title="Public Profile"
-                    subtitle="Let others see your activity"
-                    rightElement={<FluidToggle active={toggles.publicListening} onClick={() => toggle('publicListening')} />}
+                  <SettingsModule 
+                    icon={icons.lock} 
+                    title="Change Password" 
+                    subtitle="Update your account password" 
+                    onClick={() => setIsChangingPassword(true)} 
+                    rightElement={icons.chevronRight} 
                   />
                 </div>
 
-                <button className="action-button">Sign Out</button>
+                <button className="action-button" onClick={() => setShowLogoutConfirm(true)}>Sign Out</button>
               </motion.section>
             )}
 
@@ -422,6 +553,134 @@ export default function SettingsPage() {
         </main>
 
       </div>
+
+      {/* Sleek Logout Confirmation Modal */}
+      <AnimatePresence>
+        {showLogoutConfirm && (
+          <motion.div 
+            className="logout-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowLogoutConfirm(false)}
+            style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <motion.div 
+              className="logout-modal-content"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{ background: 'rgba(25,25,32,0.85)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px', padding: '32px', maxWidth: '400px', width: '90%', textAlign: 'center', boxShadow: '0 24px 64px rgba(0,0,0,0.4)' }}
+            >
+              <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(255,69,58,0.1)', color: '#ff453a', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              </div>
+              <h2 style={{ fontSize: '22px', fontWeight: '600', marginBottom: '8px', color: '#fff' }}>Sign out of Flowy?</h2>
+              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '15px', marginBottom: '32px', lineHeight: '1.5' }}>You will need to log back in to access your playlists, activity, and personalized recommendations.</p>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <button 
+                  onClick={() => setShowLogoutConfirm(false)}
+                  style={{ flex: 1, padding: '14px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: 'none', fontWeight: '500', cursor: 'pointer', transition: 'background 0.2s' }}
+                  onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}
+                  onMouseOut={(e) => e.target.style.background = 'rgba(255,255,255,0.05)'}
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={async () => {
+                    setShowLogoutConfirm(false);
+                    try {
+                      await logout();
+                      navigate('/auth');
+                    } catch (error) {
+                      console.error("Failed to log out", error);
+                    }
+                  }}
+                  style={{ flex: 1, padding: '14px', borderRadius: '12px', background: '#ff453a', color: '#fff', border: 'none', fontWeight: '500', cursor: 'pointer', transition: 'background 0.2s, transform 0.2s', boxShadow: '0 4px 16px rgba(255,69,58,0.3)' }}
+                  onMouseOver={(e) => { e.target.style.background = '#ff5b52'; e.target.style.transform = 'translateY(-2px)' }}
+                  onMouseOut={(e) => { e.target.style.background = '#ff453a'; e.target.style.transform = 'translateY(0)' }}
+                >
+                  Sign Out
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {isChangingPassword && (
+          <motion.div 
+            className="password-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => { setIsChangingPassword(false); setPasswordMessage(""); setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); }}
+            style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <motion.div 
+              className="password-modal-content"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{ background: 'rgba(25,25,32,0.85)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px', padding: '32px', maxWidth: '400px', width: '90%', textAlign: 'center', boxShadow: '0 24px 64px rgba(0,0,0,0.4)' }}
+            >
+              <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              </div>
+              <h2 style={{ fontSize: '22px', fontWeight: '600', marginBottom: '16px', color: '#fff' }}>Change Password</h2>
+              
+              <input 
+                type="password" 
+                value={currentPassword} 
+                onChange={(e) => setCurrentPassword(e.target.value)} 
+                placeholder="Current Password" 
+                style={{ width: '100%', boxSizing: 'border-box', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '14px', borderRadius: '12px', fontSize: '15px', outline: 'none', marginBottom: '12px' }} 
+              />
+
+              <input 
+                type="password" 
+                value={newPassword} 
+                onChange={(e) => setNewPassword(e.target.value)} 
+                placeholder="New Password (min 6 characters)" 
+                style={{ width: '100%', boxSizing: 'border-box', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '14px', borderRadius: '12px', fontSize: '15px', outline: 'none', marginBottom: '12px' }} 
+              />
+              
+              <input 
+                type="password" 
+                value={confirmPassword} 
+                onChange={(e) => setConfirmPassword(e.target.value)} 
+                placeholder="Confirm New Password" 
+                style={{ width: '100%', boxSizing: 'border-box', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '14px', borderRadius: '12px', fontSize: '15px', outline: 'none', marginBottom: '16px' }} 
+              />
+
+              {passwordMessage && (
+                <p style={{ color: passwordMessage.includes('successfully') ? '#4ade80' : '#ff453a', fontSize: '14px', marginBottom: '16px' }}>{passwordMessage}</p>
+              )}
+
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <button 
+                  onClick={() => { setIsChangingPassword(false); setPasswordMessage(""); setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); }}
+                  style={{ flex: 1, padding: '14px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: 'none', fontWeight: '500', cursor: 'pointer', transition: 'background 0.2s' }}
+                  onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}
+                  onMouseOut={(e) => e.target.style.background = 'rgba(255,255,255,0.05)'}
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleUpdatePassword}
+                  disabled={isUpdatingPassword}
+                  style={{ flex: 1, padding: '14px', borderRadius: '12px', background: 'var(--aurora-blue)', color: '#fff', border: 'none', fontWeight: '500', cursor: 'pointer', opacity: isUpdatingPassword ? 0.7 : 1, transition: 'background 0.2s, transform 0.2s' }}
+                  onMouseOver={(e) => { if (!isUpdatingPassword) { e.target.style.filter = 'brightness(1.1)'; e.target.style.transform = 'translateY(-2px)' } }}
+                  onMouseOut={(e) => { e.target.style.filter = 'none'; e.target.style.transform = 'translateY(0)' }}
+                >
+                  {isUpdatingPassword ? "Updating..." : "Update"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

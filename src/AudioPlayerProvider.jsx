@@ -51,6 +51,32 @@ export default function AudioPlayerProvider({ children }) {
   const [currentIndex, setCurrentIndex] = useState(null);
   const [albumData, setAlbumData] = useState(null);
   const [albumId, setAlbumId] = useState(null);
+  const crossfadeTriggeredRef = useRef(false);
+
+  const [playbackSettings, setPlaybackSettings] = useState({
+    gapless: true,
+    normalize: true,
+    autoplay: false,
+    crossfade: 0
+  });
+
+  useEffect(() => {
+    const loadSettings = () => {
+      try {
+        const toggles = JSON.parse(localStorage.getItem('flowy_settings_toggles') || '{}');
+        const cf = Number(localStorage.getItem('flowy_settings_crossfade')) || 0;
+        setPlaybackSettings({
+          gapless: toggles.gapless ?? true,
+          normalize: toggles.normalize ?? true,
+          autoplay: toggles.autoplay ?? false,
+          crossfade: cf
+        });
+      } catch (e) {}
+    };
+    loadSettings();
+    window.addEventListener('flowy_settings_changed', loadSettings);
+    return () => window.removeEventListener('flowy_settings_changed', loadSettings);
+  }, []);
 
   // QUEUE SYSTEM
   const [queue, setQueue] = useState([]);
@@ -570,6 +596,9 @@ export default function AudioPlayerProvider({ children }) {
     };
   }, [karaokeMode, karaokeStatus]);
 
+  // Global "Add to Playlist" modal state
+  const [addToPlaylistSong, setAddToPlaylistSong] = useState(null);
+
   // Play/Pause sync
   useEffect(() => {
     const audio = audioRef.current;
@@ -620,8 +649,12 @@ export default function AudioPlayerProvider({ children }) {
 
   const updateVolume = useCallback((val) => {
     setVolume(val);
-    if (audioRef.current) audioRef.current.volume = val / 100;
-  }, []);
+    if (audioRef.current) {
+      // Mock normalize: if enabled, apply a slight dynamic compression by scaling max volume
+      const multiplier = playbackSettings.normalize ? 0.85 : 1.0;
+      audioRef.current.volume = (val / 100) * multiplier;
+    }
+  }, [playbackSettings.normalize]);
 
   const showToast = useCallback((msg, color = null) => {
     setToastMessage({ message: msg, color });
@@ -728,13 +761,18 @@ export default function AudioPlayerProvider({ children }) {
       } else {
         const nextIdx = currentIndex < songs.length - 1 ? currentIndex + 1 : (repeatMode === 'all' ? 0 : null);
         if (nextIdx === null) {
+          if (playbackSettings.autoplay && songs.length > 0) {
+            const autoIdx = getRandomIndex(currentIndex, songs.length);
+            setCurrentIndex(autoIdx);
+            return;
+          }
           setIsPlaying(false);
           return;
         }
         setCurrentIndex(nextIdx);
       }
     }
-  }, [queue, currentIndex, songs, shuffleMode, repeatMode, albumData]);
+  }, [queue, currentIndex, songs, shuffleMode, repeatMode, albumData, playbackSettings.autoplay]);
 
   const playPrev = useCallback(() => {
     if (audioRef.current.currentTime > 3) {
@@ -1136,9 +1174,10 @@ export default function AudioPlayerProvider({ children }) {
         
         setIsPlaying(true);
         setCurrentTime(0);
+        crossfadeTriggeredRef.current = false;
       }
     }
-  }, [activeSong]);
+  }, [activeSong, karaokeMode, startKaraoke]);
 
   // Redundant isPlaying effect removed to prevent duplicate play() calls
   useEffect(() => {
@@ -1146,6 +1185,31 @@ export default function AudioPlayerProvider({ children }) {
     const update = () => {
       setCurrentTime(audio.currentTime);
       lastPlaybackTimeRef.current = audio.currentTime; // Redundant backup
+
+      if (!karaokeMode && !isCinematicActive && audio.duration) {
+        const timeRemaining = audio.duration - audio.currentTime;
+        const threshold = playbackSettings.crossfade > 0 ? playbackSettings.crossfade : (playbackSettings.gapless ? 0.3 : 0);
+        
+        if (threshold > 0 && timeRemaining <= threshold && timeRemaining > 0.1 && !crossfadeTriggeredRef.current) {
+          crossfadeTriggeredRef.current = true;
+          
+          if (albumId && activeSong && !activeSong.isHidden) {
+            const currentAlbumPlays = albumProgress[albumId] || [];
+            if (!currentAlbumPlays.includes(activeSong.name)) {
+              const nextPlays = [...currentAlbumPlays, activeSong.name];
+              setAlbumProgress(prev => ({ ...prev, [albumId]: nextPlays }));
+            }
+          }
+
+          if (repeatMode === 'one') {
+            audio.currentTime = 0;
+            audio.play().catch(() => {});
+            crossfadeTriggeredRef.current = false;
+          } else {
+            playNext();
+          }
+        }
+      }
     };
     const handleEnded = () => {
       if (albumId && activeSong && !activeSong.isHidden) {
@@ -1177,7 +1241,7 @@ export default function AudioPlayerProvider({ children }) {
       audio.removeEventListener("timeupdate", update);
       audio.removeEventListener("ended", handleEnded);
     };
-  }, [queue, currentIndex, songs, repeatMode, shuffleMode, karaokeMode, playNext, albumId, activeSong, isCinematicActive]);
+  }, [queue, currentIndex, songs, repeatMode, shuffleMode, karaokeMode, playNext, albumId, activeSong, isCinematicActive, playbackSettings, albumProgress]);
 
   const contextValue = useMemo(() => ({
     audioRef,
@@ -1263,6 +1327,8 @@ export default function AudioPlayerProvider({ children }) {
     deletePlaylist,
     removeSongFromPlaylist,
     addSongToPlaylist,
+    addToPlaylistSong,
+    setAddToPlaylistSong,
   }), [
     songs, currentIndex, albumData, albumId, queue, isQueueOpen, toastMessage,
     shuffleMode, repeatMode, flyAnimData, isPlaying, currentTime, volume,
@@ -1275,7 +1341,8 @@ export default function AudioPlayerProvider({ children }) {
     isAuthModalOpen, requireAuth,
     isCinematicActive, setIsCinematicActive, albumProgress,
     questStatus, acceptQuest, resetQuest, likedSongs, currentUser,
-    userPlaylists, createPlaylist, deletePlaylist, removeSongFromPlaylist, addSongToPlaylist
+    userPlaylists, createPlaylist, deletePlaylist, removeSongFromPlaylist, addSongToPlaylist,
+    addToPlaylistSong, setAddToPlaylistSong
   ]);
 
   // --- MEDIA SESSION API for Background Playback ---

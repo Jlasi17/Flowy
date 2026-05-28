@@ -53,11 +53,23 @@ export default function PlaylistDetailModal({ playlist, isOpen, onClose, onPlay 
           {/* Sliding Panel */}
           <motion.div
             className="pdm-panel"
-            initial={{ x: '100%', opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: '100%', opacity: 0 }}
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '100%', opacity: 0 }}
             transition={{ type: 'spring', stiffness: 280, damping: 30 }}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.8 }}
+            onDragEnd={(e, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                onClose();
+              }
+            }}
           >
+            {/* Drag Handle Indicator */}
+            <div className="pdm-drag-handle">
+              <div className="pdm-drag-bar" />
+            </div>
             {/* Glow */}
             <div
               className="pdm-glow"

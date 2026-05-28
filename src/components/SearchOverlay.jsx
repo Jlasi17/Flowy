@@ -25,7 +25,8 @@ export default function SearchOverlay({ isOpen, onClose }) {
     addToQueue,
     activeSong,
     isPlaying,
-    requireAuth
+    requireAuth,
+    setAddToPlaylistSong
   } = useContext(AudioContext);
 
   const { results, isSearching, ghostText } = useAdvancedSearch(query);
@@ -337,9 +338,12 @@ export default function SearchOverlay({ isOpen, onClose }) {
                       return isSong ? (
                         <SwipeableTrack
                           key={`recent-${i}`}
-                          onSwipeAction={() => handleAddToQueue(item)}
-                          actionText={isAdded ? "✓ Added" : "＋ Queue"}
-                          actionColor={isAdded ? "#1db954" : "#1db954"}
+                          onSwipeLeft={(e) => handleAddToQueue(item, e)}
+                          onSwipeRight={() => setAddToPlaylistSong(item)}
+                          leftActionText={isAdded ? "✓ Added" : "＋ Queue"}
+                          leftActionColor={isAdded ? "#1db954" : "#1db954"}
+                          rightActionText="＋ Playlist"
+                          rightActionColor="#C084FC"
                         >
                           {content}
                         </SwipeableTrack>
@@ -415,9 +419,12 @@ export default function SearchOverlay({ isOpen, onClose }) {
                       return (
                         <SwipeableTrack
                           key={`song-${i}`}
-                          onSwipeAction={() => handleAddToQueue(song)}
-                          actionText={isAdded ? "✓ Added" : "＋ Queue"}
-                          actionColor={isAdded ? "#1db954" : (song.albumColor || "rgba(29, 185, 84, 0.4)")}
+                          onSwipeLeft={(e) => handleAddToQueue(song, e)}
+                          onSwipeRight={() => setAddToPlaylistSong(song)}
+                          leftActionText={isAdded ? "✓ Added" : "＋ Queue"}
+                          leftActionColor={isAdded ? "#1db954" : (song.albumColor || "rgba(29, 185, 84, 0.4)")}
+                          rightActionText="＋ Playlist"
+                          rightActionColor="#C084FC"
                           onClick={() => handleItemClick(song)}
                         >
                           <div
@@ -464,9 +471,12 @@ export default function SearchOverlay({ isOpen, onClose }) {
                       return (
                         <SwipeableTrack
                           key={`lyric-${i}`}
-                          onSwipeAction={() => handleAddToQueue(song)}
-                          actionText={isAdded ? "✓ Added" : "＋ Queue"}
-                          actionColor={isAdded ? "#1db954" : (song.albumColor || "rgba(29, 185, 84, 0.4)")}
+                          onSwipeLeft={(e) => handleAddToQueue(song, e)}
+                          onSwipeRight={() => setAddToPlaylistSong(song)}
+                          leftActionText={isAdded ? "✓ Added" : "＋ Queue"}
+                          leftActionColor={isAdded ? "#1db954" : (song.albumColor || "rgba(29, 185, 84, 0.4)")}
+                          rightActionText="＋ Playlist"
+                          rightActionColor="#C084FC"
                           onClick={() => handleItemClick(song)}
                         >
                           <div

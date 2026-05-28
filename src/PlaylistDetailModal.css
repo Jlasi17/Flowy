@@ -26,6 +26,29 @@
   box-shadow: -20px 0 80px rgba(0, 0, 0, 0.6);
 }
 
+/* ─── Drag Handle ─── */
+.pdm-drag-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  cursor: grab;
+}
+.pdm-drag-handle:active {
+  cursor: grabbing;
+}
+.pdm-drag-bar {
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
 /* ─── Glow ─── */
 .pdm-glow {
   position: absolute;
