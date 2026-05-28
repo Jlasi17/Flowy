@@ -118,7 +118,7 @@ export default function LyricsSyncPage() {
       setLoadErr("No song specified. Please open this tool from the music player.");
       setPhase(PHASE.ERROR);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [songLibrary]);
 
   /* ── Select song ── */

@@ -14,7 +14,6 @@ export default function SearchOverlay({ isOpen, onClose }) {
   const navigate = useNavigate();
   const [artistTransition, setArtistTransition] = useState(null);
   const [addedQueueSongs, setAddedQueueSongs] = useState({});
-  const [playlistPopup, setPlaylistPopup] = useState(null); // { song, anchorRect }
   const [addedToast, setAddedToast] = useState(null);
 
   const {
@@ -165,7 +164,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
       albumTitle: song.albumTitle,
       color: song.albumColor,
     };
-    setPlaylistPopup({ song: songObj, anchorRect: rect });
+    setAddToPlaylistSong(songObj);
   };
 
   const handleItemClick = (item) => {
@@ -572,20 +571,6 @@ export default function SearchOverlay({ isOpen, onClose }) {
         </div>
       )}
 
-      {/* Add-to-Playlist Popup */}
-      {playlistPopup && (
-        <AddToPlaylistPopup
-          song={playlistPopup.song}
-          anchorRect={playlistPopup.anchorRect}
-          onClose={({ added, playlistTitle } = {}) => {
-            setPlaylistPopup(null);
-            if (added) {
-              setAddedToast(playlistTitle);
-              setTimeout(() => setAddedToast(null), 2500);
-            }
-          }}
-        />
-      )}
 
       {/* Toast */}
       {addedToast && (

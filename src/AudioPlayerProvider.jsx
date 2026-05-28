@@ -128,6 +128,11 @@ export default function AudioPlayerProvider({ children }) {
 
   const [karaokeStatus, setKaraokeStatus] = useState('idle'); // 'idle' | 'processing' | 'ready' | 'countdown'
   const [karaokeProgress, setKaraokeProgress] = useState(0);
+
+  // SPATIAL AUDIO
+  const [is8DActive, setIs8DActive] = useState(false);
+  const spatialGainRef = useRef(null);
+  const dryGainRef = useRef(null);
   const [karaokeJobId, setKaraokeJobId] = useState(null);
   const [isKaraokeMinimized, setIsKaraokeMinimized] = useState(false);
   const [karaokeInstrumentalUrl, setKaraokeInstrumentalUrl] = useState(null);
@@ -517,23 +522,63 @@ export default function AudioPlayerProvider({ children }) {
     return audioCtxRef.current;
   }, []);
 
-  // Initialize Instrumental & Vocal Path when AudioCtx starts
+  // Initialize Instrumental, Vocal, and 8D Path when AudioCtx starts
   useEffect(() => {
-    if (karaokeMode && karaokeStatus === 'ready' && audioRef.current && vocalAudioRef.current) {
+    // We need the audio graph if Karaoke OR 8D Audio is turned on
+    if ((karaokeMode && karaokeStatus === 'ready' || is8DActive) && audioRef.current) {
       const ctx = initAudioCtx();
 
-      // Instrumental Path
+      // Main/Instrumental Path
       if (!instSourceRef.current) {
         instSourceRef.current = ctx.createMediaElementSource(audioRef.current);
-        const gainNode = ctx.createGain();
-        gainNode.gain.value = instVolume / 100;
-        instSourceRef.current.connect(gainNode);
-        gainNode.connect(ctx.destination);
-        instGainNodeRef.current = gainNode;
+        
+        // Spatial Audio Routing (Bypassable)
+        const splitter = ctx.createChannelSplitter(2);
+        const merger = ctx.createChannelMerger(2);
+        
+        const pannerL = ctx.createPanner();
+        pannerL.panningModel = 'HRTF';
+        pannerL.positionX.value = -2;
+        pannerL.positionY.value = 0;
+        pannerL.positionZ.value = -1;
+        
+        const pannerR = ctx.createPanner();
+        pannerR.panningModel = 'HRTF';
+        pannerR.positionX.value = 2;
+        pannerR.positionY.value = 0;
+        pannerR.positionZ.value = -1;
+
+        const spatialGain = ctx.createGain();
+        spatialGain.gain.value = is8DActive ? 1 : 0;
+        const dryGain = ctx.createGain();
+        dryGain.gain.value = is8DActive ? 0 : 1;
+
+        const masterGain = ctx.createGain();
+        masterGain.gain.value = (karaokeMode && karaokeStatus === 'ready') ? (instVolume / 100) : 1.0;
+        
+        // Connect Dry
+        instSourceRef.current.connect(dryGain);
+        
+        // Connect Wet (Spatial)
+        instSourceRef.current.connect(splitter);
+        splitter.connect(pannerL, 0); // Left to Left Panner
+        splitter.connect(pannerR, 1); // Right to Right Panner
+        pannerL.connect(merger, 0, 0);
+        pannerR.connect(merger, 0, 1);
+        merger.connect(spatialGain);
+        
+        // Connect to Master
+        dryGain.connect(masterGain);
+        spatialGain.connect(masterGain);
+        masterGain.connect(ctx.destination);
+        
+        instGainNodeRef.current = masterGain;
+        spatialGainRef.current = spatialGain;
+        dryGainRef.current = dryGain;
       }
 
-      // Vocal Path
-      if (karaokeVocalsUrl && vocalAudioRef.current) {
+      // Vocal Path (only setup if Karaoke is active and we have vocals)
+      if (karaokeMode && karaokeStatus === 'ready' && karaokeVocalsUrl && vocalAudioRef.current) {
         if (vocalAudioRef.current.src !== new URL(karaokeVocalsUrl, window.location.href).href) {
             vocalAudioRef.current.src = karaokeVocalsUrl;
         }
@@ -558,7 +603,21 @@ export default function AudioPlayerProvider({ children }) {
         shadowGainNodeRef.current = shadowGain;
       }
     }
-  }, [karaokeMode, karaokeStatus, karaokeVocalsUrl, initAudioCtx]);
+  }, [karaokeMode, karaokeStatus, karaokeVocalsUrl, is8DActive, initAudioCtx, instVolume]);
+
+  // Spatial Audio Toggle Crossfade
+  useEffect(() => {
+    if (spatialGainRef.current && dryGainRef.current && audioCtxRef.current) {
+      const now = audioCtxRef.current.currentTime;
+      if (is8DActive) {
+        spatialGainRef.current.gain.setTargetAtTime(1, now, 0.3);
+        dryGainRef.current.gain.setTargetAtTime(0, now, 0.3);
+      } else {
+        spatialGainRef.current.gain.setTargetAtTime(0, now, 0.3);
+        dryGainRef.current.gain.setTargetAtTime(1, now, 0.3);
+      }
+    }
+  }, [is8DActive]);
 
   // Precision Tracking: Keep ref synced with actual hardware time + Sync Vocal track
   useEffect(() => {
@@ -635,17 +694,13 @@ export default function AudioPlayerProvider({ children }) {
     if (vocalGainNodeRef.current) {
       vocalGainNodeRef.current.gain.value = vocalVolume / 100;
     }
-    if (vocalAudioRef.current) {
-      vocalAudioRef.current.volume = vocalVolume / 100;
-    }
   }, [vocalVolume]);
 
-  // Sync Instrumental Gain
   useEffect(() => {
     if (instGainNodeRef.current) {
-      instGainNodeRef.current.gain.value = instVolume / 100;
+      instGainNodeRef.current.gain.value = (karaokeMode && karaokeStatus === 'ready') ? (instVolume / 100) : 1.0;
     }
-  }, [instVolume]);
+  }, [instVolume, karaokeMode, karaokeStatus]);
 
   const updateVolume = useCallback((val) => {
     setVolume(val);
@@ -1287,6 +1342,8 @@ export default function AudioPlayerProvider({ children }) {
     queueBtnRef,
     mobileQueueBtnRef,
 
+    is8DActive,
+    setIs8DActive,
     karaokeMode,
     setKaraokeMode,
     karaokeStatus,
@@ -1332,8 +1389,9 @@ export default function AudioPlayerProvider({ children }) {
   }), [
     songs, currentIndex, albumData, albumId, queue, isQueueOpen, toastMessage,
     shuffleMode, repeatMode, flyAnimData, isPlaying, currentTime, volume,
-    karaokeMode, karaokeStatus, karaokeProgress, karaokeJobId,
-    isKaraokeMinimized,
+    is8DActive,
+    setIs8DActive,
+    karaokeMode, setKaraokeMode, startKaraoke, karaokeStatus, karaokeProgress,
     karaokeInstrumentalUrl, karaokeVocalsUrl, vocalVolume, instVolume, cancelKaraoke,
     nextKaraokeCountdown, preloadingNext, preloadProgress,
     startKaraoke, playNext, playPrev, toggleShuffle, cycleRepeat,

@@ -12,7 +12,6 @@ export default function AlbumPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [songDurations, setSongDurations] = useState({});
-  const [playlistPopup, setPlaylistPopup] = useState(null); // { song, anchorRect }
   const [addedToast, setAddedToast] = useState(null); // { title }
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const coverRef = useRef(null);
@@ -45,9 +44,10 @@ export default function AlbumPage() {
       cover: album?.cover,
       member: album?.member || groupTitle,
       albumTitle: album?.title,
-      color: album?.color
+      color: album?.color,
+      duration: song.duration || songDurations[song.name] || "—",
     };
-    setPlaylistPopup({ song: songObj, anchorRect: rect });
+    setAddToPlaylistSong(songObj);
   };
 
   let foundGroup = null;
@@ -308,36 +308,14 @@ export default function AlbumPage() {
         </div>
       </div>
 
-      {/* Add To Playlist Context Popup */}
-      <AddToPlaylistPopup
-        song={playlistPopup?.song}
-        anchorRect={playlistPopup?.anchorRect}
-        onClose={(res) => {
-          if (res?.added) {
-            setAddedToast({ title: res.playlistTitle });
-            setTimeout(() => setAddedToast(null), 3000);
-          }
-          if (!isCreateModalOpen) setPlaylistPopup(null);
-        }}
-        onCreatePlaylist={() => setIsCreateModalOpen(true)}
-      />
 
       {/* Create New Playlist Modal */}
       <CreatePlaylistModal
         isOpen={isCreateModalOpen}
-        onClose={() => {
-          setIsCreateModalOpen(false);
-          setPlaylistPopup(null);
-        }}
+        onClose={() => setIsCreateModalOpen(false)}
         onConfirm={(title, coverData, color) => {
           const newId = createPlaylist({ title, cover: coverData, color });
-          if (playlistPopup?.song) {
-            addSongToPlaylist(newId, playlistPopup.song);
-            setAddedToast({ title });
-            setTimeout(() => setAddedToast(null), 3000);
-          }
           setIsCreateModalOpen(false);
-          setPlaylistPopup(null);
         }}
       />
 

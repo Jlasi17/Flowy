@@ -11,7 +11,6 @@ import MuseumGallery from "./MuseumGallery";
 import LyricsSyncPage from "./LyricsSyncPage";
 import ProfilePage from "./ProfilePage";
 import PlaylistsPage from "./PlaylistsPage";
-import SettingsPage from "./SettingsPage";
 import { AuthProvider } from "./contexts/AuthContext";
 import AuthPage from "./components/AuthPage";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -64,7 +63,6 @@ function App() {
             <Route path="/lyrics-sync" element={<ProtectedRoute><LyricsSyncPage /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/playlists" element={<ProtectedRoute><PlaylistsPage /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
           </Routes>
 
           <PersistentAudioPlayer />
@@ -79,10 +77,10 @@ function App() {
 function GlobalModals() {
   const { addToPlaylistSong, setAddToPlaylistSong } = React.useContext(AudioContext);
   return (
-    <AddToPlaylistModal 
-      isOpen={!!addToPlaylistSong} 
-      onClose={() => setAddToPlaylistSong(null)} 
-      song={addToPlaylistSong} 
+    <AddToPlaylistModal
+      isOpen={!!addToPlaylistSong}
+      onClose={() => setAddToPlaylistSong(null)}
+      song={addToPlaylistSong}
     />
   );
 }
