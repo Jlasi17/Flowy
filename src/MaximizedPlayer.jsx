@@ -291,6 +291,20 @@ export default function MaximizedPlayer({ onClose }) {
   };
 
   const touchStartRef = useRef(null);
+  const lastTapRef = useRef(0);
+
+  const handleAlbumClick = (e) => {
+    const now = Date.now();
+    const DOUBLE_PRESS_DELAY = 300;
+    if (now - lastTapRef.current < DOUBLE_PRESS_DELAY) {
+      const clientX = e.clientX || window.innerWidth / 2;
+      const clientY = e.clientY || window.innerHeight / 2;
+      requireAuth(() => toggleLike(activeSong?.name || displayMetadata.name, { clientX, clientY }, true));
+      lastTapRef.current = 0;
+    } else {
+      lastTapRef.current = now;
+    }
+  };
 
   const handleTouchStart = (e) => {
     if (e.touches.length !== 1) return;
@@ -488,7 +502,7 @@ export default function MaximizedPlayer({ onClose }) {
               <div className="mobile-art-container">
                 <div 
                   className="mobile-album-circle"
-                  onDoubleClick={(e) => requireAuth(() => toggleLike(activeSong?.name || displayMetadata.name, e, true))}
+                  onClick={handleAlbumClick}
                   style={!(activeSong?.cover || albumData?.cover) ? { backgroundColor: albumData?.color || '#C084FC' } : {}}
                 >
                   <div className="light-reflection" />

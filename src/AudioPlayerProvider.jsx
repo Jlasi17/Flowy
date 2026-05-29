@@ -46,7 +46,11 @@ function connectProgressWS(jobId, onMessage, onError) {
 export default function AudioPlayerProvider({ children }) {
   const audioRef = useRef(new Audio());
   const vocalAudioRef = useRef(new Audio());
-
+  
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.crossOrigin = "anonymous";
+    if (vocalAudioRef.current) vocalAudioRef.current.crossOrigin = "anonymous";
+  }, []);
   const [songs, setSongs] = useState([]); // Base album/playlist
   const [currentIndex, setCurrentIndex] = useState(null);
   const [albumData, setAlbumData] = useState(null);
@@ -694,6 +698,9 @@ export default function AudioPlayerProvider({ children }) {
     if (vocalGainNodeRef.current) {
       vocalGainNodeRef.current.gain.value = vocalVolume / 100;
     }
+    if (vocalAudioRef.current) {
+      vocalAudioRef.current.volume = vocalVolume / 100;
+    }
   }, [vocalVolume]);
 
   useEffect(() => {
@@ -1206,9 +1213,11 @@ export default function AudioPlayerProvider({ children }) {
       return;
     }
 
-    if (karaokeMode && activeSong.hasVocals) {
+    if (karaokeMode) {
       // If we are already in karaoke mode, automatically start processing the new track
-      startKaraoke(activeSong);
+      if (originalSrcRef.current !== activeSong.filePath) {
+        startKaraoke(activeSong);
+      }
     } else {
       vocalAudioRef.current.pause();
       // Standard playback - only reset if different song

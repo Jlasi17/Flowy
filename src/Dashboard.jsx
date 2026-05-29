@@ -38,7 +38,7 @@ export default function Dashboard() {
   const sessionTab = sessionStorage.getItem(`${groupId}DashboardTab`) || "group";
   const initialTab = meta.hasSolos ? sessionTab : "group";
   const [tab, setTab] = useState(initialTab);
-  
+
   const [active, setActive] = useState(() => Number(sessionStorage.getItem(`${groupId}DashboardActiveIndex`) || 0));
   const [dragging, setDragging] = useState(false);
   const [dragStart, setDragStart] = useState(0);
@@ -102,7 +102,7 @@ export default function Dashboard() {
     useContext(AudioContext);
 
   const albums = tab === "solos" && meta.hasSolos
-    ? allSoloAlbums.filter(a => a.member === meta.soloists[soloistIdx]) 
+    ? allSoloAlbums.filter(a => a.member === meta.soloists[soloistIdx])
     : allAlbums;
   const current = albums[active] || null;
 
@@ -143,9 +143,9 @@ export default function Dashboard() {
     const isSolo = tab === "solos" && meta.hasSolos;
     const currentBasePath = isSolo ? meta.soloBasePath : meta.basePath;
     const songs = (isSolo ? meta.soloSongs[album.id] : meta.songs[album.id]) || [];
-    
+
     if (!songs.length) return;
-    
+
     setSongs(songs.map((s) => ({
       name: s.name,
       filePath: isSolo ? `${currentBasePath}${s.file}` : `${currentBasePath}${album.id}/${s.file}`,
@@ -154,7 +154,7 @@ export default function Dashboard() {
       albumTitle: album.title,
       color: album.color
     })));
-    
+
     setAlbumData({ ...album, member: meta.title });
     setAlbumId(album.id);
     setCurrentIndex(0);
@@ -213,13 +213,19 @@ export default function Dashboard() {
                 className={`db-toggle-btn ${tab === 'group' ? 'active' : ''}`}
                 onClick={() => { setTab('group'); setActive(0); }}
               >
-                {meta.title}
+                {tab === 'group' && (
+                  <motion.div layoutId="toggleThumb" className="db-toggle-thumb" transition={{ type: 'spring', stiffness: 400, damping: 30 }} />
+                )}
+                <span style={{ position: 'relative', zIndex: 2 }}>{meta.title}</span>
               </button>
               <button
                 className={`db-toggle-btn ${tab === 'solos' ? 'active' : ''}`}
                 onClick={() => { setTab('solos'); setActive(0); }}
               >
-                SOLOS
+                {tab === 'solos' && (
+                  <motion.div layoutId="toggleThumb" className="db-toggle-thumb" transition={{ type: 'spring', stiffness: 400, damping: 30 }} />
+                )}
+                <span style={{ position: 'relative', zIndex: 2 }}>Solos</span>
               </button>
             </div>
           ) : (
@@ -230,24 +236,24 @@ export default function Dashboard() {
           <button className="db-icon-btn" aria-label="Search" onClick={() => setIsSearchOpen(true)}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
           </button>
-          
+
           <div className="db-more-menu-container" style={{ position: 'relative' }}>
             {!currentUser ? (
-              <button 
-                className="db-icon-btn" 
-                aria-label="Log In" 
+              <button
+                className="db-icon-btn"
+                aria-label="Log In"
                 title="Log In"
-                onClick={() => navigate('/auth')} 
+                onClick={() => navigate('/auth')}
                 style={{ marginLeft: '8px', zIndex: 1001, position: 'relative' }}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
               </button>
             ) : (
               <>
-                <motion.button 
-                  className="db-icon-btn db-more-toggle" 
-                  aria-label="More" 
-                  onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)} 
+                <motion.button
+                  className="db-icon-btn db-more-toggle"
+                  aria-label="More"
+                  onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
                   style={{ marginLeft: '8px', zIndex: 1001, position: 'relative' }}
                   animate={{ rotate: isMoreMenuOpen ? 90 : 0 }}
                   transition={{ duration: 0.3 }}
@@ -258,15 +264,15 @@ export default function Dashboard() {
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                   )}
                 </motion.button>
-                
+
                 <AnimatePresence>
                   {isMoreMenuOpen && (
                     <>
-                      <div 
-                        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999 }} 
-                        onClick={() => setIsMoreMenuOpen(false)} 
+                      <div
+                        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999 }}
+                        onClick={() => setIsMoreMenuOpen(false)}
                       />
-                      <motion.div 
+                      <motion.div
                         className="db-more-dropdown"
                         initial="hidden"
                         animate="visible"
@@ -276,7 +282,7 @@ export default function Dashboard() {
                           visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.1, delayChildren: 0.05 } }
                         }}
                       >
-                        <motion.button 
+                        <motion.button
                           variants={{ hidden: { opacity: 0, scale: 0.8 }, visible: { opacity: 1, scale: 1 } }}
                           className="db-circle-btn"
                           onClick={() => { setIsMoreMenuOpen(false); requireAuth(() => navigate('/profile')); }}
@@ -285,7 +291,7 @@ export default function Dashboard() {
                         >
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                         </motion.button>
-                        <motion.button 
+                        <motion.button
                           variants={{ hidden: { opacity: 0, scale: 0.8 }, visible: { opacity: 1, scale: 1 } }}
                           className="db-circle-btn"
                           onClick={() => { setIsMoreMenuOpen(false); requireAuth(() => navigate('/playlists')); }}
@@ -409,7 +415,7 @@ export default function Dashboard() {
             </button>
 
             {/* Dots */}
-            <div 
+            <div
               className={`db-dots ${isScrubbing ? 'db-dots--scrubbing' : ''}`}
               ref={dotsRef}
               style={{ touchAction: 'none' }} /* Prevent page scroll while scrubbing */
@@ -430,12 +436,12 @@ export default function Dashboard() {
               onPointerUp={(e) => {
                 dragStartRef.current = null;
                 setIsScrubbing(false);
-                try { e.currentTarget.releasePointerCapture(e.pointerId); } catch(err){}
+                try { e.currentTarget.releasePointerCapture(e.pointerId); } catch (err) { }
               }}
               onPointerCancel={(e) => {
                 dragStartRef.current = null;
                 setIsScrubbing(false);
-                try { e.currentTarget.releasePointerCapture(e.pointerId); } catch(err){}
+                try { e.currentTarget.releasePointerCapture(e.pointerId); } catch (err) { }
               }}
             >
               {albums.map((_, i) => (
