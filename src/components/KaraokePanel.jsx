@@ -5,6 +5,7 @@ import { getSingerColor, getArtistProfileImage, SINGER_COLORS } from '../utils/s
 import PlayPauseAnimButton from './PlayPauseAnimButton';
 import DualEqualizer, { VocalQuickToggle } from './DualEqualizer';
 import { useCinematicControls } from '../hooks/useCinematicControls';
+import SandParticles from './SandParticles';
 import './KaraokePanel.css';
 
 export default function KaraokePanel({ onClose }) {
@@ -224,11 +225,8 @@ export default function KaraokePanel({ onClose }) {
       {/* ═══ PROCESSING STATE ═══ */}
       {karaokeStatus === 'processing' && (
         <div className="karaoke-processing">
-          <div className="karaoke-particles">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="karaoke-particle" />
-            ))}
-          </div>
+          {/* Gravity-based sand particle accumulation */}
+          <SandParticles progress={karaokeProgress} />
 
           <div className="karaoke-progress-ring-container">
             <div className="karaoke-waves">
