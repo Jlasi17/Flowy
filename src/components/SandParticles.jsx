@@ -3,53 +3,23 @@ import { useEffect, useRef } from 'react';
 /**
  * SandParticles — gravity-based particle accumulation system.
  *
- * Particles rain from the top, obey a simple gravity + friction simulation,
- * land permanently on the floor (or on a settled particle), and accumulate
- * into dense glowing sand dunes whose colour progresses from dim settled
- * white/purple through bright pink/red layers as more particles stack.
+ * Particles fall from the top as glowing sparkles, settle permanently,
+ * and build up a SMOOTH sand dune silhouette rendered as a filled Bezier
+ * curve path with a layered gradient — just like real sand.
  */
 export default function SandParticles({ progress = 0 }) {
   const canvasRef = useRef(null);
   const stateRef = useRef({
-    falling: [],       // active airborne particles
-    settled: [],       // grid of settled cells  { x, y, age, color }
-    grid: null,        // 2D occupancy grid [col][row] → true/false
-    cols: 0,
-    rows: 0,
-    cellSize: 5,
+    falling: [],      // airborne particles
+    colHeights: [],   // settled sand height per column (in px from bottom)
+    displayHeights: [],// smoothly interpolated heights for rendering
+    cols: 60,         // how many virtual columns
     frame: 0,
     animId: null,
     progress: 0,
+    w: 0,
+    h: 0,
   });
-
-  // ── colour palette – bottom layers glow fiery, upper layers cool purple ──
-  const getColor = (stackDepth, maxStack) => {
-    // 0 = freshly settled (top of pile), maxStack = buried deep
-    const t = stackDepth / Math.max(maxStack, 1);
-    if (t < 0.25) {
-      // top: glowing white-pink
-      return `rgba(255, 200, 255, ${0.55 + t * 1.6})`;
-    } else if (t < 0.5) {
-      // mid-top: vivid magenta / hot pink
-      const a = 0.85 + (t - 0.25) * 0.6;
-      return `rgba(255, 60, 160, ${Math.min(a, 1)})`;
-    } else if (t < 0.75) {
-      // mid-bottom: fierce red-orange
-      const a = 0.88 + (t - 0.5) * 0.48;
-      return `rgba(255, 80, 40, ${Math.min(a, 1)})`;
-    } else {
-      // deepest: ember dark red with a slight golden core
-      return `rgba(200, 30, 10, ${0.7 + (t - 0.75) * 1.2})`;
-    }
-  };
-
-  // ── glow colour for shadow rendering ──
-  const getGlow = (stackDepth, maxStack) => {
-    const t = stackDepth / Math.max(maxStack, 1);
-    if (t < 0.4) return 'rgba(255, 80, 200, 0.65)';
-    if (t < 0.7) return 'rgba(255, 60, 80, 0.55)';
-    return 'rgba(255, 80, 10, 0.45)';
-  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -57,151 +27,194 @@ export default function SandParticles({ progress = 0 }) {
     const ctx = canvas.getContext('2d');
     const s = stateRef.current;
 
+    // ── resize ──
     const resize = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-      const C = s.cellSize;
-      s.cols = Math.floor(canvas.width / C);
-      s.rows = Math.floor(canvas.height / C);
-      // rebuild occupancy grid
-      s.grid = Array.from({ length: s.cols }, () => new Uint8Array(s.rows));
-      // re-settle existing particles so they don't float
-      s.settled = [];
+      canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+      canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      s.w = canvas.offsetWidth;
+      s.h = canvas.offsetHeight;
+      s.cols = Math.max(60, Math.floor(s.w / 8));
+      if (s.colHeights.length !== s.cols) {
+        s.colHeights = new Float32Array(s.cols);
+        s.displayHeights = new Float32Array(s.cols);
+      }
     };
     resize();
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
 
-    // ── spawn one particle ──
+    // ── spawn one falling sparkle ──
     const spawnParticle = () => {
-      const C = s.cellSize;
-      const col = Math.floor(Math.random() * s.cols);
+      const x = Math.random() * s.w;
       s.falling.push({
-        x: col * C + C / 2,
-        y: -C,
-        vx: (Math.random() - 0.5) * 1.2,
-        vy: 0.8 + Math.random() * 1.6,
-        col,
-        row: -1,
-        size: C * (0.7 + Math.random() * 0.4),
-        alpha: 0.6 + Math.random() * 0.4,
+        x,
+        y: -8,
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: 1.2 + Math.random() * 2.0,
+        r: 1.5 + Math.random() * 2,
+        alpha: 0.7 + Math.random() * 0.3,
       });
     };
 
-    // ── settle a particle at the lowest free row in its column ──
-    const settle = (p) => {
-      const C = s.cellSize;
-      let targetRow = s.rows - 1;
-      // scan from bottom up to find first free row
-      while (targetRow >= 0 && s.grid[p.col][targetRow]) {
-        targetRow--;
+    // ── build a smooth path across all column heights ──
+    // Uses cardinal spline (Catmull-Rom feel) via bezier approximation
+    const buildSandPath = (heights, w, h, cols) => {
+      const colW = w / cols;
+      const pts = [];
+      for (let c = 0; c < cols; c++) {
+        pts.push({ x: c * colW + colW / 2, y: h - heights[c] });
       }
-      if (targetRow < 0) return; // column completely full – discard
-      s.grid[p.col][targetRow] = 1;
-      s.settled.push({ col: p.col, row: targetRow, age: 0 });
+
+      ctx.beginPath();
+      ctx.moveTo(0, h); // bottom-left corner
+
+      // smooth curve through pts using bezier control points
+      if (pts.length < 2) {
+        ctx.lineTo(w, h);
+      } else {
+        ctx.lineTo(pts[0].x, pts[0].y);
+        for (let i = 0; i < pts.length - 1; i++) {
+          const p0 = pts[Math.max(i - 1, 0)];
+          const p1 = pts[i];
+          const p2 = pts[i + 1];
+          const p3 = pts[Math.min(i + 2, pts.length - 1)];
+          // Catmull-Rom → bezier tension 0.5
+          const cp1x = p1.x + (p2.x - p0.x) / 6;
+          const cp1y = p1.y + (p2.y - p0.y) / 6;
+          const cp2x = p2.x - (p3.x - p1.x) / 6;
+          const cp2y = p2.y - (p3.y - p1.y) / 6;
+          ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+        }
+      }
+
+      ctx.lineTo(w, h); // bottom-right corner
+      ctx.closePath();
     };
 
-    // ── draw a single settled cell ──
-    const drawSettled = (cell, maxAge) => {
-      const C = s.cellSize;
-      const x = cell.col * C;
-      const y = cell.row * C;
-      // compute how deep this cell is in its column stack
-      let stackDepth = 0;
-      for (let r = cell.row + 1; r < s.rows; r++) {
-        if (s.grid[cell.col][r]) stackDepth++;
-      }
-      const maxStack = Math.min(s.rows, 80);
-      const color = getColor(stackDepth, maxStack);
-      const glow = getGlow(stackDepth, maxStack);
+    // ── draw the filled smooth sand dune ──
+    const drawSand = () => {
+      const { w, h, cols, displayHeights } = s;
+      const maxH = Math.max(...displayHeights, 1);
 
-      ctx.shadowColor = glow;
-      ctx.shadowBlur = stackDepth > 3 ? 8 : 4;
-      ctx.fillStyle = color;
-      ctx.fillRect(x, y, C - 0.5, C - 0.5);
+      // 1. Base fill — deep gradient
+      buildSandPath(displayHeights, w, h, cols);
+      const grad = ctx.createLinearGradient(0, h - maxH, 0, h);
+      grad.addColorStop(0.0,  'rgba(255, 220, 255, 0.55)'); // surface glimmer
+      grad.addColorStop(0.15, 'rgba(255, 100, 200, 0.75)'); // hot pink
+      grad.addColorStop(0.45, 'rgba(220, 30, 100, 0.85)');  // deep magenta
+      grad.addColorStop(0.75, 'rgba(160, 10, 40, 0.92)');   // dark red
+      grad.addColorStop(1.0,  'rgba(80, 0, 20, 1.0)');      // ember black-red
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // 2. Surface glow — thin bright line along the top edge
+      buildSandPath(displayHeights, w, h, cols);
+      ctx.save();
+      ctx.shadowColor = 'rgba(255, 120, 220, 0.8)';
+      ctx.shadowBlur = 18;
+      ctx.strokeStyle = 'rgba(255, 200, 255, 0.6)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.restore();
+
+      // 3. Secondary inner glow layer
+      buildSandPath(displayHeights, w, h, cols);
+      ctx.save();
+      ctx.shadowColor = 'rgba(255, 50, 150, 0.5)';
+      ctx.shadowBlur = 30;
+      const innerGrad = ctx.createLinearGradient(0, h - maxH, 0, h);
+      innerGrad.addColorStop(0,   'rgba(255, 150, 220, 0.25)');
+      innerGrad.addColorStop(0.5, 'rgba(200, 20, 80, 0.15)');
+      innerGrad.addColorStop(1,   'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = innerGrad;
+      ctx.fill();
+      ctx.restore();
     };
 
     // ── main loop ──
     const loop = () => {
       s.animId = requestAnimationFrame(loop);
       s.frame++;
-      const C = s.cellSize;
-      const prog = s.progress; // 0-100
+      const { w, h, cols } = s;
+      const prog = s.progress;
+      const colW = w / cols;
 
-      // spawn rate scales with progress (more particles as it advances)
-      const spawnChance = 0.25 + (prog / 100) * 0.55;
+      // spawn rate
+      const spawnChance = 0.3 + (prog / 100) * 0.65;
       if (Math.random() < spawnChance) spawnParticle();
 
-      // ── clear ──
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.shadowBlur = 0;
+      ctx.clearRect(0, 0, w, h);
 
-      // ── draw settled sand ──
-      for (const cell of s.settled) {
-        drawSettled(cell, s.frame);
-        cell.age++;
-      }
-
-      // ── update & draw falling particles ──
-      ctx.shadowBlur = 0;
+      // ── update falling particles ──
       const toRemove = [];
       for (let i = 0; i < s.falling.length; i++) {
         const p = s.falling[i];
-
-        // gravity
-        p.vy += 0.18;
-        // slight air resistance
-        p.vx *= 0.99;
-
+        p.vy += 0.22;    // gravity
+        p.vx *= 0.98;    // drag
         p.x += p.vx;
         p.y += p.vy;
 
-        // column follows x (can drift slightly column to column)
-        const newCol = Math.max(0, Math.min(s.cols - 1, Math.floor(p.x / C)));
-        p.col = newCol;
+        // which column?
+        const col = Math.max(0, Math.min(cols - 1, Math.floor(p.x / colW)));
+        const sandTopY = h - s.colHeights[col];
 
-        // check if hit floor or a settled cell
-        const curRow = Math.floor(p.y / C);
-        let landed = false;
-        if (curRow >= s.rows) {
-          landed = true;
-        } else if (curRow >= 0 && s.grid[p.col][curRow]) {
-          landed = true;
-          p.y = curRow * C; // snap to top of settled
-        }
-
-        if (landed) {
-          settle(p);
+        if (p.y >= sandTopY) {
+          // landed — add to column height (spread a little to neighbours)
+          const addH = 1.8 + Math.random() * 1.2;
+          s.colHeights[col] = Math.min(h * 0.85, s.colHeights[col] + addH);
+          // slight spillover to adjacent columns for natural slope
+          if (col > 0)      s.colHeights[col-1] = Math.min(h * 0.85, s.colHeights[col-1] + addH * 0.25);
+          if (col < cols-1) s.colHeights[col+1] = Math.min(h * 0.85, s.colHeights[col+1] + addH * 0.25);
           toRemove.push(i);
           continue;
         }
 
-        // draw airborne particle
+        // draw sparkle
         ctx.save();
-        ctx.shadowColor = 'rgba(255, 120, 200, 0.6)';
-        ctx.shadowBlur = 6;
-        ctx.globalAlpha = p.alpha;
-        ctx.fillStyle = 'rgba(255, 200, 255, 0.9)';
+        ctx.globalAlpha = p.alpha * Math.min(1, (sandTopY - p.y) / 60);
+        ctx.shadowColor = 'rgba(255, 180, 240, 0.9)';
+        ctx.shadowBlur = 10;
+        ctx.fillStyle = 'rgba(255, 230, 255, 0.95)';
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
       }
-      // remove settled (reverse order so indices stay valid)
+
+      // remove settled particles (reverse so indices stay valid)
       for (let i = toRemove.length - 1; i >= 0; i--) {
         s.falling.splice(toRemove[i], 1);
       }
+
+      // ── easing: slowly level very steep adjacent columns (avalanche) ──
+      if (s.frame % 3 === 0) {
+        for (let c = 1; c < cols - 1; c++) {
+          const diff = s.colHeights[c] - s.colHeights[c - 1];
+          if (Math.abs(diff) > 6) {
+            const flow = diff * 0.04;
+            s.colHeights[c] -= flow;
+            s.colHeights[c - 1] += flow;
+          }
+        }
+      }
+
+      // ── lerp display heights towards real heights for buttery smoothness ──
+      for (let c = 0; c < cols; c++) {
+        s.displayHeights[c] += (s.colHeights[c] - s.displayHeights[c]) * 0.12;
+      }
+
+      // ── draw smooth sand dune ──
+      drawSand();
     };
 
     s.animId = requestAnimationFrame(loop);
-
     return () => {
       cancelAnimationFrame(s.animId);
       ro.disconnect();
     };
   }, []);
 
-  // sync external progress into the ref so the loop can see it
   useEffect(() => {
     stateRef.current.progress = progress;
   }, [progress]);
