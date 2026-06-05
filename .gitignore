@@ -28,5 +28,6 @@ dist-ssr
 public/*songs/
 public/*-songs/
 public/lyrics/
+pubile/soloarists/
 
 backend/temp_jobs/
