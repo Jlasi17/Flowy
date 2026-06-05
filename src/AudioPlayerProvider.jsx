@@ -1409,7 +1409,7 @@ export default function AudioPlayerProvider({ children }) {
     isCinematicActive, setIsCinematicActive, albumProgress,
     questStatus, acceptQuest, resetQuest, likedSongs, currentUser,
     userPlaylists, createPlaylist, deletePlaylist, removeSongFromPlaylist, addSongToPlaylist,
-    addToPlaylistSong, setAddToPlaylistSong
+    addToPlaylistSong, setAddToPlaylistSong, insertIntoQueue
   ]);
 
   // --- MEDIA SESSION API for Background Playback ---

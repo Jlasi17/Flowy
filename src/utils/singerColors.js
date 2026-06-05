@@ -5,7 +5,7 @@
 export const SINGER_COLORS = {
   // Group members
   'RM': { primary: '#7ab8f5', glow: 'rgba(122, 184, 245, 0.5)' },   // soft sky-blue
-  'Jin': { primary: '#f5a8c0', glow: 'rgba(245, 168, 192, 0.5)' },   // soft rose-pink
+  'JIN': { primary: '#f5a8c0', glow: 'rgba(245, 168, 192, 0.5)' },   // soft rose-pink
   'SUGA': { primary: '#d0d0d8', glow: 'rgba(208, 208, 216, 0.4)' },   // near-white silver (black → white)
   'j-hope': { primary: '#f5946a', glow: 'rgba(245, 148, 106, 0.5)' },   // soft coral-red
   'Jimin': { primary: '#f5d47a', glow: 'rgba(245, 212, 122, 0.5)' },   // warm gold

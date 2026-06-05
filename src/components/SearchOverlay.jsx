@@ -126,7 +126,8 @@ export default function SearchOverlay({ isOpen, onClose }) {
 
   const handleAddToQueue = (song, e) => {
     if (e) e.stopPropagation();
-    requireAuth(() => {
+    const auth = typeof requireAuth === 'function' ? requireAuth : (cb) => cb();
+    auth(() => {
       const group = groupsData[song.groupId];
       const basePath = song.isSolo ? group.soloBasePath : group.basePath;
       const folder = song.isSolo ? '' : `${song.albumId}/`;

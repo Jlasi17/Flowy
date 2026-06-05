@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState, useContext, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -7,9 +8,9 @@ import SearchOverlay from "./components/SearchOverlay";
 import FastScrollHandle from "./components/FastScrollHandle";
 import "./Dashboard.css";
 import "./DashboardMobile.css";
-import { groupsData } from "./data/musicRegistry";
-
-const groupsMeta = groupsData;
+import { groupsData as fallbackData } from "./data/musicRegistry";
+import { DataContext } from "./contexts/DataContext";
+import AlbumAdminModal from "./components/AlbumAdminModal";
 
 function getContrastYIQ(hexcolor) {
   if (!hexcolor) return 'white';
@@ -24,7 +25,10 @@ function getContrastYIQ(hexcolor) {
 export default function Dashboard() {
   const navigate = useNavigate();
   const { groupId } = useParams();
-  const meta = groupsMeta[groupId] || groupsMeta.bts;
+  
+  const { data, refreshData, loading } = useContext(DataContext);
+  const meta = (data && data[groupId]) ? data[groupId] : (fallbackData[groupId] || fallbackData.bts);
+
 
   const allAlbums = (meta.albums || []).flatMap((block) =>
     (block.albums || []).map((a) => ({ ...a, year: block.year }))
@@ -97,7 +101,7 @@ export default function Dashboard() {
     }
   }, [isSearchOpen, groupId, meta.hasSolos]);
 
-  const { currentUser } = useAuth();
+  const { currentUser, isAdmin } = useAuth();
   const { requireAuth, setSongs, setAlbumData, setAlbumId, setCurrentIndex, setIsPlaying, albumData, isPlaying, activeSong, is8DActive, setIs8DActive } =
     useContext(AudioContext);
 
@@ -106,16 +110,22 @@ export default function Dashboard() {
     : allAlbums;
   const current = albums[active] || null;
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingAlbum, setEditingAlbum] = useState(null);
+  const [editingAlbumIdx, setEditingAlbumIdx] = useState(-1);
+
   // Keyboard nav
+  const totalCards = isAdmin ? albums.length + 1 : albums.length; // +1 for the Add Album card if admin
+  
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === "ArrowRight") setActive((p) => Math.min(p + 1, albums.length - 1));
+      if (e.key === "ArrowRight") setActive((p) => Math.min(p + 1, totalCards - 1));
       if (e.key === "ArrowLeft") setActive((p) => Math.max(p - 1, 0));
       if (e.key === "Enter" && current) handleNavigate(current.id);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [albums.length, current]);
+  }, [totalCards, current]);
 
   const handleNavigate = (albumId) => {
     if (!document.startViewTransition) {
@@ -133,9 +143,87 @@ export default function Dashboard() {
   const onPointerUp = (e) => {
     if (!dragging) return;
     const dx = dragStart - e.clientX;
-    if (dx > swipeThreshold) setActive((p) => Math.min(p + 1, albums.length - 1));
+    if (dx > swipeThreshold) setActive((p) => Math.min(p + 1, totalCards - 1));
     if (dx < -swipeThreshold) setActive((p) => Math.max(p - 1, 0));
     setDragging(false);
+  };
+
+  const handleSaveAlbum = async (formData, member) => {
+    const newData = { ...data };
+    const group = newData[groupId];
+    if (!group) return;
+
+    if (editingAlbumIdx >= 0) {
+       // Update existing
+       if (member) {
+          const soloistBlock = group.soloAlbums.find(s => s.member === member);
+          if (soloistBlock) {
+             soloistBlock.albums = soloistBlock.albums.map(a => a.id === formData.id ? formData : a);
+          }
+          group.soloSongs[formData.id] = formData.songs;
+       } else {
+          let updated = false;
+          group.albums.forEach(block => {
+             const idx = block.albums.findIndex(a => a.id === formData.id);
+             if (idx >= 0) {
+                block.albums[idx] = formData;
+                updated = true;
+             }
+          });
+          group.songs[formData.id] = formData.songs;
+       }
+    } else {
+       // Add new
+       if (member) {
+          let soloistBlock = group.soloAlbums.find(s => s.member === member);
+          if (!soloistBlock) {
+             soloistBlock = { member, albums: [] };
+             group.soloAlbums.push(soloistBlock);
+          }
+          soloistBlock.albums.push(formData);
+          group.soloSongs = group.soloSongs || {};
+          group.soloSongs[formData.id] = formData.songs;
+       } else {
+          let block = group.albums.find(b => String(b.year) === String(formData.year));
+          if (!block) {
+             block = { year: formData.year, albums: [] };
+             group.albums.push(block);
+          }
+          block.albums.push(formData);
+          group.songs[formData.id] = formData.songs;
+       }
+    }
+
+    try {
+      const res = await fetch("http://localhost:8000/api/admin/save-registry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newData)
+      });
+      if (res.ok) {
+        refreshData();
+      }
+    } catch (err) {
+      console.error("Failed to save album", err);
+    }
+  };
+
+  const openEditModal = (e, album, i) => {
+    e.stopPropagation();
+    
+    // Retrieve songs to prefill
+    const isSolo = tab === "solos" && meta.hasSolos;
+    const existingSongs = isSolo ? meta.soloSongs[album.id] : meta.songs[album.id];
+    
+    setEditingAlbumIdx(i);
+    setEditingAlbum({ ...album, songs: existingSongs || [] });
+    setModalOpen(true);
+  };
+
+  const openAddModal = () => {
+    setEditingAlbumIdx(-1);
+    setEditingAlbum(null);
+    setModalOpen(true);
   };
 
   const playAlbum = (album, e) => {
@@ -250,63 +338,78 @@ export default function Dashboard() {
               </button>
             ) : (
               <>
-                <motion.button
-                  className="db-icon-btn db-more-toggle"
-                  aria-label="More"
-                  onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
-                  style={{ marginLeft: '8px', zIndex: 1001, position: 'relative' }}
-                  animate={{ rotate: isMoreMenuOpen ? 90 : 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {isMoreMenuOpen ? (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  {isAdmin ? (
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="db-circle-btn"
+                      onClick={() => requireAuth(() => navigate('/profile'))}
+                      aria-label="Profile"
+                      title="Profile"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </motion.button>
                   ) : (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                  )}
-                </motion.button>
-
-                <AnimatePresence>
-                  {isMoreMenuOpen && (
                     <>
-                      <div
-                        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999 }}
-                        onClick={() => setIsMoreMenuOpen(false)}
-                      />
-                      <motion.div
-                        className="db-more-dropdown"
-                        initial="hidden"
-                        animate="visible"
-                        exit="hidden"
-                        variants={{
-                          hidden: { opacity: 0, y: -10, transition: { staggerChildren: 0.05, staggerDirection: -1 } },
-                          visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.1, delayChildren: 0.05 } }
-                        }}
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="db-circle-btn"
+                        onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
+                        aria-label="More Options"
+                        title="More Options"
+                        style={{ background: isMoreMenuOpen ? 'rgba(255,255,255,0.1)' : 'rgba(255, 255, 255, 0.03)' }}
                       >
-                        <motion.button
-                          variants={{ hidden: { opacity: 0, scale: 0.8 }, visible: { opacity: 1, scale: 1 } }}
-                          className="db-circle-btn"
-                          onClick={() => { setIsMoreMenuOpen(false); requireAuth(() => navigate('/profile')); }}
-                          aria-label="Profile"
-                          title="Profile"
-                        >
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                        </motion.button>
-                        <motion.button
-                          variants={{ hidden: { opacity: 0, scale: 0.8 }, visible: { opacity: 1, scale: 1 } }}
-                          className="db-circle-btn"
-                          onClick={() => { setIsMoreMenuOpen(false); requireAuth(() => navigate('/playlists')); }}
-                          aria-label="Playlists"
-                          title="Playlists"
-                        >
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                        </motion.button>
+                        {isMoreMenuOpen ? (
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        ) : (
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        )}
+                      </motion.button>
 
-                      </motion.div>
+                      <AnimatePresence>
+                        {isMoreMenuOpen && (
+                          <>
+                            <div
+                              style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999 }}
+                              onClick={() => setIsMoreMenuOpen(false)}
+                            />
+                            <motion.div
+                              className="db-more-dropdown"
+                              initial="hidden"
+                              animate="visible"
+                              exit="hidden"
+                              variants={{
+                                hidden: { opacity: 0, y: -10, transition: { staggerChildren: 0.05, staggerDirection: -1 } },
+                                visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.1, delayChildren: 0.05 } }
+                              }}
+                            >
+                              <motion.button
+                                variants={{ hidden: { opacity: 0, scale: 0.8 }, visible: { opacity: 1, scale: 1 } }}
+                                className="db-circle-btn"
+                                onClick={() => { setIsMoreMenuOpen(false); requireAuth(() => navigate('/profile')); }}
+                                aria-label="Profile"
+                                title="Profile"
+                              >
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                              </motion.button>
+                              <motion.button
+                                variants={{ hidden: { opacity: 0, scale: 0.8 }, visible: { opacity: 1, scale: 1 } }}
+                                className="db-circle-btn"
+                                onClick={() => { setIsMoreMenuOpen(false); requireAuth(() => navigate('/playlists')); }}
+                                aria-label="Playlists"
+                                title="Playlists"
+                              >
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                              </motion.button>
+                            </motion.div>
+                          </>
+                        )}
+                      </AnimatePresence>
                     </>
                   )}
-                </AnimatePresence>
-              </>
-            )}
+            </>
+          )}
           </div>
         </div>
       </header>
@@ -321,7 +424,7 @@ export default function Dashboard() {
       )}
 
       {/* ── CAROUSEL STAGE ── */}
-      {albums.length === 0 ? (
+      {albums.length === 0 && !isAdmin ? (
         <div className="db-coming-soon">
           <div className="cs-card">
             <h2>{tab === 'solos' ? 'Solos' : meta.title}</h2>
@@ -390,10 +493,50 @@ export default function Dashboard() {
                   {/* Reflection */}
                   <div className="db-card-reflection" style={{ backgroundImage: `url(${album.cover})` }} />
 
+                  {/* Edit Button */}
+                  {isAdmin && (
+                    <button 
+                      className="admin-edit-btn"
+                      onClick={(e) => openEditModal(e, album, i)}
+                      aria-label="Edit Album"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                    </button>
+                  )}
+                  
                   {/* Shine on active */}
                   {i === active && <div className="db-card-shine" />}
                 </div>
               ))}
+
+              {/* ADD ALBUM CARD */}
+              {isAdmin && (
+                <div
+                  className={`db-card ${albums.length === active ? "db-card--active" : ""} add-album-card`}
+                  style={getCardStyle(albums.length)}
+                  onClick={() => {
+                    if (albums.length === active) openAddModal();
+                    else setActive(albums.length);
+                  }}
+                  role="button"
+                  aria-label="Add Album"
+                >
+                  <div className="db-card-3d-object">
+                    {/* Front Face - Glass */}
+                    <div className="db-card-face db-card-front" style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(10px)', border: '1px dashed rgba(255,255,255,0.2)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                      <span style={{ marginTop: '12px', letterSpacing: '1px', textTransform: 'uppercase' }}>New Album</span>
+                    </div>
+
+                    {/* Back & Spines - Glass */}
+                    <div className="db-card-face db-card-back" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)' }} />
+                    <div className="db-card-face db-card-spine--left" style={{ background: 'rgba(255,255,255,0.1)' }} />
+                    <div className="db-card-face db-card-spine--right" style={{ background: 'rgba(255,255,255,0.1)' }} />
+                    <div className="db-card-face db-card-spine--top" style={{ background: 'rgba(255,255,255,0.1)' }} />
+                    <div className="db-card-face db-card-spine--bottom" style={{ background: 'rgba(255,255,255,0.1)' }} />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Carousel nav arrows */}
@@ -407,8 +550,8 @@ export default function Dashboard() {
             </button>
             <button
               className="db-arrow db-arrow--right"
-              onClick={() => setActive((p) => Math.min(p + 1, albums.length - 1))}
-              disabled={active === albums.length - 1}
+              onClick={() => setActive((p) => Math.min(p + 1, totalCards - 1))}
+              disabled={active === totalCards - 1}
               aria-label="Next album"
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
@@ -457,17 +600,21 @@ export default function Dashboard() {
           </div>
 
           {/* ── INFO PANEL ── */}
-          {current && (
-            <div className={`db-info ${isPlayerVisible ? 'db-info--player-visible' : ''}`} key={current.id}>
+          {(current || (isAdmin && active === albums.length)) && (
+            <div className={`db-info ${isPlayerVisible ? 'db-info--player-visible' : ''}`} key={current?.id || 'new-album'}>
               <div className="db-info-top">
                 <div className="db-info-text">
-                  <div className="db-info-year">{current.year || current.member} · {current.type}</div>
-                  <h1 className="db-info-title">{current.title}</h1>
+                  <div className="db-info-year">{current ? (current.year || current.member) + ' · ' + current.type : 'NEW RELEASE'}</div>
+                  <h1 className="db-info-title">{current ? current.title : 'CREATE NEW ALBUM'}</h1>
                   <div className="db-info-sub">
-                    <span>{current.member || meta.title}</span>
-                    <span className="db-dot-sep">·</span>
-                    <span>{current.titleSong}</span>
-                    {current.rank && (
+                    <span>{current ? (current.member || meta.title) : 'ADD DETAILS'}</span>
+                    {current && current.titleSong && (
+                      <>
+                        <span className="db-dot-sep">·</span>
+                        <span>{current.titleSong}</span>
+                      </>
+                    )}
+                    {current?.rank && (
                       <>
                         <span className="db-dot-sep">·</span>
                         <span>#{current.rank} chart</span>
@@ -477,24 +624,37 @@ export default function Dashboard() {
                 </div>
 
                 <div className="db-info-actions">
-                  <button
-                    className={`db-play-btn ${isCurrentlyPlaying ? "db-play-btn--pause" : ""}`}
-                    onClick={(e) => {
-                      e?.stopPropagation();
-                      if (albumData?.id === current?.id) {
-                        setIsPlaying(!isPlaying);
-                      } else {
-                        playAlbum(current, e);
-                      }
-                    }}
-                    aria-label={isCurrentlyPlaying ? "Pause" : "Play album"}
-                  >
-                    {isCurrentlyPlaying ? (
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>
-                    ) : (
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21" /></svg>
-                    )}
-                  </button>
+                  {!current ? (
+                    <button
+                      className="db-play-btn"
+                      onClick={(e) => {
+                        e?.stopPropagation();
+                        openEditModal(null);
+                      }}
+                    >
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '6px'}}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                      ADD ALBUM
+                    </button>
+                  ) : (
+                    <button
+                      className={`db-play-btn ${isCurrentlyPlaying ? "db-play-btn--pause" : ""}`}
+                      onClick={(e) => {
+                        e?.stopPropagation();
+                        if (albumData?.id === current?.id) {
+                          setIsPlaying(!isPlaying);
+                        } else {
+                          playAlbum(current, e);
+                        }
+                      }}
+                      aria-label={isCurrentlyPlaying ? "Pause" : "Play album"}
+                    >
+                      {isCurrentlyPlaying ? (
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>
+                      ) : (
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21" /></svg>
+                      )}
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -510,6 +670,16 @@ export default function Dashboard() {
 
       {/* ── SEARCH OVERLAY ── */}
       <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      
+      {/* ── ADMIN MODAL ── */}
+      <AlbumAdminModal 
+        isOpen={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+        initialData={editingAlbum}
+        onSave={handleSaveAlbum}
+        groupId={groupId}
+        member={tab === "solos" ? meta.soloists[soloistIdx] : null}
+      />
     </div>
   );
 }

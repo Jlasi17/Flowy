@@ -12,6 +12,7 @@ import LyricsSyncPage from "./LyricsSyncPage";
 import ProfilePage from "./ProfilePage";
 import PlaylistsPage from "./PlaylistsPage";
 import { AuthProvider } from "./contexts/AuthContext";
+import { DataProvider } from "./contexts/DataContext";
 import AuthPage from "./components/AuthPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthModal from "./components/AuthModal";
@@ -51,26 +52,28 @@ function Home() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AudioPlayerProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/dashboard/:groupId" element={<Dashboard />} />
-            <Route path="/album/:id" element={<AlbumPage />} />
-            <Route path="/gallery" element={<MuseumGallery />} />
-            <Route path="/lyrics-sync" element={<ProtectedRoute><LyricsSyncPage /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-            <Route path="/playlists" element={<ProtectedRoute><PlaylistsPage /></ProtectedRoute>} />
-          </Routes>
+    <DataProvider>
+      <AuthProvider>
+        <AudioPlayerProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/dashboard/:groupId" element={<Dashboard />} />
+              <Route path="/album/:id" element={<AlbumPage />} />
+              <Route path="/gallery" element={<MuseumGallery />} />
+              <Route path="/lyrics-sync" element={<ProtectedRoute><LyricsSyncPage /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+              <Route path="/playlists" element={<ProtectedRoute><PlaylistsPage /></ProtectedRoute>} />
+            </Routes>
 
-          <PersistentAudioPlayer />
-          <AuthModal />
-          <GlobalModals />
-        </BrowserRouter>
-      </AudioPlayerProvider>
-    </AuthProvider>
+            <PersistentAudioPlayer />
+            <AuthModal />
+            <GlobalModals />
+          </BrowserRouter>
+        </AudioPlayerProvider>
+      </AuthProvider>
+    </DataProvider>
   );
 }
 

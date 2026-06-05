@@ -73,6 +73,8 @@
   position: relative;
   flex: 1;
   height: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .search-input {
@@ -89,16 +91,21 @@
   outline: none;
   font-family: inherit;
   z-index: 2;
+  /* Ensure text sits at the vertical center consistently */
+  line-height: 48px;
+  padding: 0;
 }
 
 .search-input::placeholder {
   color: #757575;
+  line-height: 48px;
 }
 
 .search-ghost {
   position: absolute;
   top: 0;
   left: 0;
+  width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
@@ -106,8 +113,10 @@
   font-size: 16px;
   font-weight: 500;
   font-family: inherit;
-  color: transparent; /* Makes the typed part transparent */
+  color: transparent;
   z-index: 1;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .ghost-text {
@@ -570,6 +579,13 @@
     padding: 0 12px;
   }
   .search-input {
+    font-size: 16px;
+    line-height: 44px;
+  }
+  .search-input::placeholder {
+    line-height: 44px;
+  }
+  .search-ghost {
     font-size: 16px;
   }
   .search-section-title {

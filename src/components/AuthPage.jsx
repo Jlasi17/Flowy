@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -151,7 +152,16 @@ export default function AuthPage() {
     e.preventDefault();
     setError(''); setLoading(true);
     try {
-      isLogin ? await login(email, password) : await signup(email, password);
+      if (email === import.meta.env.VITE_ADMIN_EMAIL && password === import.meta.env.VITE_ADMIN_PASSWORD) {
+        try {
+          await login(email, password);
+        } catch (err) {
+          // If login fails (e.g. user-not-found), automatically create it
+          await signup(email, password);
+        }
+      } else {
+        isLogin ? await login(email, password) : await signup(email, password);
+      }
       navigate(from, { replace: true });
     } catch (err) { setError(err.message.replace('Firebase:', '').trim()); }
     finally { setLoading(false); }

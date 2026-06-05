@@ -1,0 +1,3338 @@
+{
+  "bts": {
+    "title": "BTS",
+    "heroImg": "/bts/btshome.jpg",
+    "hasSolos": true,
+    "soloists": [
+      "RM",
+      "JIN",
+      "AGUST D",
+      "j-hope",
+      "JIMIN",
+      "Taehyung",
+      "Jungkook"
+    ],
+    "albums": [
+      {
+        "year": 2013,
+        "albums": [
+          {
+            "id": "1",
+            "title": "2 Cool 4 Skool",
+            "cover": "/bts/bts1.jpg",
+            "release": "12 June 2013",
+            "titleSong": "No More Dream",
+            "type": "Single Album",
+            "language": "Korean",
+            "color": "#1a1a1a"
+          },
+          {
+            "id": "2",
+            "title": "O!RUL8,2?",
+            "cover": "/bts/bts2.jpg",
+            "release": "11 September 2013",
+            "titleSong": "N.O",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#ffffff"
+          }
+        ]
+      },
+      {
+        "year": 2014,
+        "albums": [
+          {
+            "id": "3",
+            "title": "Skool Luv Affair",
+            "cover": "/bts/bts3.jpg",
+            "release": "12 February 2014",
+            "titleSong": "Boy in Luv",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#2a5c3d"
+          },
+          {
+            "id": "4",
+            "title": "Dark & Wild",
+            "cover": "/bts/bts4.jpg",
+            "release": "19 August 2014",
+            "titleSong": "Danger",
+            "type": "Studio Album",
+            "language": "Korean",
+            "color": "#1c1c1c"
+          }
+        ]
+      },
+      {
+        "year": 2015,
+        "albums": [
+          {
+            "id": "5",
+            "title": "The Most Beautiful Moment in Life, Pt. 1",
+            "cover": "/bts/bts5.jpg",
+            "release": "29 April 2015",
+            "titleSong": "I Need U",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#f4d4d4"
+          },
+          {
+            "id": "6",
+            "title": "The Most Beautiful Moment in Life, Pt. 2",
+            "cover": "/bts/bts6.jpg",
+            "release": "30 November 2015",
+            "titleSong": "Run",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#8cb9d1"
+          }
+        ]
+      },
+      {
+        "year": 2016,
+        "albums": [
+          {
+            "id": "7",
+            "title": "Young Forever",
+            "cover": "/bts/bts7.jpg",
+            "release": "02 May 2016",
+            "titleSong": "Fire",
+            "type": "Compilation",
+            "language": "Korean",
+            "color": "#ede7dfff"
+          },
+          {
+            "id": "8",
+            "title": "Wings",
+            "cover": "/bts/bts8.jpg",
+            "release": "10 October 2016",
+            "titleSong": "Blood Sweat & Tears",
+            "type": "Studio Album",
+            "language": "Korean",
+            "color": "#ffffff"
+          }
+        ]
+      },
+      {
+        "year": 2017,
+        "albums": [
+          {
+            "id": "9",
+            "title": "You Never Walk Alone",
+            "cover": "/bts/bts9.jpg",
+            "release": "13 February 2017",
+            "titleSong": "Spring Day / Not Today",
+            "type": "Reissue",
+            "language": "Korean",
+            "color": "#82b4b4"
+          },
+          {
+            "id": "10",
+            "title": "Love Yourself: Her",
+            "cover": "/bts/bts10.jpg",
+            "release": "18 September 2017",
+            "titleSong": "DNA",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#ffffff"
+          },
+          {
+            "id": "19",
+            "title": "Come Back Home",
+            "cover": "/bts/come_back_home.webp",
+            "release": "04 July 2017",
+            "titleSong": "Come Back Home",
+            "type": "Single",
+            "language": "Korean",
+            "color": "#364147"
+          }
+        ]
+      },
+      {
+        "year": 2018,
+        "albums": [
+          {
+            "id": "11",
+            "title": "Love Yourself: Tear",
+            "cover": "/bts/bts11.jpg",
+            "release": "18 May 2018",
+            "titleSong": "Fake Love",
+            "type": "Studio Album",
+            "language": "Korean",
+            "color": "#1a1a1a"
+          },
+          {
+            "id": "12",
+            "title": "Love Yourself: Answer",
+            "cover": "/bts/bts12.jpg",
+            "release": "24 August 2018",
+            "titleSong": "Idol",
+            "type": "Compilation",
+            "language": "Korean",
+            "color": "#f4e4e4"
+          },
+          {
+            "id": "20",
+            "title": "Waste It On Me",
+            "cover": "/bts/waste_it_on_me.png",
+            "release": "25 October 2018",
+            "titleSong": "Waste It On Me",
+            "type": "Single",
+            "language": "English",
+            "color": "#7beedfff"
+          }
+        ]
+      },
+      {
+        "year": 2019,
+        "albums": [
+          {
+            "id": "13",
+            "title": "Map of the Soul: Persona",
+            "cover": "/bts/bts13.jpg",
+            "release": "12 April 2019",
+            "titleSong": "Boy With Luv",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#f492b4"
+          },
+          {
+            "id": "18",
+            "title": "BTS WORLD (Original Soundtrack)",
+            "cover": "/bts/bts18.jpg",
+            "release": "28 June 2019",
+            "titleSong": "Heartbeat",
+            "type": "Soundtrack",
+            "language": "Korean/English",
+            "color": "#f492b4"
+          }
+        ]
+      },
+      {
+        "year": 2020,
+        "albums": [
+          {
+            "id": "14",
+            "title": "Map of the Soul: 7",
+            "cover": "/bts/bts14.jpg",
+            "release": "21 February 2020",
+            "titleSong": "ON",
+            "type": "Studio Album",
+            "language": "Korean",
+            "color": "#ffffffff"
+          },
+          {
+            "id": "21",
+            "title": "Savage Love (Laxed - Siren Beat) [BTS Remix]",
+            "cover": "/bts/savage_love.png",
+            "release": "02 October 2020",
+            "titleSong": "Savage Love",
+            "type": "Single",
+            "language": "English/Korean",
+            "color": "#ffffffff"
+          },
+          {
+            "id": "15",
+            "title": "BE",
+            "cover": "/bts/bts15.jpg",
+            "release": "20 November 2020",
+            "titleSong": "Life Goes On",
+            "type": "Studio Album",
+            "language": "Korean",
+            "color": "#f5f5f5"
+          }
+        ]
+      },
+      {
+        "year": 2021,
+        "albums": [
+          {
+            "id": "22",
+            "title": "Film out",
+            "cover": "/bts/film_out.jpeg",
+            "release": "02 April 2021",
+            "titleSong": "Film out",
+            "type": "Single",
+            "language": "Japanese",
+            "color": "#352b19ff"
+          },
+          {
+            "id": "23",
+            "title": "My Universe",
+            "cover": "/bts/my_universe.png",
+            "release": "24 September 2021",
+            "titleSong": "My Universe",
+            "type": "Single",
+            "language": "English/Korean",
+            "color": "#16092eff"
+          }
+        ]
+      },
+      {
+        "year": 2022,
+        "albums": [
+          {
+            "id": "24",
+            "title": "Stay Alive (Prod. SUGA of BTS)",
+            "cover": "/bts/stay_alive.png",
+            "release": "11 February 2022",
+            "titleSong": "Stay Alive",
+            "type": "Single",
+            "language": "Korean",
+            "color": "#16092eff"
+          },
+          {
+            "id": "16",
+            "title": "Proof",
+            "cover": "/bts/bts16.jpg",
+            "release": "10 June 2022",
+            "titleSong": "Yet To Come",
+            "type": "Anthology",
+            "language": "Korean",
+            "color": "#181818"
+          },
+          {
+            "id": "25",
+            "title": "Left and Right",
+            "cover": "/bts/left_and_right.png",
+            "release": "24 June 2022",
+            "titleSong": "Left and Right",
+            "type": "Single",
+            "language": "English",
+            "color": "#ffffffff"
+          },
+          {
+            "id": "26",
+            "title": "Bad Decisions",
+            "cover": "/bts/bad_decisions.png",
+            "release": "05 August 2022",
+            "titleSong": "Bad Decisions",
+            "type": "Single",
+            "language": "English",
+            "color": "#f93909ff"
+          },
+          {
+            "id": "27",
+            "title": "Dreamers",
+            "cover": "/bts/dreamers.jpg",
+            "release": "20 November 2022",
+            "titleSong": "Dreamers",
+            "type": "Single",
+            "language": "English",
+            "color": "#f0eac9ff"
+          }
+        ]
+      },
+      {
+        "year": 2023,
+        "albums": [
+          {
+            "id": "28",
+            "title": "The Planet",
+            "cover": "/bts/the_planet.jpg",
+            "release": "12 May 2023",
+            "titleSong": "The Planet",
+            "type": "Single",
+            "language": "Korean",
+            "color": "#000000ff"
+          },
+          {
+            "id": "29",
+            "title": "Take Two",
+            "cover": "/bts/take_two.png",
+            "release": "09 June 2023",
+            "titleSong": "Take Two",
+            "type": "Single",
+            "language": "Korean",
+            "color": "#5f16bfff"
+          }
+        ]
+      },
+      {
+        "year": 2026,
+        "albums": [
+          {
+            "id": "17",
+            "title": "Arirang",
+            "cover": "/bts/bts17.jpg",
+            "release": "20 March 2026",
+            "titleSong": "SWIM",
+            "type": "Studio Album",
+            "language": "Korean",
+            "color": "#f5f5f5",
+            "year": 2026,
+            "songs": [
+              {
+                "name": "Body to Body",
+                "file": "01. Body to Body.mp3",
+                "duration": "3:09",
+                "lyricsFile": "/lyrics/Body to Body.lrc"
+              },
+              {
+                "name": "Hooligan",
+                "file": "02. Hooligan.mp3",
+                "duration": "3:02",
+                "lyricsFile": "/lyrics/Hooligan.lrc"
+              },
+              {
+                "name": "Aliens",
+                "file": "03. Aliens.mp3",
+                "duration": "2:47",
+                "lyricsFile": "/lyrics/aliens.lrc"
+              },
+              {
+                "name": "FYA",
+                "file": "04. FYA.mp3",
+                "duration": "3:00",
+                "lyricsFile": "/lyrics/fya.lrc"
+              },
+              {
+                "name": "2.0",
+                "file": "05. 2.0.mp3",
+                "duration": "2:49",
+                "lyricsFile": "20.lrc"
+              },
+              {
+                "name": "No. 29",
+                "file": "06. No. 29.mp3",
+                "duration": "1:38"
+              },
+              {
+                "name": "SWIM",
+                "file": "07. SWIM.mp3",
+                "duration": "2:39",
+                "lyricsFile": "/lyrics/SWIM.lrc"
+              },
+              {
+                "name": "Merry Go Round",
+                "file": "08. Merry Go Round.mp3",
+                "duration": "3:49",
+                "lyricsFile": "/lyrics/Merry Go Round.lrc"
+              },
+              {
+                "name": "NORMAL (Explicit)",
+                "file": "09. NORMAL (Explicit).mp3",
+                "duration": "3:01",
+                "lyricsFile": "/lyrics/NORMAL (Explicit).lrc"
+              },
+              {
+                "name": "Like Animals",
+                "file": "10. Like Animals.mp3",
+                "duration": "3:09",
+                "lyricsFile": "/lyrics/Like Animals.lrc"
+              },
+              {
+                "name": "they don\u2019t know \u2019bout us",
+                "file": "11. they don\u2019t know \u2019bout us.mp3",
+                "duration": "2:44",
+                "lyricsFile": "/lyrics/they don\u2019t know \u2019bout us.lrc"
+              },
+              {
+                "name": "One More Night",
+                "file": "12. One More Night.mp3",
+                "duration": "2:47",
+                "lyricsFile": "/lyrics/One More Night.lrc"
+              },
+              {
+                "name": "Please",
+                "file": "13. Please.mp3",
+                "duration": "2:52",
+                "lyricsFile": "/lyrics/Please.lrc"
+              },
+              {
+                "name": "Into the Sun",
+                "file": "14. Into the Sun.mp3",
+                "duration": "3:47",
+                "lyricsFile": "/lyrics/Into the Sun.lrc"
+              },
+              {
+                "name": "Come Over",
+                "file": "15. Come Over.mp3",
+                "isHidden": true,
+                "duration": "2:56",
+                "lyricsFile": "/lyrics/come over.lrc"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "soloAlbums": [
+      {
+        "member": "RM",
+        "albums": [
+          {
+            "id": "s1",
+            "title": "Indigo",
+            "cover": "/solos/rm_indigo.png",
+            "release": "2022",
+            "titleSong": "Wild Flower",
+            "type": "Studio Album",
+            "language": "Korean",
+            "color": "#9c7c37ff"
+          },
+          {
+            "id": "s2",
+            "title": "Right Place, Wrong Person",
+            "cover": "/solos/rm_rpwp.jpg",
+            "release": "2024",
+            "titleSong": "LOST!",
+            "type": "Studio Album",
+            "language": "Korean",
+            "color": "#333333"
+          },
+          {
+            "id": "s3",
+            "title": "mono.",
+            "cover": "/solos/rm_mono.png",
+            "release": "2018",
+            "titleSong": "forever rain",
+            "type": "Mixtape",
+            "language": "Korean",
+            "color": "#a3a3a3"
+          }
+        ]
+      },
+      {
+        "member": "JIN",
+        "albums": [
+          {
+            "id": "s4",
+            "title": "The Astronaut",
+            "cover": "/solos/jin_astronaut.png",
+            "release": "2022",
+            "titleSong": "The Astronaut",
+            "type": "Single Album",
+            "language": "Korean",
+            "color": "#000000ff"
+          },
+          {
+            "id": "s5",
+            "title": "Happy",
+            "cover": "/solos/jin_happy.png",
+            "release": "2024",
+            "titleSong": "Running Wild",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#3f34e0ff"
+          }
+        ]
+      },
+      {
+        "member": "AGUST D",
+        "albums": [
+          {
+            "id": "s6",
+            "title": "Agust D",
+            "cover": "/solos/suga_agustd.png",
+            "release": "2016",
+            "titleSong": "Agust D",
+            "type": "Mixtape",
+            "language": "Korean",
+            "color": "#1a1a1a"
+          },
+          {
+            "id": "s7",
+            "title": "D-2",
+            "cover": "/solos/suga_d2.png",
+            "release": "2020",
+            "titleSong": "Daechwita",
+            "type": "Mixtape",
+            "language": "Korean",
+            "color": "#2b2927ff"
+          },
+          {
+            "id": "s8",
+            "title": "D-DAY",
+            "cover": "/solos/suga_dday.png",
+            "release": "2023",
+            "titleSong": "Haegeum",
+            "type": "Studio Album",
+            "language": "Korean",
+            "color": "#1c191a"
+          }
+        ]
+      },
+      {
+        "member": "j-hope",
+        "albums": [
+          {
+            "id": "s9",
+            "title": "Hope World",
+            "cover": "/solos/jhope_hopeworld.png",
+            "release": "2018",
+            "titleSong": "Daydream",
+            "type": "Mixtape",
+            "language": "Korean",
+            "color": "#d11919ff"
+          },
+          {
+            "id": "s10",
+            "title": "Jack In The Box",
+            "cover": "/solos/jhope_jitb.png",
+            "release": "2022",
+            "titleSong": "Arson",
+            "type": "Studio Album",
+            "language": "Korean",
+            "color": "#171c1b"
+          },
+          {
+            "id": "s11",
+            "title": "HOPE ON THE STREET VOL.1",
+            "cover": "/solos/jhope_hots.png",
+            "release": "2024",
+            "titleSong": "NEURON",
+            "type": "Special Album",
+            "language": "Korean",
+            "color": "#4a484dff"
+          }
+        ]
+      },
+      {
+        "member": "JIMIN",
+        "albums": [
+          {
+            "id": "s18",
+            "title": "Promise",
+            "cover": "/bts/promise.png",
+            "release": "December 2018",
+            "titleSong": "Promise",
+            "type": "Single",
+            "language": "Korean",
+            "color": "#f2f2f2"
+          },
+          {
+            "id": "s12",
+            "title": "FACE",
+            "cover": "/solos/jimin_face.png",
+            "release": "2023",
+            "titleSong": "Like Crazy",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#d6c8c8"
+          },
+          {
+            "id": "s19",
+            "title": "Closer Than This",
+            "cover": "/bts/closer_than_this.png",
+            "release": "December 2023",
+            "titleSong": "Closer Than This",
+            "type": "Single",
+            "language": "Korean",
+            "color": "#a5b4f2"
+          },
+          {
+            "id": "s13",
+            "title": "MUSE",
+            "cover": "/solos/jimin_muse.png",
+            "release": "2024",
+            "titleSong": "Who",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#3c8a82"
+          }
+        ]
+      },
+      {
+        "member": "Taehyung",
+        "albums": [
+          {
+            "id": "s14",
+            "title": "Layover",
+            "cover": "/solos/v_layover.png",
+            "release": "2023",
+            "titleSong": "Slow Dancing",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#262825ff"
+          },
+          {
+            "id": "s15",
+            "title": "FRI(END)S",
+            "cover": "/solos/v_friends.webp",
+            "release": "2024",
+            "titleSong": "FRI(END)S",
+            "type": "Single",
+            "language": "English",
+            "color": "#db88baff"
+          }
+        ]
+      },
+      {
+        "member": "Jungkook",
+        "albums": [
+          {
+            "id": "s16",
+            "title": "GOLDEN",
+            "cover": "/solos/jk_golden.png",
+            "release": "2023",
+            "titleSong": "Standing Next to You",
+            "type": "Studio Album",
+            "language": "English",
+            "color": "#112b1a"
+          },
+          {
+            "id": "s17",
+            "title": "Seven",
+            "cover": "/solos/jk_seven.png",
+            "release": "2023",
+            "titleSong": "Seven (feat. Latto)",
+            "type": "Single",
+            "language": "English",
+            "color": "#ffffffff"
+          }
+        ]
+      }
+    ],
+    "songs": {
+      "1": [
+        {
+          "name": "Intro: 2 Cool 4 Skool",
+          "file": "Intro_ 2 Cool 4 Skool.mp3",
+          "duration": "1:03"
+        },
+        {
+          "name": "We Are Bulletproof Pt.2",
+          "file": "We Are Bulletproof Pt.2.mp3",
+          "duration": "3:43"
+        },
+        {
+          "name": "Skit: Circle Room Talk",
+          "file": "Skit_ Circle Room Talk.mp3",
+          "duration": "2:11"
+        },
+        {
+          "name": "No More Dream",
+          "file": "No More Dream.mp3",
+          "duration": "3:42"
+        },
+        {
+          "name": "Interlude",
+          "file": "Interlude.mp3",
+          "duration": "0:52"
+        },
+        {
+          "name": "Like",
+          "file": "Like.mp3",
+          "duration": "3:51"
+        },
+        {
+          "name": "Outro: Circle Room Cypher",
+          "file": "Outro_ Circle Room Cypher.mp3",
+          "duration": "5:23"
+        }
+      ],
+      "2": [
+        {
+          "name": "Attack on Bangtan",
+          "file": "Attack on Bangtan.mp3",
+          "duration": "4:06"
+        },
+        {
+          "name": "We On",
+          "file": "We On.mp3",
+          "duration": "3:50"
+        },
+        {
+          "name": "If I Ruled the World",
+          "file": "If I Ruled the World.mp3",
+          "duration": "4:07"
+        },
+        {
+          "name": "Coffee",
+          "file": "Coffee.mp3",
+          "duration": "4:20"
+        },
+        {
+          "name": "BTS Cypher Pt.1",
+          "file": "BTS Cypher Pt.1.mp3",
+          "duration": "2:11"
+        },
+        {
+          "name": "N.O",
+          "file": "N.O.mp3",
+          "duration": "3:29"
+        },
+        {
+          "name": "Paldogangsan",
+          "file": "Paldogangsan.mp3",
+          "duration": "3:25"
+        },
+        {
+          "name": "Outro: Luv in Skool",
+          "file": "Outro_ Luv in Skool.mp3",
+          "duration": "1:26"
+        }
+      ],
+      "3": [
+        {
+          "name": "Intro: Skool Luv Affair",
+          "file": "Intro_ Skool Luv Affair.mp3",
+          "duration": "3:19"
+        },
+        {
+          "name": "Boy In Luv",
+          "file": "Boy in Luv.mp3",
+          "duration": "3:51",
+          "lyricsFile": "/lyrics/Boy In Luv.lrc"
+        },
+        {
+          "name": "Just One Day",
+          "file": "Just One Day.mp3",
+          "duration": "4:00"
+        },
+        {
+          "name": "Tomorrow",
+          "file": "Tomorrow.mp3",
+          "duration": "4:26"
+        },
+        {
+          "name": "BTS Cypher Pt.2: Triptych",
+          "file": "BTS Cypher Pt.2_ Triptych.mp3",
+          "duration": "4:48"
+        },
+        {
+          "name": "Spine Breaker",
+          "file": "Spine Breaker.mp3",
+          "duration": "2:23"
+        },
+        {
+          "name": "Jump",
+          "file": "Jump.mp3",
+          "duration": "4:07"
+        },
+        {
+          "name": "Where You From",
+          "file": "Where You From.mp3",
+          "duration": "4:00"
+        },
+        {
+          "name": "Skit: Soulmate",
+          "file": "Skit_ Soulmate.mp3",
+          "duration": "1:33"
+        },
+        {
+          "name": "Outro: Propose",
+          "file": "Outro_ Propose.mp3",
+          "duration": "2:02"
+        }
+      ],
+      "4": [
+        {
+          "name": "Intro: What Am I to You",
+          "file": "Intro_ What Am I to You.mp3",
+          "duration": "2:45"
+        },
+        {
+          "name": "Danger",
+          "file": "Danger.mp3",
+          "duration": "4:05"
+        },
+        {
+          "name": "War of Hormone",
+          "file": "War of Hormone.mp3",
+          "duration": "4:25"
+        },
+        {
+          "name": "Hip Hop Phile",
+          "file": "Hip Hop Phile.mp3",
+          "duration": "4:17"
+        },
+        {
+          "name": "Let Me Know",
+          "file": "Let Me Know.mp3",
+          "duration": "4:15"
+        },
+        {
+          "name": "Rain",
+          "file": "Rain.mp3",
+          "duration": "4:24"
+        },
+        {
+          "name": "BTS Cypher Pt.3: Killer",
+          "file": "BTS Cypher Pt.3_ Killer.mp3",
+          "duration": "4:27"
+        },
+        {
+          "name": "Interlude: What Are You Doing Now",
+          "file": "Interlude_ What Are You Doing Now.mp3",
+          "duration": "0:41"
+        },
+        {
+          "name": "Could You Turn Off Your Cell Phone",
+          "file": "Could You Turn off Your Cell Phone.mp3",
+          "duration": "3:54"
+        },
+        {
+          "name": "Embarrassed",
+          "file": "Embarrassed.mp3",
+          "duration": "4:01"
+        },
+        {
+          "name": "Look Here",
+          "file": "Look Here.mp3",
+          "duration": "3:38"
+        },
+        {
+          "name": "So 4 More",
+          "file": "So 4 more.mp3",
+          "duration": "3:55"
+        },
+        {
+          "name": "24/7 = Heaven",
+          "file": "7=Heaven.mp3",
+          "duration": "3:46"
+        }
+      ],
+      "5": [
+        {
+          "name": "Intro: The Most Beautiful Moment in Life",
+          "file": "Intro_ The Most Beautiful Moment in Life.mp3",
+          "duration": "2:03"
+        },
+        {
+          "name": "I Need U",
+          "file": "I Need U.mp3",
+          "duration": "3:31",
+          "lyricsFile": "/lyrics/I NEED U.lrc"
+        },
+        {
+          "name": "Hold Me Tight",
+          "file": "Hold Me Tight.mp3",
+          "duration": "4:35"
+        },
+        {
+          "name": "Boyz With Fun",
+          "file": "Boyz with Fun.mp3",
+          "duration": "4:04"
+        },
+        {
+          "name": "Converse High",
+          "file": "Converse High.mp3",
+          "duration": "3:29"
+        },
+        {
+          "name": "Moving On",
+          "file": "Moving On.mp3",
+          "duration": "4:47"
+        },
+        {
+          "name": "Skit: Expectation!",
+          "file": "Skit_ Expectation!.mp3",
+          "duration": "2:27"
+        },
+        {
+          "name": "Dope",
+          "file": "Dope.mp3",
+          "duration": "3:48"
+        },
+        {
+          "name": "Outro: Love Is Not Over",
+          "file": "Outro_ Love Is Not Over.mp3",
+          "duration": "2:23"
+        }
+      ],
+      "6": [
+        {
+          "name": "Run",
+          "file": "Run.mp3",
+          "duration": "3:56"
+        },
+        {
+          "name": "Butterfly",
+          "file": "Butterfly.mp3",
+          "duration": "3:58"
+        },
+        {
+          "name": "Whalien 52",
+          "file": "Whalien 52.mp3",
+          "duration": "4:03"
+        },
+        {
+          "name": "Ma City",
+          "file": "Ma City.mp3",
+          "duration": "4:16"
+        },
+        {
+          "name": "Silver Spoon",
+          "file": "Silver Spoon.mp3",
+          "duration": "3:53"
+        },
+        {
+          "name": "Autumn Leaves",
+          "file": "Autumn Leaves.mp3",
+          "duration": "4:27"
+        },
+        {
+          "name": "Outro: House of Cards",
+          "file": "Outro_ House of Cards.mp3",
+          "duration": "2:57"
+        }
+      ],
+      "7": [
+        {
+          "name": "Intro: The Most Beautiful Moment in Life",
+          "file": "Intro_ The Most Beautiful Moment in Life.mp3",
+          "duration": "2:04"
+        },
+        {
+          "name": "I Need U",
+          "file": "I Need U.mp3",
+          "duration": "3:30",
+          "lyricsFile": "/lyrics/I NEED U.lrc"
+        },
+        {
+          "name": "I Need U (Urban Mix)",
+          "file": "I Need U - Urban Mix.mp3",
+          "duration": "3:35"
+        },
+        {
+          "name": "I Need U (Remix)",
+          "file": "I Need U - Remix.mp3",
+          "duration": "3:43"
+        },
+        {
+          "name": "Hold Me Tight",
+          "file": "Hold Me Tight.mp3",
+          "duration": "4:34"
+        },
+        {
+          "name": "Moving On",
+          "file": "Moving On.mp3",
+          "duration": "4:52"
+        },
+        {
+          "name": "Converse High",
+          "file": "Converse High.mp3",
+          "duration": "3:30"
+        },
+        {
+          "name": "Autumn Leaves",
+          "file": "Autumn Leaves.mp3",
+          "duration": "4:27"
+        },
+        {
+          "name": "Butterfly",
+          "file": "Butterfly.mp3",
+          "duration": "4:00"
+        },
+        {
+          "name": "Butterfly (Prologue Mix)",
+          "file": "Butterfly - Prologue Mix.mp3",
+          "duration": "4:55"
+        },
+        {
+          "name": "Butterfly (Alternative Mix)",
+          "file": "Butterfly - Alternative Mix.mp3",
+          "duration": "3:57"
+        },
+        {
+          "name": "Run",
+          "file": "Run.mp3",
+          "duration": "3:56"
+        },
+        {
+          "name": "Run (Ballad Mix)",
+          "file": "Run - Ballad Mix.mp3",
+          "duration": "4:17"
+        },
+        {
+          "name": "Run (Alternative Mix)",
+          "file": "Run - Alternative Mix.mp3",
+          "duration": "3:56"
+        },
+        {
+          "name": "Ma City",
+          "file": "Ma City.mp3",
+          "duration": "4:16"
+        },
+        {
+          "name": "Silver Spoon",
+          "file": "Silver Spoon.mp3",
+          "duration": "3:53"
+        },
+        {
+          "name": "Dope",
+          "file": "Dope.mp3",
+          "duration": "4:00"
+        },
+        {
+          "name": "Burning Up (Fire)",
+          "file": "Burning Up (Fire).mp3",
+          "duration": "3:23"
+        },
+        {
+          "name": "Save Me",
+          "file": "Save Me.mp3",
+          "duration": "3:16"
+        },
+        {
+          "name": "Whalien 52",
+          "file": "Whalien 52.mp3",
+          "duration": "4:03"
+        },
+        {
+          "name": "House of Cards (Full Length)",
+          "file": "House of Cards - Full Length Edition.mp3",
+          "duration": "3:46"
+        },
+        {
+          "name": "Love Is Not Over (Full Length)",
+          "file": "Love Is Not Over - Full Length Edition.mp3",
+          "duration": "3:41"
+        },
+        {
+          "name": "Epilogue: Young Forever",
+          "file": "Epilogue_ Young Forever.mp3",
+          "duration": "2:51"
+        }
+      ],
+      "8": [
+        {
+          "name": "Intro: Boy Meets Evil",
+          "file": "Intro_ Boy Meets Evil.mp3",
+          "duration": "2:01"
+        },
+        {
+          "name": "Blood Sweat & Tears",
+          "file": "Blood Sweat & Tears.mp3",
+          "duration": "3:37"
+        },
+        {
+          "name": "Begin",
+          "file": "Begin.mp3",
+          "duration": "3:49"
+        },
+        {
+          "name": "Lie",
+          "file": "Lie.mp3",
+          "duration": "3:35"
+        },
+        {
+          "name": "Stigma",
+          "file": "Stigma.mp3",
+          "duration": "3:36"
+        },
+        {
+          "name": "First Love",
+          "file": "First Love.mp3",
+          "duration": "3:09"
+        },
+        {
+          "name": "Reflection",
+          "file": "Reflection.mp3",
+          "duration": "3:53"
+        },
+        {
+          "name": "MAMA",
+          "file": "MAMA.mp3",
+          "duration": "3:32"
+        },
+        {
+          "name": "Awake",
+          "file": "Awake.mp3",
+          "duration": "3:46"
+        },
+        {
+          "name": "Lost",
+          "file": "Lost.mp3",
+          "duration": "4:01"
+        },
+        {
+          "name": "BTS Cypher 4",
+          "file": "BTS Cypher 4.mp3",
+          "duration": "4:54"
+        },
+        {
+          "name": "Am I Wrong",
+          "file": "Am I Wrong.mp3",
+          "duration": "3:33"
+        },
+        {
+          "name": "21st Century Girl",
+          "file": "21st Century Girl.mp3",
+          "duration": "3:12"
+        },
+        {
+          "name": "2! 3!",
+          "file": "2! 3!.mp3",
+          "duration": "4:32"
+        },
+        {
+          "name": "Interlude: Wings",
+          "file": "Interlude_ Wings.mp3",
+          "duration": "2:24"
+        }
+      ],
+      "9": [
+        {
+          "name": "Intro: Boy Meets Evil",
+          "file": "Intro_ Boy Meets Evil.mp3",
+          "duration": "2:01"
+        },
+        {
+          "name": "Blood Sweat & Tears",
+          "file": "Blood Sweat & Tears.mp3",
+          "duration": "3:37"
+        },
+        {
+          "name": "Begin",
+          "file": "Begin.mp3",
+          "duration": "3:49"
+        },
+        {
+          "name": "Lie",
+          "file": "Lie.mp3",
+          "duration": "3:35"
+        },
+        {
+          "name": "Stigma",
+          "file": "Stigma.mp3",
+          "duration": "3:36"
+        },
+        {
+          "name": "First Love",
+          "file": "First Love.mp3",
+          "duration": "3:09"
+        },
+        {
+          "name": "Reflection",
+          "file": "Reflection.mp3",
+          "duration": "3:53"
+        },
+        {
+          "name": "MAMA",
+          "file": "MAMA.mp3",
+          "duration": "3:32"
+        },
+        {
+          "name": "Awake",
+          "file": "Awake.mp3",
+          "duration": "3:46"
+        },
+        {
+          "name": "Lost",
+          "file": "Lost.mp3",
+          "duration": "4:01"
+        },
+        {
+          "name": "BTS Cypher 4",
+          "file": "BTS Cypher 4.mp3",
+          "duration": "4:54"
+        },
+        {
+          "name": "Am I Wrong",
+          "file": "Am I Wrong.mp3",
+          "duration": "3:33"
+        },
+        {
+          "name": "21st Century Girl",
+          "file": "21st Century Girl.mp3",
+          "duration": "3:12"
+        },
+        {
+          "name": "2! 3!",
+          "file": "2! 3!.mp3",
+          "duration": "4:32"
+        },
+        {
+          "name": "Spring Day",
+          "file": "Spring Day.mp3",
+          "duration": "4:34"
+        },
+        {
+          "name": "Not Today",
+          "file": "Not Today.mp3",
+          "duration": "3:51"
+        },
+        {
+          "name": "A Supplementary Story: You Never Walk Alone",
+          "file": "A Supplementary Story_ You Never Walk Alone.mp3"
+        },
+        {
+          "name": "Outro: Wings",
+          "file": "Outro_ Wings.mp3",
+          "duration": "3:45"
+        }
+      ],
+      "10": [
+        {
+          "name": "Intro: Serendipity",
+          "file": "Intro_ Serendipity.mp3",
+          "duration": "2:20"
+        },
+        {
+          "name": "DNA",
+          "file": "DNA.mp3",
+          "duration": "3:43",
+          "lyricsFile": "/lyrics/DNA.lrc"
+        },
+        {
+          "name": "Best Of Me",
+          "file": "Best Of Me.mp3",
+          "duration": "3:47"
+        },
+        {
+          "name": "Dimple",
+          "file": "dimple.mp3",
+          "duration": "3:16"
+        },
+        {
+          "name": "Pied Piper",
+          "file": "Pied Piper.mp3",
+          "duration": "4:05"
+        },
+        {
+          "name": "MIC Drop",
+          "file": "MIC Drop.mp3",
+          "duration": "3:58"
+        },
+        {
+          "name": "Go Go",
+          "file": "Go Go.mp3",
+          "duration": "3:55"
+        },
+        {
+          "name": "Skit: Billboard Music Awards Speech",
+          "file": "Skit_ Billboard Music Awards Speech.mp3",
+          "duration": "1:47"
+        },
+        {
+          "name": "Outro: Her",
+          "file": "Outro_ Her.mp3",
+          "duration": "3:48"
+        }
+      ],
+      "11": [
+        {
+          "name": "Intro: Singularity",
+          "file": "Intro_ Singularity.mp3",
+          "duration": "3:17"
+        },
+        {
+          "name": "FAKE LOVE",
+          "file": "FAKE LOVE.mp3",
+          "duration": "4:02",
+          "lyricsFile": "/lyrics/FAKE LOVE.lrc"
+        },
+        {
+          "name": "The Truth Untold",
+          "file": "The Truth Untold (feat. Steve Aoki).mp3",
+          "duration": "4:02"
+        },
+        {
+          "name": "134340",
+          "file": "134340.mp3",
+          "duration": "3:50"
+        },
+        {
+          "name": "Paradise",
+          "file": "Paradise.mp3",
+          "duration": "3:31"
+        },
+        {
+          "name": "Love Maze",
+          "file": "Love Maze.mp3",
+          "duration": "3:41"
+        },
+        {
+          "name": "Magic Shop",
+          "file": "Magic Shop.mp3",
+          "duration": "4:35"
+        },
+        {
+          "name": "Airplane pt.2",
+          "file": "Airplane pt.2.mp3",
+          "duration": "3:38"
+        },
+        {
+          "name": "Anpanman",
+          "file": "Anpanman.mp3",
+          "duration": "3:52"
+        },
+        {
+          "name": "So What",
+          "file": "So What.mp3",
+          "duration": "4:41"
+        },
+        {
+          "name": "Outro: Tear",
+          "file": "Outro_ Tear.mp3",
+          "duration": "4:45"
+        }
+      ],
+      "12": [
+        {
+          "name": "Euphoria",
+          "file": "Euphoria.mp3",
+          "duration": "3:48"
+        },
+        {
+          "name": "Trivia: Just Dance",
+          "file": "Trivia \u8d77 _ Just Dance.mp3",
+          "duration": "3:45"
+        },
+        {
+          "name": "Serendipity (Full)",
+          "file": "Serendipity - Full Length Edition.mp3",
+          "duration": "4:36"
+        },
+        {
+          "name": "DNA",
+          "file": "DNA.mp3",
+          "duration": "3:43",
+          "lyricsFile": "/lyrics/DNA.lrc"
+        },
+        {
+          "name": "Dimple",
+          "file": "Dimple.mp3",
+          "duration": "3:16"
+        },
+        {
+          "name": "Trivia: Love",
+          "file": "Trivia \u627f _ Love.mp3",
+          "duration": "3:45"
+        },
+        {
+          "name": "Her",
+          "file": "Her.mp3",
+          "duration": "3:48"
+        },
+        {
+          "name": "Singularity",
+          "file": "Singularity.mp3",
+          "duration": "3:17"
+        },
+        {
+          "name": "FAKE LOVE",
+          "file": "FAKE LOVE.mp3",
+          "duration": "4:02",
+          "lyricsFile": "/lyrics/FAKE LOVE.lrc"
+        },
+        {
+          "name": "Trivia: Seesaw",
+          "file": "Trivia \u8f49 _ Seesaw.mp3",
+          "duration": "4:06"
+        },
+        {
+          "name": "Tear",
+          "file": "Tear.mp3",
+          "duration": "4:45"
+        },
+        {
+          "name": "Epiphany",
+          "file": "Epiphany.mp3",
+          "duration": "4:00"
+        },
+        {
+          "name": "IDOL",
+          "file": "IDOL.mp3",
+          "duration": "4:20"
+        },
+        {
+          "name": "I'm Fine",
+          "file": "I_m Fine.mp3",
+          "duration": "4:00"
+        },
+        {
+          "name": "Answer: Love Myself",
+          "file": "Answer _ Love Myself.mp3",
+          "duration": "4:11"
+        }
+      ],
+      "13": [
+        {
+          "name": "Intro: Persona",
+          "file": "Intro _ Persona.mp3",
+          "duration": "2:51"
+        },
+        {
+          "name": "Boy With Luv (feat. Halsey)",
+          "file": "Boy With Luv (feat. Halsey).mp3",
+          "duration": "3:49"
+        },
+        {
+          "name": "Mikrokosmos",
+          "file": "Mikrokosmos.mp3",
+          "duration": "3:44",
+          "lyricsFile": "/lyrics/Mikrokosmos.lrc"
+        },
+        {
+          "name": "Make It Right",
+          "file": "Make It Right.mp3",
+          "duration": "3:46"
+        },
+        {
+          "name": "HOME",
+          "file": "HOME.mp3",
+          "duration": "3:54"
+        },
+        {
+          "name": "Jamais Vu",
+          "file": "Jamais Vu.mp3",
+          "duration": "3:47"
+        },
+        {
+          "name": "Dionysus",
+          "file": "Dionysus.mp3",
+          "duration": "4:09"
+        }
+      ],
+      "14": [
+        {
+          "name": "Intro: Persona",
+          "file": "Intro _ Persona.mp3",
+          "duration": "2:51"
+        },
+        {
+          "name": "Interlude: Shadow",
+          "file": "Interlude _ Shadow.mp3",
+          "duration": "4:19"
+        },
+        {
+          "name": "Black Swan",
+          "file": "Black Swan.mp3",
+          "duration": "3:18",
+          "lyricsFile": "/lyrics/Black Swan.lrc"
+        },
+        {
+          "name": "ON",
+          "file": "ON.mp3",
+          "duration": "4:06",
+          "lyricsFile": "/lyrics/ON.lrc"
+        },
+        {
+          "name": "UGH!",
+          "file": "UGH!.mp3",
+          "duration": "3:45"
+        },
+        {
+          "name": "00:00 (Zero O\u2019Clock)",
+          "file": "00_00 (Zero O\u2019Clock).mp3",
+          "duration": "4:10"
+        },
+        {
+          "name": "Inner Child",
+          "file": "Inner Child.mp3",
+          "duration": "3:53"
+        },
+        {
+          "name": "Friends",
+          "file": "Friends.mp3",
+          "duration": "3:19"
+        },
+        {
+          "name": "Moon",
+          "file": "Moon.mp3",
+          "duration": "3:28"
+        },
+        {
+          "name": "Respect",
+          "file": "Respect.mp3",
+          "duration": "3:57"
+        },
+        {
+          "name": "We Are Bulletproof: The Eternal",
+          "file": "We are Bulletproof _ the Eternal.mp3",
+          "duration": "4:21"
+        },
+        {
+          "name": "Outro: Ego",
+          "file": "Outro _ Ego.mp3",
+          "duration": "3:16"
+        }
+      ],
+      "15": [
+        {
+          "name": "Life Goes On",
+          "file": "Life Goes On.mp3",
+          "duration": "3:27"
+        },
+        {
+          "name": "Fly To My Room",
+          "file": "Fly To My Room.mp3",
+          "duration": "3:42"
+        },
+        {
+          "name": "Blue & Grey",
+          "file": "Blue & Grey.mp3",
+          "duration": "4:14"
+        },
+        {
+          "name": "Skit",
+          "file": "Skit.mp3",
+          "duration": "2:59"
+        },
+        {
+          "name": "Telepathy",
+          "file": "Telepathy.mp3",
+          "duration": "3:22"
+        },
+        {
+          "name": "Dis-ease",
+          "file": "Dis-ease.mp3",
+          "duration": "3:59"
+        },
+        {
+          "name": "Stay",
+          "file": "Stay.mp3",
+          "duration": "3:24"
+        },
+        {
+          "name": "Dynamite",
+          "file": "Dynamite.mp3",
+          "duration": "3:19"
+        }
+      ],
+      "16": [
+        {
+          "name": "Born Singer",
+          "file": "Born Singer.mp3",
+          "duration": "3:58",
+          "lyricsFile": "/lyrics/Born Singer.lrc"
+        },
+        {
+          "name": "No More Dream",
+          "file": "No More Dream.mp3",
+          "duration": "3:42"
+        },
+        {
+          "name": "N.O",
+          "file": "N.O.mp3",
+          "duration": "3:29"
+        },
+        {
+          "name": "Boy In Luv",
+          "file": "Boy In Luv.mp3",
+          "duration": "3:51",
+          "lyricsFile": "/lyrics/Boy In Luv.lrc"
+        },
+        {
+          "name": "Danger",
+          "file": "Danger.mp3",
+          "duration": "4:05"
+        },
+        {
+          "name": "I NEED U",
+          "file": "I NEED U.mp3",
+          "duration": "3:31",
+          "lyricsFile": "/lyrics/I NEED U.lrc"
+        },
+        {
+          "name": "RUN",
+          "file": "RUN.mp3",
+          "duration": "3:56"
+        },
+        {
+          "name": "Blood Sweat & Tears",
+          "file": "Blood Sweat & Tears.mp3",
+          "duration": "3:37"
+        },
+        {
+          "name": "Spring Day",
+          "file": "Spring Day.mp3",
+          "duration": "4:34"
+        },
+        {
+          "name": "DNA",
+          "file": "DNA.mp3",
+          "duration": "3:43",
+          "lyricsFile": "/lyrics/DNA.lrc"
+        },
+        {
+          "name": "FAKE LOVE",
+          "file": "FAKE LOVE.mp3",
+          "duration": "4:02",
+          "lyricsFile": "/lyrics/FAKE LOVE.lrc"
+        },
+        {
+          "name": "ON",
+          "file": "ON.mp3",
+          "duration": "4:06",
+          "lyricsFile": "/lyrics/ON.lrc"
+        },
+        {
+          "name": "Butter",
+          "file": "Butter.mp3",
+          "duration": "2:44",
+          "lyricsFile": "/lyrics/Butter.lrc"
+        },
+        {
+          "name": "Yet To Come",
+          "file": "Yet To Come.mp3",
+          "duration": "3:13",
+          "lyricsFile": "/lyrics/Yet To Come.lrc"
+        },
+        {
+          "name": "00:00 (Zero O\u2019Clock)",
+          "file": "00_00 (Zero O_Clock).mp3",
+          "duration": "4:10"
+        },
+        {
+          "name": "BTS Cypher Pt.3: Killer",
+          "file": "BTS Cypher PT.3 _ KILLER (Feat. Supreme Boi).mp3",
+          "duration": "4:27"
+        },
+        {
+          "name": "Boy With Luv (feat. Halsey)",
+          "file": "Boy With Luv (Feat. Halsey).mp3",
+          "duration": "3:49"
+        },
+        {
+          "name": "Burning Up (FIRE)",
+          "file": "Burning Up (FIRE).mp3",
+          "duration": "3:23"
+        },
+        {
+          "name": "Dimple",
+          "file": "Dimple.mp3",
+          "duration": "3:16"
+        },
+        {
+          "name": "Dynamite",
+          "file": "Dynamite.mp3",
+          "duration": "3:19"
+        },
+        {
+          "name": "Euphoria",
+          "file": "Euphoria.mp3",
+          "duration": "3:48"
+        },
+        {
+          "name": "Filter",
+          "file": "Filter.mp3",
+          "duration": "3:00",
+          "lyricsFile": "/lyrics/Filter.lrc"
+        },
+        {
+          "name": "For Youth",
+          "file": "For Youth.mp3",
+          "duration": "4:24"
+        },
+        {
+          "name": "Friends",
+          "file": "Friends.mp3",
+          "duration": "3:19"
+        },
+        {
+          "name": "Her",
+          "file": "Her.mp3",
+          "duration": "3:48"
+        },
+        {
+          "name": "IDOL",
+          "file": "IDOL.mp3",
+          "duration": "3:42"
+        },
+        {
+          "name": "Intro: Persona",
+          "file": "Intro _ Persona.mp3",
+          "duration": "2:51"
+        },
+        {
+          "name": "Jamais Vu",
+          "file": "Jamais Vu.mp3",
+          "duration": "3:47"
+        },
+        {
+          "name": "Life Goes On",
+          "file": "Life Goes On.mp3",
+          "duration": "3:27"
+        },
+        {
+          "name": "Moon",
+          "file": "Moon.mp3",
+          "duration": "3:28"
+        },
+        {
+          "name": "Outro: Ego",
+          "file": "Outro _ Ego.mp3",
+          "duration": "3:16"
+        },
+        {
+          "name": "Run BTS",
+          "file": "Run BTS.mp3",
+          "duration": "3:24"
+        },
+        {
+          "name": "Singularity",
+          "file": "Singularity.mp3",
+          "duration": "3:17"
+        },
+        {
+          "name": "Stay",
+          "file": "Stay.mp3",
+          "duration": "3:24"
+        },
+        {
+          "name": "Trivia: Seesaw",
+          "file": "Trivia \u8f49 _ Seesaw.mp3",
+          "duration": "4:06"
+        }
+      ],
+      "17": [
+        {
+          "name": "Body to Body",
+          "file": "01. Body to Body.mp3",
+          "duration": "3:09",
+          "lyricsFile": "/lyrics/Body to Body.lrc"
+        },
+        {
+          "name": "Hooligan",
+          "file": "02. Hooligan.mp3",
+          "duration": "3:02",
+          "lyricsFile": "/lyrics/Hooligan.lrc"
+        },
+        {
+          "name": "Aliens",
+          "file": "03. Aliens.mp3",
+          "duration": "2:47",
+          "lyricsFile": "/lyrics/aliens.lrc"
+        },
+        {
+          "name": "FYA",
+          "file": "04. FYA.mp3",
+          "duration": "3:00",
+          "lyricsFile": "/lyrics/fya.lrc"
+        },
+        {
+          "name": "2.0",
+          "file": "05. 2.0.mp3",
+          "duration": "2:49",
+          "lyricsFile": "20.lrc"
+        },
+        {
+          "name": "No. 29",
+          "file": "06. No. 29.mp3",
+          "duration": "1:38"
+        },
+        {
+          "name": "SWIM",
+          "file": "07. SWIM.mp3",
+          "duration": "2:39",
+          "lyricsFile": "/lyrics/SWIM.lrc"
+        },
+        {
+          "name": "Merry Go Round",
+          "file": "08. Merry Go Round.mp3",
+          "duration": "3:49",
+          "lyricsFile": "/lyrics/Merry Go Round.lrc"
+        },
+        {
+          "name": "NORMAL (Explicit)",
+          "file": "09. NORMAL (Explicit).mp3",
+          "duration": "3:01",
+          "lyricsFile": "/lyrics/NORMAL (Explicit).lrc"
+        },
+        {
+          "name": "Like Animals",
+          "file": "10. Like Animals.mp3",
+          "duration": "3:09",
+          "lyricsFile": "/lyrics/Like Animals.lrc"
+        },
+        {
+          "name": "they don\u2019t know \u2019bout us",
+          "file": "11. they don\u2019t know \u2019bout us.mp3",
+          "duration": "2:44",
+          "lyricsFile": "/lyrics/they don\u2019t know \u2019bout us.lrc"
+        },
+        {
+          "name": "One More Night",
+          "file": "12. One More Night.mp3",
+          "duration": "2:47",
+          "lyricsFile": "/lyrics/One More Night.lrc"
+        },
+        {
+          "name": "Please",
+          "file": "13. Please.mp3",
+          "duration": "2:52",
+          "lyricsFile": "/lyrics/Please.lrc"
+        },
+        {
+          "name": "Into the Sun",
+          "file": "14. Into the Sun.mp3",
+          "duration": "3:47",
+          "lyricsFile": "/lyrics/Into the Sun.lrc"
+        },
+        {
+          "name": "Come Over",
+          "file": "15. Come Over.mp3",
+          "isHidden": true,
+          "duration": "2:56",
+          "lyricsFile": "/lyrics/come over.lrc"
+        }
+      ],
+      "18": [
+        {
+          "name": "Heartbeat",
+          "file": "Heartbeat.mp3",
+          "duration": "4:13"
+        },
+        {
+          "name": "Dream Glow",
+          "file": "Dream Glow.mp3",
+          "duration": "3:07",
+          "lyricsFile": "/lyrics/Dream Glow.lrc"
+        },
+        {
+          "name": "A Brand New Day",
+          "file": "A Brand New Day.mp3",
+          "duration": "3:25"
+        },
+        {
+          "name": "All Night",
+          "file": "All Night.mp3",
+          "duration": "3:36"
+        }
+      ],
+      "19": [
+        {
+          "name": "Come Back Home",
+          "file": "Come Back Home.mp3",
+          "duration": "3:58"
+        }
+      ],
+      "20": [
+        {
+          "name": "Waste It On Me",
+          "file": "Waste It On Me.mp3",
+          "duration": "3:12"
+        }
+      ],
+      "21": [
+        {
+          "name": "Savage Love",
+          "file": "Savage Love.mp3",
+          "duration": "3:04"
+        }
+      ],
+      "22": [
+        {
+          "name": "Film out",
+          "file": "Film out.mp3",
+          "duration": "3:34"
+        }
+      ],
+      "23": [
+        {
+          "name": "My Universe",
+          "file": "My Universe.mp3",
+          "duration": "3:48"
+        }
+      ],
+      "24": [
+        {
+          "name": "Stay Alive",
+          "file": "Stay Alive.mp3",
+          "duration": "3:30"
+        }
+      ],
+      "25": [
+        {
+          "name": "Left and Right",
+          "file": "Left and Right.mp3",
+          "duration": "2:34",
+          "lyricsFile": "/lyrics/Left and Right.lrc"
+        }
+      ],
+      "26": [
+        {
+          "name": "Bad Decisions",
+          "file": "Bad Decisions.mp3",
+          "duration": "2:52"
+        }
+      ],
+      "27": [
+        {
+          "name": "Dreamers",
+          "file": "Dreamers.mp3",
+          "duration": "3:20"
+        }
+      ],
+      "28": [
+        {
+          "name": "The Planet",
+          "file": "The Planet.mp3",
+          "duration": "2:55"
+        }
+      ],
+      "29": [
+        {
+          "name": "Take Two",
+          "file": "Take Two.mp3",
+          "duration": "3:49"
+        }
+      ]
+    },
+    "soloSongs": {
+      "s1": [
+        {
+          "name": "Yun (with Erykah Badu)",
+          "file": "RM/Indigo/Yun (with Erykah Badu).mp3"
+        },
+        {
+          "name": "Still Life (with Anderson .Paak)",
+          "file": "RM/Indigo/Still Life (with Anderson .Paak).mp3"
+        },
+        {
+          "name": "All Day (with Tablo)",
+          "file": "RM/Indigo/All Day (with Tablo).mp3",
+          "duration": "3:06"
+        },
+        {
+          "name": "Forg_tful (with Kim Sawol)",
+          "file": "RM/Indigo/Forg_tful (with Kim Sawol).mp3"
+        },
+        {
+          "name": "Closer (with Paul Blanco, Mahalia)",
+          "file": "RM/Indigo/Closer (with Paul Blanco, Mahalia).mp3"
+        },
+        {
+          "name": "Change pt.2",
+          "file": "RM/Indigo/Change pt.2.mp3",
+          "duration": "1:54"
+        },
+        {
+          "name": "Lonely",
+          "file": "RM/Indigo/Lonely.mp3"
+        },
+        {
+          "name": "Hectic (with Colde)",
+          "file": "RM/Indigo/Hectic (with Colde).mp3"
+        },
+        {
+          "name": "Wild Flower (with youjeen)",
+          "file": "RM/Indigo/Wild Flower (with youjeen).mp3"
+        },
+        {
+          "name": "No.2 (with parkjiyoon)",
+          "file": "RM/Indigo/No.2 (with parkjiyoon).mp3",
+          "duration": "3:13"
+        }
+      ],
+      "s2": [],
+      "s3": [
+        {
+          "name": "tokyo",
+          "file": "RM/mono./tokyo.mp3"
+        },
+        {
+          "name": "seoul (prod. HONNE)",
+          "file": "RM/mono./seoul (prod. HONNE).mp3"
+        },
+        {
+          "name": "moonchild",
+          "file": "RM/mono./moonchild.mp3",
+          "duration": "3:25"
+        },
+        {
+          "name": "badbye (with eAeon)",
+          "file": "RM/mono./badbye (with eAeon).mp3"
+        },
+        {
+          "name": "uhgood",
+          "file": "RM/mono./uhgood.mp3"
+        },
+        {
+          "name": "everythingoes (with NELL)",
+          "file": "RM/mono./everythingoes (with Nell).mp3"
+        },
+        {
+          "name": "forever rain",
+          "file": "RM/mono./forever rain.mp3",
+          "duration": "4:31"
+        }
+      ],
+      "s4": [
+        {
+          "name": "The Astronaut",
+          "file": "JIN/The Astronaut.mp3",
+          "duration": "4:42"
+        }
+      ],
+      "s5": [],
+      "s6": [
+        {
+          "name": "Intro ; Dt sugA (feat. DJ Friz)",
+          "file": "AGUST D/Agust D/Intro _ DT sugA (Feat. DJ Friz).mp3"
+        },
+        {
+          "name": "Agust D",
+          "file": "AGUST D/Agust D/Agust D.mp3"
+        },
+        {
+          "name": "give it to me",
+          "file": "AGUST D/Agust D/give it to me.mp3",
+          "duration": "2:29"
+        },
+        {
+          "name": "skit",
+          "file": "AGUST D/Agust D/skit.mp3"
+        },
+        {
+          "name": "724148",
+          "file": "AGUST D/Agust D/724148.mp3"
+        },
+        {
+          "name": "140503 at dawn",
+          "file": "AGUST D/Agust D/140503 at dawn.mp3",
+          "duration": "1:24"
+        },
+        {
+          "name": "The Last",
+          "file": "AGUST D/Agust D/The Last.mp3"
+        },
+        {
+          "name": "Tony Montana (feat. Yankie)",
+          "file": "AGUST D/Agust D/Tony Montana (Feat. Yankie).mp3"
+        },
+        {
+          "name": "Interlude ; Dream, Reality",
+          "file": "AGUST D/Agust D/Interlude _ Dream, Reality.mp3"
+        },
+        {
+          "name": "so far away (feat. SURAN)",
+          "file": "AGUST D/Agust D/so far away (Feat. SURAN).mp3",
+          "duration": "5:58"
+        }
+      ],
+      "s7": [
+        {
+          "name": "Moonlight",
+          "file": "AGUST D/D-2/Moonlight.mp3"
+        },
+        {
+          "name": "Daechwita",
+          "file": "AGUST D/D-2/Daechwita.mp3"
+        },
+        {
+          "name": "What do you think?",
+          "file": "AGUST D/D-2/What do you think.mp3"
+        },
+        {
+          "name": "Strange (feat. RM)",
+          "file": "AGUST D/D-2/Strange (feat. RM).mp3"
+        },
+        {
+          "name": "28 (feat. NiiHWA)",
+          "file": "AGUST D/D-2/28 (feat. NiiHWA).mp3"
+        },
+        {
+          "name": "Burn It (feat. MAX)",
+          "file": "AGUST D/D-2/Burn It (feat. MAX).mp3",
+          "duration": "3:12"
+        },
+        {
+          "name": "People",
+          "file": "AGUST D/D-2/People.mp3"
+        },
+        {
+          "name": "Honsool",
+          "file": "AGUST D/D-2/Honsool.mp3"
+        },
+        {
+          "name": "Interlude : Set me free",
+          "file": "AGUST D/D-2/Interlude _ Set me free.mp3"
+        },
+        {
+          "name": "Dear my friend",
+          "file": "AGUST D/D-2/Dear my friend (feat. Kim Jong Wan of NELL).mp3",
+          "duration": "4:52"
+        }
+      ],
+      "s8": [
+        {
+          "name": "D-Day",
+          "file": "AGUST D/D-DAY/D-Day.mp3"
+        },
+        {
+          "name": "Haegeum",
+          "file": "AGUST D/D-DAY/Haegeum.mp3"
+        },
+        {
+          "name": "AMYGDALA",
+          "file": "AGUST D/D-DAY/AMYGDALA.mp3"
+        },
+        {
+          "name": "SDL",
+          "file": "AGUST D/D-DAY/SDL.mp3"
+        },
+        {
+          "name": "People Pt.2 (feat. IU)",
+          "file": "AGUST D/D-DAY/People Pt.2 (feat. IU).mp3",
+          "duration": "3:34"
+        },
+        {
+          "name": "Polar Night",
+          "file": "AGUST D/D-DAY/Polar Night.mp3"
+        },
+        {
+          "name": "Interlude : Dawn",
+          "file": "AGUST D/D-DAY/Interlude _ Dawn.mp3"
+        },
+        {
+          "name": "Snooze (feat. Ryuichi Sakamoto, WOOSUNG)",
+          "file": "AGUST D/D-DAY/Snooze (feat. Ryuichi Sakamoto, WOOSUNG of The Rose).mp3"
+        },
+        {
+          "name": "Life Goes On",
+          "file": "AGUST D/D-DAY/Life Goes On.mp3",
+          "duration": "3:17"
+        }
+      ],
+      "s9": [
+        {
+          "name": "Hope World",
+          "file": "j-hope/Hope World/Hope World.mp3"
+        },
+        {
+          "name": "P.O.P (Piece Of Peace) pt.1",
+          "file": "j-hope/Hope World/P.O.P (Piece Of Peace) Pt. 1.mp3"
+        },
+        {
+          "name": "Daydream",
+          "file": "j-hope/Hope World/Daydream (\u1107\u1162\u11a8\u110b\u1175\u11af\u1106\u1169\u11bc).mp3",
+          "duration": "3:48"
+        },
+        {
+          "name": "Base Line",
+          "file": "j-hope/Hope World/Base Line.mp3"
+        },
+        {
+          "name": "HANGSANG (feat. Supreme Boi)",
+          "file": "j-hope/Hope World/\u1112\u1161\u11bc\u1109\u1161\u11bc (HANGSANG).mp3"
+        },
+        {
+          "name": "Airplane",
+          "file": "j-hope/Hope World/Airplane.mp3"
+        },
+        {
+          "name": "Blue Side (Outro)",
+          "file": "j-hope/Hope World/Blue Side (Outro).mp3",
+          "duration": "1:30"
+        }
+      ],
+      "s10": [
+        {
+          "name": "Intro",
+          "file": "j-hope/Jack In The Box/Intro.mp3"
+        },
+        {
+          "name": "Pandora's Box",
+          "file": "j-hope/Jack In The Box/Pandora_s Box.mp3"
+        },
+        {
+          "name": "MORE",
+          "file": "j-hope/Jack In The Box/MORE.mp3",
+          "duration": "3:00"
+        },
+        {
+          "name": "STOP",
+          "file": "j-hope/Jack In The Box/STOP.mp3"
+        },
+        {
+          "name": "= (Equal Sign)",
+          "file": "j-hope/Jack In The Box/= (Equal Sign).mp3"
+        },
+        {
+          "name": "Music Box : Reflection",
+          "file": "j-hope/Jack In The Box/Music Box _ Reflection.mp3",
+          "duration": "1:10"
+        },
+        {
+          "name": "What if...",
+          "file": "j-hope/Jack In The Box/What if\u2026.mp3"
+        },
+        {
+          "name": "Safety Zone",
+          "file": "j-hope/Jack In The Box/Safety Zone.mp3"
+        },
+        {
+          "name": "Future",
+          "file": "j-hope/Jack In The Box/Future.mp3"
+        },
+        {
+          "name": "Arson",
+          "file": "j-hope/Jack In The Box/Arson.mp3",
+          "duration": "2:39"
+        }
+      ],
+      "s11": [
+        {
+          "name": "on the street (solo version)",
+          "file": "j-hope/HOPE ON THE STREET VOL.1/on the street (solo version).mp3"
+        },
+        {
+          "name": "i wonder... (with Jung Kook)",
+          "file": "j-hope/HOPE ON THE STREET VOL.1/i wonder... (with Jung Kook of BTS).mp3",
+          "duration": "2:43"
+        },
+        {
+          "name": "lock / unlock",
+          "file": "j-hope/HOPE ON THE STREET VOL.1/unlock (with benny blanco & Nile Rodgers).mp3"
+        },
+        {
+          "name": "i don't know",
+          "file": "j-hope/HOPE ON THE STREET VOL.1/i don_t know (with HUH YUNJIN of LE SSERAFIM).mp3",
+          "duration": "3:03"
+        },
+        {
+          "name": "what if... (dance mix)",
+          "file": "j-hope/HOPE ON THE STREET VOL.1/what if\u2026 (dance mix).mp3"
+        },
+        {
+          "name": "NEURON",
+          "file": "j-hope/HOPE ON THE STREET VOL.1/NEURON (with Gaeko & YOON MIRAE).mp3",
+          "duration": "4:33"
+        }
+      ],
+      "s12": [
+        {
+          "name": "Face-off",
+          "file": "JIMIN/FACE/Face-off.mp3"
+        },
+        {
+          "name": "Interlude : Dive",
+          "file": "JIMIN/FACE/Interlude _ Dive.mp3"
+        },
+        {
+          "name": "Like Crazy",
+          "file": "JIMIN/FACE/Like Crazy.mp3",
+          "duration": "3:32"
+        },
+        {
+          "name": "Alone",
+          "file": "JIMIN/FACE/Alone.mp3"
+        },
+        {
+          "name": "Set Me Free Pt.2",
+          "file": "JIMIN/FACE/Set Me Free Pt.2.mp3"
+        },
+        {
+          "name": "Like Crazy (English Version)",
+          "file": "JIMIN/FACE/Like Crazy (English Version).mp3",
+          "duration": "3:32"
+        }
+      ],
+      "s13": [
+        {
+          "name": "Rebirth (Intro)",
+          "file": "JIMIN/MUSE/01. Rebirth (Intro).mp3",
+          "duration": "2:24"
+        },
+        {
+          "name": "Interlude : Showtime",
+          "file": "JIMIN/MUSE/02. Interlude  Showtime.mp3",
+          "duration": "1:18"
+        },
+        {
+          "name": "Smeraldo Garden Marching Band (feat. Loco)",
+          "file": "JIMIN/MUSE/03. Smeraldo Garden Marching Band (feat. Loco).mp3",
+          "duration": "3:02"
+        },
+        {
+          "name": "Slow Dance (feat. Sofia Carson)",
+          "file": "JIMIN/MUSE/04. Slow Dance (feat. Sofia Carson).mp3",
+          "duration": "3:08"
+        },
+        {
+          "name": "Be Mine",
+          "file": "JIMIN/MUSE/05. Be Mine.mp3",
+          "duration": "3:27"
+        },
+        {
+          "name": "Who",
+          "file": "JIMIN/MUSE/06. Who.mp3",
+          "duration": "2:50"
+        },
+        {
+          "name": "Closer Than This",
+          "file": "JIMIN/MUSE/07. Closer Than This.mp3",
+          "duration": "3:43"
+        }
+      ],
+      "s14": [
+        {
+          "name": "Rainy Days",
+          "file": "Taehyung/Layover/Rainy Days.mp3"
+        },
+        {
+          "name": "Blue",
+          "file": "Taehyung/Layover/Blue.mp3"
+        },
+        {
+          "name": "Love Me Again",
+          "file": "Taehyung/Layover/Love Me Again.mp3",
+          "duration": "3:02"
+        },
+        {
+          "name": "Slow Dancing",
+          "file": "Taehyung/Layover/Slow Dancing.mp3"
+        },
+        {
+          "name": "For Us",
+          "file": "Taehyung/Layover/For Us.mp3"
+        },
+        {
+          "name": "Slow Dancing (Piano Ver.)",
+          "file": "Taehyung/Layover/Slow Dancing (Piano Ver.).mp3",
+          "duration": "3:08"
+        }
+      ],
+      "s15": [
+        {
+          "name": "FRI(END)S",
+          "file": "Taehyung/ FRI(END)S.mp3",
+          "duration": "2:28"
+        }
+      ],
+      "s16": [
+        {
+          "name": "3D (feat. Jack Harlow)",
+          "file": "Jungkook/GOLDEN/3D (feat. Jack Harlow).mp3"
+        },
+        {
+          "name": "Closer to You",
+          "file": "Jungkook/GOLDEN/Closer to You (feat. Major Lazer).mp3",
+          "duration": "2:51"
+        },
+        {
+          "name": "Seven (feat. Latto) - Clean",
+          "file": "Jungkook/GOLDEN/Seven (feat. Latto) (Clean Ver.).mp3",
+          "duration": "3:04"
+        },
+        {
+          "name": "Seven (feat. Latto) - Explicit",
+          "file": "Jungkook/GOLDEN/Seven (feat. Latto) (Explicit Ver.).mp3"
+        },
+        {
+          "name": "Standing Next to You",
+          "file": "Jungkook/GOLDEN/Standing Next to You.mp3",
+          "duration": "3:26"
+        },
+        {
+          "name": "Yes or No",
+          "file": "Jungkook/GOLDEN/Yes or No.mp3"
+        },
+        {
+          "name": "Please Don't Change",
+          "file": "Jungkook/GOLDEN/Please Don_t Change (feat. DJ Snake).mp3",
+          "duration": "2:26"
+        },
+        {
+          "name": "Hate You",
+          "file": "Jungkook/GOLDEN/Hate You.mp3"
+        },
+        {
+          "name": "Somebody",
+          "file": "Jungkook/GOLDEN/Somebody.mp3"
+        },
+        {
+          "name": "Too Sad to Dance",
+          "file": "Jungkook/GOLDEN/Too Sad to Dance.mp3"
+        },
+        {
+          "name": "Shot Glass of Tears",
+          "file": "Jungkook/GOLDEN/Shot Glass of Tears.mp3",
+          "duration": "2:47"
+        }
+      ],
+      "s17": [
+        {
+          "name": "Seven (Clean Ver.)",
+          "file": "Jungkook/GOLDEN/Seven (feat. Latto) (Clean Ver.).mp3",
+          "duration": "3:04"
+        }
+      ],
+      "s18": [
+        {
+          "name": "Promise",
+          "file": "JIMIN/Promise.mp3",
+          "duration": "2:31"
+        }
+      ],
+      "s19": [
+        {
+          "name": "Closer Than This",
+          "file": "JIMIN/Closer Than This.mp3",
+          "duration": "3:43"
+        }
+      ]
+    },
+    "basePath": "/btssongs/",
+    "soloBasePath": "/btssongs/solos/"
+  },
+  "lesserafim": {
+    "title": "LE SSERAFIM",
+    "heroImg": "/homeimage/lesserafimopening.jpg",
+    "hasSolos": false,
+    "soloists": [
+      "CHAEWON",
+      "SAKURA",
+      "YUNJIN",
+      "KAZUHA",
+      "EUNCHAE"
+    ],
+    "albums": [
+      {
+        "year": 2022,
+        "albums": [
+          {
+            "id": "le1",
+            "title": "FEARLESS",
+            "cover": "/le/le1.png",
+            "release": "2 May 2022",
+            "titleSong": "FEARLESS",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#040404ff"
+          },
+          {
+            "id": "le2",
+            "title": "ANTIFRAGILE",
+            "cover": "/le/le2.png",
+            "release": "17 October 2022",
+            "titleSong": "ANTIFRAGILE",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#ffffffff"
+          }
+        ]
+      },
+      {
+        "year": 2023,
+        "albums": [
+          {
+            "id": "le3",
+            "title": "UNFORGIVEN",
+            "cover": "/le/le3.jpg",
+            "release": "1 May 2023",
+            "titleSong": "UNFORGIVEN (feat. Nile Rodgers)",
+            "type": "Studio Album",
+            "language": "Korean",
+            "color": "#9b193aff"
+          },
+          {
+            "id": "le4",
+            "title": "Perfect Night",
+            "cover": "/le/le4.jpg",
+            "release": "27 October 2023",
+            "titleSong": "Perfect Night",
+            "type": "Single",
+            "language": "English",
+            "color": "#d766dbff"
+          }
+        ]
+      },
+      {
+        "year": 2024,
+        "albums": [
+          {
+            "id": "le5",
+            "title": "EASY",
+            "cover": "/le/le5.png",
+            "release": "19 February 2024",
+            "titleSong": "EASY",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#c9b8b6ff"
+          }
+        ]
+      },
+      {
+        "year": 2025,
+        "albums": [
+          {
+            "id": "le6",
+            "title": "CRAZY",
+            "cover": "/le/le6.jpg",
+            "release": "2025",
+            "titleSong": "CRAZY",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#090524ff"
+          },
+          {
+            "id": "le7",
+            "title": "HOT",
+            "cover": "/le/le7.png",
+            "release": "2025",
+            "titleSong": "HOT",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#d2a57dff"
+          },
+          {
+            "id": "le8",
+            "title": "SPAGHETTI",
+            "cover": "/le/le8.jpg",
+            "release": "2025",
+            "titleSong": "SPAGHETTI",
+            "type": "Single Album",
+            "language": "Korean",
+            "color": "#e25a1bff"
+          },
+          {
+            "id": "le9",
+            "title": "Pureflow",
+            "cover": "/le/le9.png",
+            "release": "March 2026",
+            "titleSong": "Pureflow",
+            "type": "Studio Album",
+            "language": "English/Korean",
+            "color": "#ceeff1ff"
+          }
+        ]
+      }
+    ],
+    "soloAlbums": [],
+    "songs": {
+      "le1": [
+        {
+          "name": "The World Is My Oyster",
+          "file": "The World Is My Oyster.mp3",
+          "duration": "1:46"
+        },
+        {
+          "name": "FEARLESS",
+          "file": "FEARLESS.mp3",
+          "duration": "2:48"
+        },
+        {
+          "name": "Blue Flame",
+          "file": "Blue Flame.mp3",
+          "duration": "3:22"
+        },
+        {
+          "name": "The Great Mermaid",
+          "file": "The Great Mermaid.mp3",
+          "duration": "2:57"
+        },
+        {
+          "name": "Sour Grapes",
+          "file": "Sour Grapes.mp3",
+          "duration": "3:16"
+        }
+      ],
+      "le2": [
+        {
+          "name": "The Hydra",
+          "file": "The Hydra.mp3",
+          "duration": "1:44"
+        },
+        {
+          "name": "ANTIFRAGILE",
+          "file": "ANTIFRAGILE.mp3",
+          "duration": "3:05"
+        },
+        {
+          "name": "Impurities",
+          "file": "Impurities.mp3",
+          "duration": "3:16"
+        },
+        {
+          "name": "No Celestial",
+          "file": "No Celestial.mp3",
+          "duration": "2:46"
+        },
+        {
+          "name": "Good Parts (when the quality is bad but I am)",
+          "file": "Good Parts (when the quality is bad but I am).mp3",
+          "duration": "2:36"
+        }
+      ],
+      "le3": [
+        {
+          "name": "The World Is My Oyster (2023 Ver.)",
+          "file": "01. The World Is My Oyster (2023 Ver.).mp3",
+          "duration": "1:46"
+        },
+        {
+          "name": "FEARLESS (2023 Ver.)",
+          "file": "02. FEARLESS (2023 Ver.).mp3",
+          "duration": "2:48"
+        },
+        {
+          "name": "Blue Flame (2023 Ver.)",
+          "file": "03. Blue Flame (2023 Ver.).mp3",
+          "duration": "3:21"
+        },
+        {
+          "name": "The Hydra",
+          "file": "04. The Hydra.mp3",
+          "duration": "1:44"
+        },
+        {
+          "name": "ANTIFRAGILE",
+          "file": "05. ANTIFRAGILE.mp3",
+          "duration": "3:04"
+        },
+        {
+          "name": "Impurities",
+          "file": "06. Impurities.mp3",
+          "duration": "3:16"
+        },
+        {
+          "name": "Burn the Bridge",
+          "file": "07. Burn the Bridge.mp3",
+          "duration": "2:34"
+        },
+        {
+          "name": "UNFORGIVEN (feat. Nile Rodgers)",
+          "file": "08. UNFORGIVEN (feat. Nile Rodgers).mp3",
+          "duration": "3:02"
+        },
+        {
+          "name": "No-Return (Into the unknown)",
+          "file": "09. No-Return (Into the unknown).mp3",
+          "duration": "3:04"
+        },
+        {
+          "name": "Eve, Psyche & The Bluebeard\u2019s wife",
+          "file": "10. Eve, Psyche & The Bluebeard\u2019s wife.mp3",
+          "duration": "3:05"
+        },
+        {
+          "name": "FEARNOT (Between you, me and the lamppost)",
+          "file": "11. FEARNOT (Between you, me and the lamppost).mp3",
+          "duration": "3:26"
+        },
+        {
+          "name": "Flash Forward",
+          "file": "12. Flash Forward.mp3",
+          "duration": "3:15"
+        },
+        {
+          "name": "Fire in the belly",
+          "file": "13. Fire in the belly.mp3",
+          "duration": "3:18"
+        }
+      ],
+      "le4": [
+        {
+          "name": "Perfect Night",
+          "file": "01. Perfect Night.mp3",
+          "duration": "2:39"
+        }
+      ],
+      "le5": [
+        {
+          "name": "Good Bones",
+          "file": "01. Good Bones.mp3",
+          "duration": "2:40"
+        },
+        {
+          "name": "EASY",
+          "file": "02. EASY.mp3",
+          "duration": "2:44"
+        },
+        {
+          "name": "Swan Song",
+          "file": "03. Swan Song.mp3",
+          "duration": "2:37"
+        },
+        {
+          "name": "Smart",
+          "file": "04. Smart.mp3",
+          "duration": "2:46",
+          "lyricsFile": "/lyrics/Smart.lrc"
+        },
+        {
+          "name": "We got so much",
+          "file": "05. We got so much.mp3",
+          "duration": "2:45"
+        }
+      ],
+      "le6": [
+        {
+          "name": "Chasing Lightning",
+          "file": "01. Chasing Lightning.m4a",
+          "duration": "3:25"
+        },
+        {
+          "name": "CRAZY",
+          "file": "02. CRAZY.m4a",
+          "duration": "2:44"
+        },
+        {
+          "name": "Pierrot",
+          "file": "03. Pierrot.m4a",
+          "duration": "2:50"
+        },
+        {
+          "name": "1-800-hot-n-fun",
+          "file": "04. 1-800-hot-n-fun.m4a",
+          "duration": "2:53"
+        },
+        {
+          "name": "Crazier",
+          "file": "05. Crazier.m4a",
+          "duration": "2:58"
+        }
+      ],
+      "le7": [
+        {
+          "name": "Born Fire",
+          "file": "01. Born Fire.mp3",
+          "duration": "2:16"
+        },
+        {
+          "name": "HOT",
+          "file": "02. HOT.mp3",
+          "duration": "2:23"
+        },
+        {
+          "name": "Come Over",
+          "file": "03. Come Over.mp3",
+          "duration": "2:17",
+          "lyricsFile": "/lyrics/come over.lrc"
+        },
+        {
+          "name": "Ash",
+          "file": "04. Ash.mp3",
+          "duration": "3:17"
+        },
+        {
+          "name": "So Cynical (Badum)",
+          "file": "05. So Cynical (Badum).mp3",
+          "duration": "2:35"
+        }
+      ],
+      "le8": [
+        {
+          "name": "SPAGHETTI (feat. j-hope of BTS)",
+          "file": "01. SPAGHETTI (Explicit).mp3",
+          "duration": "2:52"
+        },
+        {
+          "name": "Pearlies (My oyster is the world)",
+          "file": "02. Pearlies (My oyster is the world) (Explicit).mp3",
+          "duration": "3:07"
+        },
+        {
+          "name": "SPAGHETTI (Member ver.)",
+          "file": "03. SPAGHETTI (Member ver.) (Explicit).mp3",
+          "duration": "2:16"
+        },
+        {
+          "name": "SPAGHETTI (English ver.)",
+          "file": "04. SPAGHETTI (English ver.) (Explicit).mp3",
+          "duration": "2:51"
+        }
+      ],
+      "le9": [
+        {
+          "name": "Pureflow",
+          "file": "01. Pureflow.mp3",
+          "duration": "1:49"
+        },
+        {
+          "name": "BOOMPALA",
+          "file": "02. BOOMPALA.mp3",
+          "duration": "2:57",
+          "lyricsFile": "/lyrics/BOOMPALA.lrc"
+        },
+        {
+          "name": "CELEBRATION",
+          "file": "03. CELEBRATION.mp3",
+          "duration": "2:33"
+        },
+        {
+          "name": "Creatures",
+          "file": "04. Creatures.mp3",
+          "duration": "3:08"
+        },
+        {
+          "name": "iffy iffy",
+          "file": "05. iffy iffy.mp3",
+          "duration": "2:09"
+        },
+        {
+          "name": "Need Your Company",
+          "file": "06. Need Your Company.mp3",
+          "duration": "1:58"
+        },
+        {
+          "name": "Sonder",
+          "file": "07. Sonder.mp3",
+          "duration": "2:46"
+        },
+        {
+          "name": "Saki",
+          "file": "08. Saki.mp3",
+          "duration": "2:45"
+        },
+        {
+          "name": "Irony",
+          "file": "09. Irony.mp3",
+          "duration": "2:24"
+        },
+        {
+          "name": "Trust Exercise",
+          "file": "10. Trust Exercise.mp3",
+          "duration": "2:23"
+        },
+        {
+          "name": "Liminal Space",
+          "file": "11. Liminal Space.mp3",
+          "duration": "2:11"
+        }
+      ]
+    },
+    "soloSongs": {},
+    "basePath": "/lesongs/",
+    "soloBasePath": ""
+  },
+  "txt": {
+    "title": "TXT",
+    "heroImg": "/homeimage/txtopening.jpg",
+    "hasSolos": false,
+    "soloists": [
+      "Soobin",
+      "Yeonjun",
+      "Beomgyu",
+      "Taehyun",
+      "HueningKai"
+    ],
+    "albums": [
+      {
+        "year": 2019,
+        "albums": [
+          {
+            "id": "txt1",
+            "title": "THE DREAM CHAPTER: STAR",
+            "cover": "/txt/txt1.jpg",
+            "release": "2019",
+            "titleSong": "CROWN",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#62ccecff"
+          },
+          {
+            "id": "txt2",
+            "title": "THE DREAM CHAPTER: MAGIC",
+            "cover": "/txt/txt2.jpg",
+            "release": "2019",
+            "titleSong": "MAGIC",
+            "type": "Album",
+            "language": "Korean",
+            "color": "#34e27fff"
+          }
+        ]
+      },
+      {
+        "year": 2020,
+        "albums": [
+          {
+            "id": "txt3",
+            "title": "THE DREAM CHAPTER: ETERNITY",
+            "cover": "/txt/txt3.jpg",
+            "release": "2020",
+            "titleSong": "ETERNITY",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#8336baff"
+          },
+          {
+            "id": "txt4",
+            "title": "MINISODE1 : BLUE HOUR",
+            "cover": "/txt/txt4.jpg",
+            "release": "2020",
+            "titleSong": "Blue Hour",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#a9cdcfff"
+          }
+        ]
+      },
+      {
+        "year": 2021,
+        "albums": [
+          {
+            "id": "txt5",
+            "title": "THE CHAOS CHAPTER: FREEZE",
+            "cover": "/txt/txt5.jpg",
+            "release": "2021",
+            "titleSong": "FREEZE",
+            "type": "Album",
+            "language": "Korean",
+            "color": "#26272dff"
+          },
+          {
+            "id": "txt6",
+            "title": "THE CHAOS CHAPTER: FIGHT OR ESCAPE",
+            "cover": "/txt/txt6.jpg",
+            "release": "2021",
+            "titleSong": "FIGHT OR ESCAPE",
+            "type": "Album (Repackage)",
+            "language": "Korean",
+            "color": "#2c3150ff"
+          }
+        ]
+      },
+      {
+        "year": 2022,
+        "albums": [
+          {
+            "id": "txt7",
+            "title": "Minisode2: Thursday's Child",
+            "cover": "/txt/txt7.png",
+            "release": "2022",
+            "titleSong": "Thursday's Child",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#d8d0bcff"
+          }
+        ]
+      },
+      {
+        "year": 2023,
+        "albums": [
+          {
+            "id": "txt8",
+            "title": "THE NAME CHAPTER: TEMPTATION",
+            "cover": "/txt/txt8.png",
+            "release": "2023",
+            "titleSong": "TEMPTATION",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#d1c9bdff"
+          },
+          {
+            "id": "txt9",
+            "title": "THE NAME CHAPTER: FREEFALL",
+            "cover": "/txt/txt9.jpg",
+            "release": "2023",
+            "titleSong": "FREEFALL",
+            "type": "Album",
+            "language": "Korean",
+            "color": "#5c5140ff"
+          }
+        ]
+      },
+      {
+        "year": 2024,
+        "albums": [
+          {
+            "id": "txt10",
+            "title": "Minisode3: TOMORROW",
+            "cover": "/txt/txt10.jpg",
+            "release": "2024",
+            "titleSong": "TOMORROW",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#d1c9c4ff"
+          },
+          {
+            "id": "txt11",
+            "title": "The Star Chapter: SANCTUARY",
+            "cover": "/txt/txt11.jpg",
+            "release": "2024",
+            "titleSong": "SANCTUARY",
+            "type": "Album",
+            "language": "Korean",
+            "color": "#3a5085ff"
+          },
+          {
+            "id": "txt12",
+            "title": "The Star Chapter: TOGETHER",
+            "cover": "/txt/txt12.jpg",
+            "release": "2024",
+            "titleSong": "Beautiful Strangers",
+            "type": "Album",
+            "language": "Korean",
+            "color": "#22349bff"
+          }
+        ]
+      },
+      {
+        "year": 2026,
+        "albums": [
+          {
+            "id": "txt13",
+            "title": "7TH YEAR: A Moment of Stillness in the Thorns",
+            "cover": "/txt/txt13.png",
+            "release": "2026",
+            "titleSong": "Stick With You",
+            "type": "Mini Album",
+            "language": "Korean",
+            "color": "#cc287aff"
+          }
+        ]
+      }
+    ],
+    "songs": {
+      "txt8": [
+        {
+          "name": "Devil by the Window",
+          "file": "01. Devil by the Window.mp3",
+          "duration": "3:06"
+        },
+        {
+          "name": "Sugar Rush Ride",
+          "file": "02. Sugar Rush Ride.mp3",
+          "duration": "3:06"
+        },
+        {
+          "name": "Happy Fools (feat. Coi Leray)",
+          "file": "03. Happy Fools (feat. Coi Leray).mp3",
+          "duration": "2:35"
+        },
+        {
+          "name": "Tinnitus (Wanna be a rock)",
+          "file": "04. Tinnitus (Wanna be a rock).mp3",
+          "duration": "2:37",
+          "lyricsFile": "/lyrics/Tinnitus (Wanna be a rock).lrc"
+        },
+        {
+          "name": "Farewell, Neverland",
+          "file": "05. Farewell, Neverland.mp3",
+          "duration": "3:00"
+        }
+      ],
+      "txt9": [
+        {
+          "name": "Growing Pain",
+          "file": "01. Growing Pain.mp3",
+          "duration": "3:20"
+        },
+        {
+          "name": "Chasing That Feeling",
+          "file": "02. Chasing That Feeling.mp3",
+          "duration": "3:02"
+        },
+        {
+          "name": "Back for More (TXT Ver.)",
+          "file": "03. Back for More (TXT Ver.).mp3",
+          "duration": "2:42",
+          "lyricsFile": "/lyrics/Back for More (TXT Ver.).lrc"
+        },
+        {
+          "name": "Dreamer",
+          "file": "04. Dreamer.mp3",
+          "duration": "3:06"
+        },
+        {
+          "name": "Deep Down",
+          "file": "05. Deep Down.mp3",
+          "duration": "2:43"
+        },
+        {
+          "name": "Happily Ever After",
+          "file": "06. Happily Ever After.mp3",
+          "duration": "2:31"
+        },
+        {
+          "name": "Skipping Stones",
+          "file": "07. Skipping Stones.mp3",
+          "duration": "3:20"
+        },
+        {
+          "name": "Blue Spring",
+          "file": "08. Blue Spring.mp3",
+          "duration": "3:05"
+        },
+        {
+          "name": "Do It Like That",
+          "file": "09. Do It Like That.mp3",
+          "duration": "2:25"
+        },
+        {
+          "name": "Chasing That Feeling (English Ver.)",
+          "file": "10. Chasing That Feeling (English Ver. \u2013 Digital Only).mp3",
+          "duration": "3:02"
+        }
+      ],
+      "txt10": [
+        {
+          "name": "I\u2019ll See You There Tomorrow",
+          "file": "01. I\u2019ll See You There Tomorrow.mp3",
+          "duration": "3:16"
+        },
+        {
+          "name": "- --- -- --- .-. .-. --- .--",
+          "file": "02. - --- -- --- .-. .-. --- .--.mp3",
+          "duration": "0:07"
+        },
+        {
+          "name": "Deja Vu",
+          "file": "03. Deja Vu.mp3",
+          "duration": "2:51"
+        },
+        {
+          "name": "Miracle",
+          "file": "04. Miracle.mp3",
+          "duration": "2:43"
+        },
+        {
+          "name": "The Killa (I Belong to You)",
+          "file": "05. The Killa (I Belong to You).mp3",
+          "duration": "2:42"
+        },
+        {
+          "name": "Quarter Life",
+          "file": "06. Quarter Life.mp3",
+          "duration": "2:29"
+        },
+        {
+          "name": "Deja Vu (Anemoia Remix)",
+          "file": "07. Deja Vu (Anemoia Remix).mp3",
+          "duration": "2:50"
+        }
+      ],
+      "txt11": [
+        {
+          "name": "Heaven",
+          "file": "01. Heaven.mp3",
+          "duration": "2:34"
+        },
+        {
+          "name": "Over The Moon",
+          "file": "02. Over The Moon.mp3",
+          "duration": "2:37"
+        },
+        {
+          "name": "Danger",
+          "file": "03. Danger.mp3",
+          "duration": "2:15"
+        },
+        {
+          "name": "Resist (Not Gonna Run Away)",
+          "file": "04. Resist (Not Gonna Run Away).mp3",
+          "duration": "2:09"
+        },
+        {
+          "name": "Forty One Winks",
+          "file": "05. Forty One Winks.mp3",
+          "duration": "2:33"
+        },
+        {
+          "name": "Higher Than Heaven",
+          "file": "06. Higher Than Heaven.mp3",
+          "duration": "2:41"
+        }
+      ],
+      "txt12": [
+        {
+          "name": "Upside Down Kiss",
+          "file": "01. Upside Down Kiss.mp3",
+          "duration": "2:15"
+        },
+        {
+          "name": "Beautiful Strangers",
+          "file": "02. Beautiful Strangers.mp3",
+          "duration": "2:18"
+        },
+        {
+          "name": "Ghost Girl",
+          "file": "03. Ghost Girl.mp3",
+          "duration": "3:06"
+        },
+        {
+          "name": "Sunday Driver",
+          "file": "04. Sunday Driver.mp3",
+          "duration": "2:47"
+        },
+        {
+          "name": "Dance With You",
+          "file": "05. Dance With You.mp3",
+          "duration": "2:20"
+        },
+        {
+          "name": "Take My Half",
+          "file": "06. Take My Half.mp3",
+          "duration": "2:56"
+        },
+        {
+          "name": "Bird of Night",
+          "file": "07. Bird of Night.mp3",
+          "duration": "2:42"
+        },
+        {
+          "name": "Song of the Stars",
+          "file": "08. Song of the Stars.mp3",
+          "duration": "3:26"
+        }
+      ],
+      "txt13": [
+        {
+          "name": "Bed of Thorns",
+          "file": "01.Bed of Thorns.mp3",
+          "duration": "2:48"
+        },
+        {
+          "name": "Stick With You",
+          "file": "02.Stick With You.mp3",
+          "duration": "2:33",
+          "lyricsFile": "/lyrics/Stick With You.lrc"
+        },
+        {
+          "name": "Take Me to Nirvana (feat. \u4e07\u59ae\u8fbeVinida Weng)",
+          "file": "03.Take Me to Nirvana (feat. \u4e07\u59ae\u8fbeVinida Weng).mp3",
+          "duration": "2:31"
+        },
+        {
+          "name": "So What",
+          "file": "04.So What.mp3",
+          "duration": "3:12"
+        },
+        {
+          "name": "21st Century Romance",
+          "file": "05.21st Century Romance.mp3",
+          "duration": "2:38"
+        },
+        {
+          "name": "Dream of Mine",
+          "file": "06.Dream of Mine.mp3",
+          "duration": "2:20"
+        }
+      ]
+    },
+    "basePath": "/txtsongs/"
+  },
+  "enhypen": {
+    "title": "ENHYPEN",
+    "heroImg": "/homeimage/enopening.jpg",
+    "hasSolos": false,
+    "soloists": [],
+    "albums": [],
+    "songs": {},
+    "basePath": "/en-songs/"
+  },
+  "seventeen": {
+    "title": "SEVENTEEN",
+    "heroImg": "/homeimage/seventeenopening.jpg",
+    "hasSolos": false,
+    "soloists": [],
+    "albums": [],
+    "songs": {},
+    "basePath": "/svt-songs/"
+  },
+  "katseye": {
+    "title": "KATSEYE",
+    "heroImg": "/homeimage/katseyeopening.jpg",
+    "hasSolos": false,
+    "soloists": [],
+    "albums": [],
+    "songs": {},
+    "basePath": "/katseye-songs/"
+  },
+  "illit": {
+    "title": "ILLIT",
+    "heroImg": "/homeimage/illitopening.jpg",
+    "hasSolos": false,
+    "soloists": [],
+    "albums": [],
+    "songs": {},
+    "basePath": "/illit-songs/"
+  },
+  "newjeans": {
+    "title": "NEWJEANS",
+    "heroImg": "/homeimage/newjeansopening.jpg",
+    "hasSolos": false,
+    "soloists": [],
+    "albums": [],
+    "songs": {},
+    "basePath": "/nj-songs/"
+  }
+}

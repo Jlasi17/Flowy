@@ -17,7 +17,7 @@ import hashlib
 from pathlib import Path
 from typing import Dict
 
-from fastapi import FastAPI, UploadFile, File, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi import FastAPI, UploadFile, File, WebSocket, WebSocketDisconnect, HTTPException, Request, Form
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -60,6 +60,35 @@ async def save_lyrics(req: SaveLyricsRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
     return {"status": "ok", "path": str(file_path)}
+
+import json
+
+@app.post("/api/admin/save-registry")
+async def save_registry(request: Request):
+    """Save the full music registry JSON."""
+    data = await request.json()
+    registry_path = BASE_DIR.parent / "public" / "data" / "musicRegistry.json"
+    registry_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(registry_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+    return {"status": "ok"}
+
+@app.post("/api/admin/upload-file")
+async def upload_admin_file(file: UploadFile = File(...), folder: str = Form(...)):
+    """Upload a media file (image/audio) to a specific public folder."""
+    safe_folder = folder.replace("..", "").strip("/")
+    safe_filename = file.filename.replace("..", "").replace("/", "")
+    
+    target_dir = BASE_DIR.parent / "public" / safe_folder
+    target_dir.mkdir(parents=True, exist_ok=True)
+    
+    target_path = target_dir / safe_filename
+    
+    with open(target_path, "wb") as f:
+        content = await file.read()
+        f.write(content)
+        
+    return {"status": "ok", "path": f"/{safe_folder}/{safe_filename}"}
 
 # ── Storage ──────────────────────────────────────────────────────────────
 BASE_DIR = Path(__file__).parent

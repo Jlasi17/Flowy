@@ -487,256 +487,257 @@
 }
 
 @media (max-width: 768px) {
-  .album-page {
+  /* ── Mobile page shell ── */
+  .album-page--mobile {
     height: 100dvh;
     overflow-y: auto;
     overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .album-content-two-col {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 0;
-    gap: 0;
-    height: auto;
-    overflow: visible;
-  }
-
-  /* ── BACK BUTTON → Inline with header row ── */
-  .back-btn-minimal {
-    position: static;
-    flex-shrink: 0;
-    padding: 0;
-    opacity: 0.7;
-    z-index: 20;
-  }
-
-  .back-btn-minimal svg {
-    width: 24px;
-    height: 24px;
-  }
-
-  /* ── LEFT COL → Sticky collapsing header ── */
-  .album-left-col {
-    flex: none;
-    width: 100%;
-    flex-direction: row;
+  /* ────────────────────────────────────────────────
+   * MOB-ALBUM-HEADER
+   * Always visible at the top.
+   * Before sticking: transparent, just the back btn.
+   * After sticking (--stuck): frosted glass row.
+   * ──────────────────────────────────────────────── */
+  .mob-album-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
     align-items: center;
-    gap: 14px;
-    padding: max(44px, calc(16px + env(safe-area-inset-top))) 16px 14px;
-    box-sizing: border-box;
-    
-    /* Sticky magic */
-    position: -webkit-sticky;
-    position: sticky;
-    top: -20px; /* Scrolls up 20px to compress slightly before pinning */
-    z-index: 50; /* Ensure tracks slide underneath */
-    
-    /* Glass blur effect without black bg */
+    gap: 10px;
+    padding: max(env(safe-area-inset-top, 0px), 12px) 16px 12px;
+    /* Invisible until stuck */
     background: transparent;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border-bottom: none;
-    transition: background 0.3s ease;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom: 1px solid transparent;
+    transition: background 0.25s ease, backdrop-filter 0.25s ease, border-color 0.25s ease;
   }
 
-  /* Smaller 3D cover on mobile */
-  .album-3d-showcase {
-    width: 56px;
-    height: 56px;
-    margin-bottom: 0;
+  .mob-album-header--stuck {
+    background: rgba(10, 10, 16, 0.78);
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+    border-bottom-color: rgba(255, 255, 255, 0.07);
+  }
+
+  /* Back button */
+  .mob-back-btn {
     flex-shrink: 0;
-    animation: none;
-    perspective: 600px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 4px;
+    opacity: 0.85;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s, transform 0.2s;
   }
+  .mob-back-btn:active { transform: scale(0.88); }
 
-  @keyframes coverSlideToCorner {
-    0%, 100% {
-      transform: none;
-      opacity: 1;
-    }
+  /* Mini album cover in header (hidden until stuck) */
+  .mob-header-cover {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.25s ease, transform 0.25s ease;
   }
-
-  .album-3d-object {
-    transform: rotateY(-8deg) rotateX(3deg);
-    box-shadow: -4px 6px 14px rgba(0, 0, 0, 0.5);
-  }
-
-  .album-3d-object:hover {
-    transform: rotateY(-8deg) rotateX(3deg);
-  }
-
-  .album-spine-left,
-  .album-spine-right {
-    width: 6px;
-  }
-
-  .album-spine-top,
-  .album-spine-bottom {
-    height: 6px;
-  }
-
-  .album-front {
-    transform: translateZ(3px);
-  }
-
-  .album-back {
-    transform: rotateY(180deg) translateZ(3px);
-  }
-
-  /* ── Info text — takes remaining space, truncates ── */
-  .album-info-centered {
-    text-align: left;
-    margin-bottom: 0;
-    animation: none;
+  .mob-header-cover--visible {
     opacity: 1;
-    transform: none;
+    transform: scale(1);
+  }
+  .mob-header-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Info text in header — hidden until stuck */
+  .mob-header-info {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    opacity: 0;
+    transform: translateY(4px);
+    pointer-events: none;
+    transition: opacity 0.22s ease, transform 0.22s ease;
   }
-
-  .album-title-minimal {
-    font-size: 0.95rem;
+  .mob-header-info--visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .mob-header-title {
+    font-size: 0.92rem;
     font-weight: 700;
-    margin: 0 0 2px 0;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mob-header-sub {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.5);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  .album-sub-minimal {
-    font-size: 0.72rem;
-    color: rgba(255, 255, 255, 0.55);
-    margin: 0 0 1px 0;
-  }
-
-  .album-meta-minimal {
-    font-size: 0.62rem;
-    color: rgba(255, 255, 255, 0.3);
-    margin: 0;
-  }
-
-  /* ── Hide shuffle, play as circle icon ── */
-  .album-actions {
-    gap: 0;
-    animation: none;
-    opacity: 1;
-    transform: none;
+  /* Play button in header — hidden until stuck */
+  .mob-header-play {
     flex-shrink: 0;
-  }
-
-  .action-btn--shuffle {
-    display: none;
-  }
-
-  .action-btn--play {
-    width: 42px;
-    height: 42px;
-    padding: 0;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
+    background: rgba(255, 255, 255, 0.14);
     border: none;
-    background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, opacity 0.22s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    /* Hidden by default */
+    opacity: 0;
+    pointer-events: none;
   }
-
-  .action-btn--play:active {
+  .mob-header-play--visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .mob-header-play:active {
+    background: rgba(255, 255, 255, 0.25);
     transform: scale(0.9);
-    background: rgba(255, 255, 255, 0.2);
   }
 
-  .action-btn--play .action-btn-icon {
-    display: block;
-    width: 18px;
-    height: 18px;
+  /* ────────────────────────────────────────────────
+   * SCROLLABLE CONTENT
+   * ──────────────────────────────────────────────── */
+  .mob-scroll-content {
+    position: relative;
+    z-index: 5;
+    /* Push content below the fixed header height */
+    padding-top: calc(max(env(safe-area-inset-top, 0px), 12px) + 60px);
   }
 
-  .action-btn--play .action-btn-label {
-    display: none;
-  }
-
-  /* ── RIGHT COL → Track list ── */
-  .album-right-col {
-    flex: none;
+  /* Invisible sentinel placed just after the top padding —
+     when it leaves the viewport the header enters --stuck mode */
+  .mob-sentinel {
+    height: 1px;
     width: 100%;
-    padding: 8px 16px 0;
-    box-sizing: border-box;
-    overflow: visible;
-    padding-bottom: 140px;
+    pointer-events: none;
   }
 
-  .album-right-col::-webkit-scrollbar {
-    display: none;
+  /* ────────────────────────────────────────────────
+   * HERO BLOCK (scrolls away)
+   * ──────────────────────────────────────────────── */
+  .mob-hero {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    padding: 16px 16px 20px;
   }
 
-  .song-row-minimal {
+  .mob-hero-cover {
+    flex-shrink: 0;
+    width: 110px;
+    height: 110px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  }
+  .mob-hero-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .mob-hero-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .mob-hero-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 4px;
+    line-height: 1.2;
+  }
+  .mob-hero-sub {
+    font-size: 0.88rem;
+    color: rgba(255, 255, 255, 0.65);
+    margin: 0 0 2px;
+  }
+  .mob-hero-meta {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.35);
+    margin: 0 0 12px;
+  }
+
+  /* Play button in hero (visible before scroll, fades when header sticks) */
+  .mob-hero-play-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #fff;
+    border-radius: 999px;
+    padding: 8px 20px 8px 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: opacity 0.22s ease, transform 0.15s, background 0.2s;
+  }
+  .mob-hero-play-btn:active {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(0.95);
+  }
+  .mob-hero-play-btn--hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* ────────────────────────────────────────────────
+   * TRACKLIST
+   * ──────────────────────────────────────────────── */
+  .mob-tracklist {
+    padding: 4px 16px 0;
+  }
+
+  /* Song rows on mobile */
+  .mob-tracklist .song-row-minimal {
     padding: 13px 0;
   }
-
-  .song-title-minimal {
-    font-size: 0.88rem;
-  }
-
-  .song-index-minimal {
-    flex: 0 0 32px;
-    font-size: 0.78rem;
-    padding-left: 4px;
-  }
-
-  .song-duration-minimal {
-    font-size: 0.75rem;
-    padding-right: 0;
-  }
-  
-  .song-actions-minimal {
-    gap: 8px;
-  }
-
-  .album-footer-stats {
+  .mob-tracklist .song-title-minimal { font-size: 0.88rem; }
+  .mob-tracklist .song-index-minimal { flex: 0 0 32px; font-size: 0.78rem; padding-left: 4px; }
+  .mob-tracklist .song-duration-minimal { font-size: 0.75rem; padding-right: 0; }
+  .mob-tracklist .song-actions-minimal { gap: 8px; }
+  .mob-tracklist .album-footer-stats {
     text-align: center;
     padding: 16px 0 0;
     font-size: 0.72rem;
   }
 }
 
-/* ── Extra small phones ── */
-@media (max-width: 400px) {
-  .album-left-col {
-    padding: 52px 14px 16px;
-    gap: 14px;
-  }
-
-  .album-3d-showcase {
-    width: 100px;
-    height: 100px;
-  }
-
-  .album-title-minimal {
-    font-size: 1.05rem;
-  }
-
-  .album-sub-minimal {
-    font-size: 0.76rem;
-  }
-
-  .action-btn {
-    padding: 6px 16px;
-    font-size: 0.72rem;
-  }
-
-  .album-right-col {
-    padding: 0 12px;
-    padding-bottom: 130px;
-  }
-
-  .song-row-minimal {
-    padding: 11px 0;
-  }
-
-  .song-title-minimal {
-    font-size: 0.82rem;
-  }
-}
 
 /* ── Hidden Track Styles ── */
 .hidden-row {

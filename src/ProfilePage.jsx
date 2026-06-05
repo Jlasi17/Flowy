@@ -1,13 +1,208 @@
+/* eslint-disable */
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { updateProfile } from 'firebase/auth';
 import { useAuth } from './contexts/AuthContext';
 import { AudioContext } from './AudioPlayerProvider';
+import { SINGER_COLORS, getArtistProfileImage } from './utils/singerColors';
 import './ProfilePage.css';
 
+// ── Flowing canvas background for Admin UI ──────────────────────────────────
+const AdminFlowCanvas = () => {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animId;
+    let W = canvas.width = window.innerWidth;
+    let H = canvas.height = window.innerHeight;
+
+    const onResize = () => {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', onResize);
+
+    // Create flowing orbs with rich purple/pink/indigo palette
+    const ORB_COLORS = [
+      'rgba(139, 92, 246, 0.55)',   // violet
+      'rgba(217, 70, 239, 0.45)',   // fuchsia
+      'rgba(59, 130, 246, 0.40)',   // blue
+      'rgba(236, 72, 153, 0.45)',   // pink
+      'rgba(99, 102, 241, 0.50)',   // indigo
+      'rgba(20, 184, 166, 0.35)',   // teal
+    ];
+
+    const orbs = Array.from({ length: 7 }, (_, i) => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: 180 + Math.random() * 260,
+      vx: (Math.random() - 0.5) * 0.55,
+      vy: (Math.random() - 0.5) * 0.45,
+      color: ORB_COLORS[i % ORB_COLORS.length],
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.003 + Math.random() * 0.004,
+    }));
+
+    let t = 0;
+    const draw = () => {
+      ctx.clearRect(0, 0, W, H);
+      // Deep dark base
+      ctx.fillStyle = 'rgba(8, 8, 16, 1)';
+      ctx.fillRect(0, 0, W, H);
+
+      // Draw each orb as a soft radial gradient blob
+      orbs.forEach(orb => {
+        orb.phase += orb.speed;
+        orb.x += orb.vx + Math.sin(orb.phase * 0.7) * 0.6;
+        orb.y += orb.vy + Math.cos(orb.phase * 0.5) * 0.5;
+
+        // Wrap edges with soft bounce
+        if (orb.x < -orb.r) orb.x = W + orb.r;
+        if (orb.x > W + orb.r) orb.x = -orb.r;
+        if (orb.y < -orb.r) orb.y = H + orb.r;
+        if (orb.y > H + orb.r) orb.y = -orb.r;
+
+        const grad = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.r);
+        grad.addColorStop(0, orb.color);
+        grad.addColorStop(0.5, orb.color.replace('0.', '0.2'));
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(orb.x, orb.y, orb.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Subtle noise-like shimmer — tiny fast dots
+      t++;
+      if (t % 3 === 0) {
+        ctx.fillStyle = 'rgba(255,255,255,0.012)';
+        for (let i = 0; i < 60; i++) {
+          const sx = Math.random() * W;
+          const sy = Math.random() * H;
+          ctx.fillRect(sx, sy, 1, 1);
+        }
+      }
+
+      animId = requestAnimationFrame(draw);
+    };
+
+    draw();
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', onResize);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="admin-flow-canvas" />;
+};
+
+const AdminGroupGrid = ({ groupId, members, overrides, onEdit, onRemove, onAdd }) => {
+  return (
+    <div className="admin-group-row">
+      <div className="admin-group-header">
+        <h2 className="admin-group-title">{groupId}</h2>
+      </div>
+      <div className="admin-members-grid">
+        <AnimatePresence mode="popLayout">
+          {members.map((member) => {
+             const resolvedImg = getArtistProfileImage(member);
+             const memberOverrides = overrides?.[member] || {};
+             const finalImgPath = memberOverrides.image || resolvedImg ||
+               `/soloartists/${member.toLowerCase().replace(/[\s-]/g, '')}.jpg`;
+
+             // Case-insensitive color lookup with common aliases
+             const colorAliases = { 'taehyung': 'V', 'agust d': 'SUGA', 'jungkook': 'JungKook', 'jimin': 'Jimin' };
+             const lowerMember = member.toLowerCase();
+             const canonicalName = colorAliases[lowerMember] || member;
+             const singerColorEntry = SINGER_COLORS[canonicalName]
+               || Object.entries(SINGER_COLORS).find(([k]) => k.toLowerCase() === lowerMember)?.[1]
+               || SINGER_COLORS.default;
+             const singerColor = singerColorEntry.primary;
+             const finalColor = memberOverrides.color || singerColor;
+
+             return (
+               <motion.div
+                 key={member}
+                 className="admin-member-card"
+                 initial={{ opacity: 0, scale: 0.8 }}
+                 animate={{ opacity: 1, scale: 1 }}
+                 exit={{ opacity: 0, scale: 0.8 }}
+                 transition={{ duration: 0.2 }}
+               >
+                 <div className="admin-member-img-wrapper">
+                   {/* Glow blob behind the image — uses singer color */}
+                   <div
+                     className="admin-member-glow"
+                     style={{ background: finalColor }}
+                   />
+                   <img
+                     className="admin-member-img"
+                     src={finalImgPath}
+                     onError={(e) => {
+                       e.target.onerror = null;
+                       const femaleGroups = ['lesserafim', 'katseye', 'illit', 'newjeans'];
+                       e.target.src = femaleGroups.includes(groupId.toLowerCase())
+                         ? '/soloartists/female.png'
+                         : '/soloartists/male.png';
+                     }}
+                     alt={member}
+                   />
+                   <div className="admin-member-overlay">
+                     <button
+                       className="admin-overlay-btn edit"
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         onEdit(groupId, member, finalImgPath, finalColor);
+                       }}
+                     >
+                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                       </svg>
+                     </button>
+                   </div>
+                   <button
+                     className="admin-remove-corner-btn"
+                     onClick={(e) => { e.stopPropagation(); onRemove(groupId, member); }}
+                   >
+                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                       <line x1="18" y1="6" x2="6" y2="18"></line>
+                       <line x1="6" y1="6" x2="18" y2="18"></line>
+                     </svg>
+                   </button>
+                 </div>
+                 <span className="admin-member-name" style={{ color: finalColor }}>{member}</span>
+               </motion.div>
+             );
+          })}
+          {/* Add button — wrapped in card div to match member alignment */}
+          <motion.div
+            key="add"
+            className="admin-member-card"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.2 }}
+          >
+            {/* Wrapper matches admin-member-img-wrapper size so the button aligns with member images */}
+            <div style={{ width: '88px', height: '88px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <button className="admin-add-member-circle" onClick={() => onAdd(groupId)}>
+                <span className="plus">+</span>
+              </button>
+            </div>
+            <span className="admin-member-name" style={{ opacity: 0, pointerEvents: 'none', userSelect: 'none' }}>·</span>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
 export default function ProfilePage() {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, isAdmin } = useAuth();
   const { activeSong, albumData, isPlaying } = useContext(AudioContext);
   const navigate = useNavigate();
 
@@ -27,6 +222,65 @@ export default function ProfilePage() {
     const interval = setInterval(() => setTick(t => t + 1), 2000);
     return () => clearInterval(interval);
   }, []);
+
+  const [registryData, setRegistryData] = useState(null);
+  const [adminGroupPage, setAdminGroupPage] = useState(0);
+  const [adminEditModal, setAdminEditModal] = useState(null);
+  useEffect(() => {
+    if (isAdmin) {
+      fetch('/data/musicRegistry.json')
+        .then(res => res.json())
+        .then(data => setRegistryData(data))
+        .catch(err => console.error("Error loading registry:", err));
+    }
+  }, [isAdmin]);
+
+  // Keyboard navigation for Admin Pagination
+  useEffect(() => {
+    if (!isAdmin || adminEditModal || !registryData) return;
+
+    const handleKeyDown = (e) => {
+      // Ignore if user is typing in an input or textarea
+      if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        // Recalculate totalPages using greedy height packing
+        const groupIds = Object.keys(registryData);
+        const CARD_ROW_H = 130, HEADER_H = 60, GROUP_GAP = 40;
+        const VIEWPORT_H = window.innerHeight - 140;
+        
+        const pages = [];
+        let currentPage = [], leftH = 0, rightH = 0;
+        
+        groupIds.forEach((gId) => {
+          const members = registryData[gId]?.soloists || [];
+          const rows = Math.ceil((members.length + 1) / 3);
+          const h = HEADER_H + rows * CARD_ROW_H + GROUP_GAP;
+          const col = currentPage.length % 2;
+          const colH = col === 0 ? leftH : rightH;
+          if (currentPage.length >= 2 && colH + h > VIEWPORT_H) {
+            pages.push(currentPage);
+            currentPage = [gId];
+            leftH = h; rightH = 0;
+          } else {
+            currentPage.push(gId);
+            if (col === 0) leftH += h; else rightH += h;
+          }
+        });
+        if (currentPage.length > 0) pages.push(currentPage);
+        const totalPages = pages.length;
+
+        if (e.key === 'ArrowLeft') {
+          setAdminGroupPage(p => Math.max(0, p - 1));
+        } else if (e.key === 'ArrowRight') {
+          setAdminGroupPage(p => Math.min(totalPages - 1, p + 1));
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isAdmin, adminEditModal, registryData]);
 
   const handleScroll = (e) => {
     const scrolled = e.target.scrollTop > 80;
@@ -253,6 +507,268 @@ export default function ProfilePage() {
     }
   }
 
+  if (isAdmin) {
+    const groupIds = registryData ? Object.keys(registryData) : [];
+
+    // ── Height-aware greedy packing ──────────────────────────────
+    // Estimate how tall each group will be in the 2-col grid
+    const CARD_ROW_H = 130;  // px per row of member avatars
+    const HEADER_H   = 60;   // group title + gap
+    const GROUP_GAP  = 40;   // vertical gap between groups in same column
+    const VIEWPORT_H = window.innerHeight - 140; // subtract header bar height
+
+    function estimateGroupHeight(members) {
+      const rows = Math.ceil((members.length + 1) / 3); // +1 for add btn
+      return HEADER_H + rows * CARD_ROW_H + GROUP_GAP;
+    }
+
+    // Greedily pack groups into pages across a 2-column layout
+    const pages = [];
+    let currentPage = [];
+    let leftH = 0;
+    let rightH = 0;
+
+    groupIds.forEach((gId) => {
+      const members = registryData[gId]?.soloists || [];
+      const h = estimateGroupHeight(members);
+      const col = currentPage.length % 2; // 0 = left col, 1 = right col
+      const colH = col === 0 ? leftH : rightH;
+
+      if (currentPage.length >= 2 && colH + h > VIEWPORT_H) {
+        // Start a fresh page
+        pages.push(currentPage);
+        currentPage = [gId];
+        leftH = h;
+        rightH = 0;
+      } else {
+        currentPage.push(gId);
+        if (col === 0) leftH += h;
+        else rightH += h;
+      }
+    });
+    if (currentPage.length > 0) pages.push(currentPage);
+
+    const totalPages = pages.length;
+    const currentGroupIds = pages[Math.min(adminGroupPage, totalPages - 1)] || [];
+    // ────────────────────────────────────────────────────────────
+
+    return (
+      <div className="admin-groups-page">
+        {/* Flowing canvas background */}
+        <AdminFlowCanvas />
+        {/* Glass panel over the canvas */}
+        <div className="admin-glass-panel">
+        <div className="admin-dashboard-header">
+          <button className="admin-groups-back" onClick={() => navigate(-1)}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+        </div>
+
+        {registryData ? (
+          <div className="admin-groups-grid">
+            <AnimatePresence mode="popLayout">
+              {currentGroupIds.map(groupId => {
+                const members = registryData[groupId].soloists || [];
+                const overrides = registryData[groupId].overrides || {};
+                
+                const handleEditMember = (gId, oldName, currentImgPath, currentColor) => {
+                  let safeColor = currentColor || '#ffffff';
+                  // HTML color picker only accepts 6-char hex. Strip alpha channel if it exists (e.g., #cda7e9ff -> #cda7e9)
+                  if (safeColor.length === 9 && safeColor.startsWith('#')) {
+                    safeColor = safeColor.substring(0, 7);
+                  }
+                  
+                  setAdminEditModal({
+                    groupId: gId,
+                    oldName,
+                    newName: oldName,
+                    image: currentImgPath,
+                    color: safeColor
+                  });
+                };
+
+                const handleRemoveMember = (gId, memberName) => {
+                  if (window.confirm(`Remove ${memberName} from ${gId}?`)) {
+                    setRegistryData(prev => {
+                      const newData = { ...prev };
+                      const group = newData[gId];
+                      if (group && group.soloists) {
+                        group.soloists = group.soloists.filter(m => m !== memberName);
+                      }
+                      return newData;
+                    });
+                  }
+                };
+
+                const handleAddMember = (gId) => {
+                  const newName = window.prompt(`Enter new member name for ${gId}:`);
+                  if (newName) {
+                    setRegistryData(prev => {
+                      const newData = { ...prev };
+                      const group = newData[gId];
+                      if (group) {
+                        if (!group.soloists) group.soloists = [];
+                        if (!group.soloists.includes(newName)) group.soloists.push(newName);
+                      }
+                      return newData;
+                    });
+                  }
+                };
+
+                return (
+                  <motion.div
+                    key={groupId}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <AdminGroupGrid 
+                      groupId={groupId} 
+                      members={members}
+                      overrides={overrides}
+                      onEdit={handleEditMember}
+                      onRemove={handleRemoveMember}
+                      onAdd={handleAddMember}
+                    />
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+        ) : (
+          <div className="admin-loading">Loading groups...</div>
+        )}
+
+        {adminEditModal && (() => {
+          const fileInputRef = React.createRef();
+          const singerColorEntries = Object.entries(SINGER_COLORS).filter(([k]) => k !== 'default');
+
+          return (
+            <div className="admin-modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) setAdminEditModal(null); }}>
+              <div className="admin-modal-content">
+                <button className="admin-modal-close" onClick={() => setAdminEditModal(null)}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+
+                <h3 className="admin-modal-title">Edit {adminEditModal.oldName}</h3>
+
+                {/* Image preview + upload */}
+                <div className="admin-modal-img-section">
+                  <div className="admin-modal-img-preview" onClick={() => fileInputRef.current?.click()} title="Click to upload image from device">
+                    <img
+                      src={adminEditModal.image}
+                      onError={(e) => e.target.src = '/soloartists/male.png'}
+                      alt="Preview"
+                      style={{ border: `3px solid ${adminEditModal.color}` }}
+                    />
+                    <div className="admin-modal-img-upload-hint">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                      <span>Upload</span>
+                    </div>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      // Show object URL preview and store the actual File object for upload
+                      setAdminEditModal({ 
+                        ...adminEditModal, 
+                        image: URL.createObjectURL(file), 
+                        file: file 
+                      });
+                    }}
+                  />
+                </div>
+
+                 <div className="admin-modal-body">
+                  <label className="admin-modal-label">Member Name</label>
+                  <input
+                    className="admin-modal-input"
+                    value={adminEditModal.newName}
+                    onChange={e => setAdminEditModal({ ...adminEditModal, newName: e.target.value })}
+                  />
+
+                  <label className="admin-modal-label">Accent Color</label>
+                  {/* Single color wheel — pre-filled with singer's color from singerColors.js */}
+                  <div className="admin-modal-color-row">
+                    <input
+                      type="color"
+                      className="admin-color-input"
+                      value={adminEditModal.color}
+                      onChange={e => setAdminEditModal({ ...adminEditModal, color: e.target.value })}
+                    />
+                    <span className="admin-color-hex" style={{ color: adminEditModal.color }}>{adminEditModal.color}</span>
+                  </div>
+                </div>
+
+                <div className="admin-modal-actions">
+                  <button className="admin-modal-cancel" onClick={() => setAdminEditModal(null)}>Cancel</button>
+                  <button className="admin-modal-save" onClick={async () => {
+                    let uploadedImagePath = adminEditModal.image;
+                    
+                    // If a new file was selected, upload it to the backend folder
+                    if (adminEditModal.file) {
+                      const formData = new FormData();
+                      const ext = adminEditModal.file.name.split('.').pop() || 'jpg';
+                      const safeName = adminEditModal.newName.toLowerCase().replace(/[\s-]/g, '');
+                      const newFilename = `${safeName}.${ext}`;
+                      
+                      formData.append('file', adminEditModal.file, newFilename);
+                      formData.append('folder', 'soloartists');
+                      
+                      try {
+                        const res = await fetch('/api/admin/upload-file', {
+                          method: 'POST',
+                          body: formData
+                        });
+                        const data = await res.json();
+                        if (data.status === 'ok') {
+                          // Success! The file is permanently saved on the backend.
+                          // We DO NOT overwrite `uploadedImagePath` with the backend path here.
+                          // Instead, we keep using the local `blob:` URL (adminEditModal.image) 
+                          // for the React state so the UI updates instantly without any Vite dev server delays.
+                        }
+                      } catch (e) {
+                        console.error('Failed to upload image', e);
+                      }
+                    }
+
+                    setRegistryData(prev => {
+                      const newData = JSON.parse(JSON.stringify(prev));
+                      const group = newData[adminEditModal.groupId];
+                      if (group) {
+                        if (adminEditModal.newName !== adminEditModal.oldName) {
+                          const idx = group.soloists.indexOf(adminEditModal.oldName);
+                          if (idx !== -1) group.soloists[idx] = adminEditModal.newName;
+                        }
+                        if (!group.overrides) group.overrides = {};
+                        group.overrides[adminEditModal.newName] = {
+                          color: adminEditModal.color,
+                          image: uploadedImagePath
+                        };
+                        if (adminEditModal.newName !== adminEditModal.oldName && group.overrides[adminEditModal.oldName]) {
+                          delete group.overrides[adminEditModal.oldName];
+                        }
+                      }
+                      return newData;
+                    });
+                    setAdminEditModal(null);
+                  }}>Save</button>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+        </div>{/* end admin-glass-panel */}
+      </div>
+    );
+  }
+
   return (
     <div className="profile-page" onScroll={handleScroll} ref={scrollContainerRef}>
       {/* Background Aura */}
@@ -407,84 +923,84 @@ export default function ProfilePage() {
       ) : (
       <div className="bento-container">
 
-        {/* Tile 1: Profile Info */}
-        <motion.div
-          className="bento-tile profile-info-tile"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <button className="bento-back-btn" onClick={() => navigate(-1)}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
-          </button>
+          {/* Tile 1: Profile Info */}
+          <motion.div
+            className="bento-tile profile-info-tile"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <button className="bento-back-btn" onClick={() => navigate(-1)}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+            </button>
 
-          {!isEditing && (
-            <>
-              <button className="bento-edit-btn" onClick={() => setIsEditing(true)} aria-label="Edit Profile" title="Edit Profile">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-              </button>
-              <button 
-                className="bento-logout-btn" 
-                onClick={() => setIsLogoutModalOpen(true)} 
-                aria-label="Log Out" 
-                title="Log Out"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-              </button>
-            </>
-          )}
-
-          <div className="profile-pic-container">
-            <div className="profile-pic-pulse" />
-            <div className={`profile-vinyl ${isPlaying ? 'spinning' : ''}`} />
-            {currentUser?.photoURL ? (
-              <img
-                src={currentUser.photoURL}
-                alt="Profile"
-                className="profile-pic"
-              />
-            ) : (
-              <div className="profile-pic fallback-avatar">
-                {initials}
-              </div>
-            )}
-          </div>
-
-          {isEditing ? (
-            <div className="profile-edit-form">
-              <input
-                type="text"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                placeholder="Display Name"
-                className="profile-edit-input"
-              />
-              <input
-                type="text"
-                value={editPhotoUrl}
-                onChange={(e) => setEditPhotoUrl(e.target.value)}
-                placeholder="Photo URL"
-                className="profile-edit-input"
-              />
-              <div className="profile-edit-actions">
-                <button className="profile-edit-cancel" onClick={() => setIsEditing(false)}>Cancel</button>
-                <button className="profile-edit-save" onClick={handleSaveProfile} disabled={isSaving}>
-                  {isSaving ? "Saving..." : "Save"}
+            {!isEditing && (
+              <>
+                <button className="bento-edit-btn" onClick={() => setIsEditing(true)} aria-label="Edit Profile" title="Edit Profile">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                 </button>
-              </div>
-            </div>
-          ) : (
-            <>
-              <h1 className="profile-name">{displayName}</h1>
-              <p className="profile-handle">{handle}</p>
-              <p className="profile-bio">"{bio}"</p>
+                <button 
+                  className="bento-logout-btn" 
+                  onClick={() => setIsLogoutModalOpen(true)} 
+                  aria-label="Log Out" 
+                  title="Log Out"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                </button>
+              </>
+            )}
 
-              <div className="profile-badges">
-                {badges.map((b, i) => <span key={i} className="profile-badge">{b}</span>)}
+            <div className="profile-pic-container">
+              <div className="profile-pic-pulse" />
+              <div className={`profile-vinyl ${isPlaying ? 'spinning' : ''}`} />
+              {currentUser?.photoURL ? (
+                <img
+                  src={currentUser.photoURL}
+                  alt="Profile"
+                  className="profile-pic"
+                />
+              ) : (
+                <div className="profile-pic fallback-avatar">
+                  {initials}
+                </div>
+              )}
+            </div>
+
+            {isEditing ? (
+              <div className="profile-edit-form">
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="Display Name"
+                  className="profile-edit-input"
+                />
+                <input
+                  type="text"
+                  value={editPhotoUrl}
+                  onChange={(e) => setEditPhotoUrl(e.target.value)}
+                  placeholder="Photo URL"
+                  className="profile-edit-input"
+                />
+                <div className="profile-edit-actions">
+                  <button className="profile-edit-cancel" onClick={() => setIsEditing(false)}>Cancel</button>
+                  <button className="profile-edit-save" onClick={handleSaveProfile} disabled={isSaving}>
+                    {isSaving ? "Saving..." : "Save"}
+                  </button>
+                </div>
               </div>
-            </>
-          )}
-        </motion.div>
+            ) : (
+              <>
+                <h1 className="profile-name">{displayName}</h1>
+                <p className="profile-handle">{handle}</p>
+                <p className="profile-bio">"{bio}"</p>
+
+                <div className="profile-badges">
+                  {badges.map((b, i) => <span key={i} className="profile-badge">{b}</span>)}
+                </div>
+              </>
+            )}
+          </motion.div>
 
         {/* Tile 2: Stats Grid */}
         <motion.div
