@@ -142,8 +142,12 @@ export default function AudioPlayerProvider({ children }) {
   const [karaokeInstrumentalUrl, setKaraokeInstrumentalUrl] = useState(null);
   const [karaokeVocalsUrl, setKaraokeVocalsUrl] = useState(null);
   const [vocalVolume, setVocalVolume] = useState(() => {
-    const saved = localStorage.getItem('flowy_vocal_volume');
-    return saved !== null ? Number(saved) : 0;
+    try {
+      const saved = localStorage.getItem('flowy_vocal_volume');
+      return saved !== null ? Number(saved) : 0;
+    } catch (e) {
+      return 0;
+    }
   });
   const [instVolume, setInstVolume] = useState(100);
 

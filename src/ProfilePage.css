@@ -979,13 +979,14 @@
   .mobile-profile-container {
     display: flex;
     flex-direction: column;
-    padding: 24px 16px;
+    padding: 24px 16px 0 16px; /* Removed static bottom padding */
     gap: 24px;
     position: relative;
     z-index: 2;
     max-width: 600px;
     margin: 0 auto;
     width: 100%;
+    min-height: 100%;
   }
 
   .mobile-header {
@@ -1797,4 +1798,32 @@
 .admin-modal-save:hover {
   transform: scale(1.04);
   filter: brightness(1.12);
+}
+/* Mobile Logout Button */
+.mobile-logout-wrapper {
+  margin-top: auto;
+  margin-bottom: calc(16px + env(safe-area-inset-bottom));
+  padding: 0 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.mobile-logout-btn {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  padding: 16px 32px;
+  border-radius: 100px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  width: 100%;
+  max-width: 300px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-logout-btn:active {
+  transform: scale(0.96);
+  background: rgba(239, 68, 68, 0.2);
 }

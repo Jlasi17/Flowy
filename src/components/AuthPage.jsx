@@ -33,16 +33,32 @@ function buildAlbumCovers() {
 
 const ALBUM_COVERS = buildAlbumCovers();
 
-// Preload all images so they appear instantly with no flicker
-ALBUM_COVERS.forEach(src => { const img = new Image(); img.src = src; });
 
 
+function shuffleArray(arr) {
+  const newArr = [...arr];
+  for (let i = newArr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+  }
+  return newArr;
+}
 
 const TRAIL_LIFETIME = 1400; // ms — matches @keyframes trail-life duration
 const MIN_DISTANCE   = 16;   // px — tight enough for a continuous ribbon
 const MAX_TRAIL      = 30;   // soft cap: oldest evicted, never blocks
 
 export default function AuthPage() {
+  const [driftCols, setDriftCols] = useState([[], [], [], [], [], []]);
+
+  useEffect(() => {
+    const shuffled = shuffleArray(ALBUM_COVERS);
+    const cols = [[], [], [], [], [], []];
+    shuffled.forEach((src, i) => {
+      cols[i % 6].push(src);
+    });
+    setDriftCols(cols);
+  }, []);
   const [authMode, setAuthMode] = useState('email');
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -68,10 +84,10 @@ export default function AuthPage() {
   const from = location.state?.from?.pathname || '/dashboard/bts';
 
   useEffect(() => {
-    if (authMode === 'phone' && !window.recaptchaVerifier) {
+    if (!window.recaptchaVerifier) {
       try { setupRecaptcha('recaptcha-container'); } catch (e) { console.error(e); }
     }
-  }, [authMode, setupRecaptcha]);
+  }, [setupRecaptcha]);
 
   // Spawn one album cover — CSS @keyframes handles the full lifecycle
   const spawnItem = useCallback((x, y) => {
@@ -216,6 +232,18 @@ export default function AuthPage() {
         <div className="auth-noise" />
       </div>
 
+      {/* ── Mobile Drift Layer ── */}
+      <div className="auth-drift-layer" aria-hidden="true">
+        {driftCols.map((col, idx) => (
+          <div className={`drift-col drift-col-${idx + 1}`} key={idx}>
+            {col.map((src, i) => <img key={`a-${i}`} src={src} alt="" draggable={false} loading="lazy" />)}
+            {col.map((src, i) => <img key={`b-${i}`} src={src} alt="" draggable={false} loading="lazy" />)}
+            {col.map((src, i) => <img key={`c-${i}`} src={src} alt="" draggable={false} loading="lazy" />)}
+            {col.map((src, i) => <img key={`d-${i}`} src={src} alt="" draggable={false} loading="lazy" />)}
+          </div>
+        ))}
+      </div>
+
       {/* ── Album trail — direct DOM, zero React re-renders ── */}
       <div className="auth-trail-layer" aria-hidden="true" ref={trailLayerRef} />
 
@@ -244,7 +272,7 @@ export default function AuthPage() {
                 ? 'Enter Your Code'
                 : authMode === 'phone'
                   ? 'Phone Sign In'
-                  : isLogin ? 'Welcome Back 🎵' : 'Join the Flow 🌊'}
+                  : isLogin ? 'Welcome Back' : 'Join the Flow'}
             </motion.h2>
           </AnimatePresence>
           <p className="auth-subtitle">
@@ -265,105 +293,88 @@ export default function AuthPage() {
               className={`auth-tab ${authMode === 'email' ? 'active' : ''}`}
               onClick={() => { setAuthMode('email'); setError(''); }}
             >
-              📧 Email
+              Email
             </button>
             <button
               className={`auth-tab ${authMode === 'phone' ? 'active' : ''}`}
               onClick={() => { setAuthMode('phone'); setError(''); }}
             >
-              📱 Phone
+              Phone
             </button>
           </div>
         )}
 
         {/* Forms */}
-        <AnimatePresence mode="wait">
-          {confirmationResult ? (
-            <motion.form key="verify"
-              initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.28 }} onSubmit={handleVerifySubmit} className="auth-form"
-            >
-              <div className="auth-input-group">
-                <span className="input-icon">🔑</span>
-                <input
-                  type="text"
-                  value={verificationCode}
-                  onChange={e => setVerificationCode(e.target.value)}
-                  placeholder="6-digit code"
-                  required maxLength={6}
-                />
-              </div>
-              <motion.button type="submit" className="auth-submit-btn" disabled={loading}
-                whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
-                {loading ? <span className="btn-spinner" /> : 'Verify Code'}
-              </motion.button>
-              <button type="button" className="auth-ghost-btn" onClick={resetPhoneAuth}>
-                ← Different number
-              </button>
-            </motion.form>
+        <div className="auth-forms-container">
+          <form key="verify" onSubmit={handleVerifySubmit} className="auth-form" style={{ display: confirmationResult ? 'flex' : 'none' }}>
+            <div className="auth-input-group">
+              <input
+                type="text"
+                value={verificationCode}
+                onChange={e => setVerificationCode(e.target.value)}
+                placeholder="6-digit code"
+                required maxLength={6}
+              />
+            </div>
+            <motion.button type="submit" className="auth-submit-btn" disabled={loading}
+              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
+              {loading ? <span className="btn-spinner" /> : 'Verify Code'}
+            </motion.button>
+            <button type="button" className="auth-ghost-btn" onClick={resetPhoneAuth}>
+              ← Different number
+            </button>
+          </form>
 
-          ) : authMode === 'phone' ? (
-            <motion.form key="phone"
-              initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.28 }} onSubmit={handlePhoneSubmit} className="auth-form"
-            >
-              <div className="auth-input-group">
-                <span className="input-icon">📞</span>
-                <input
-                  type="tel"
-                  value={phoneNumber}
-                  onChange={e => setPhoneNumber(e.target.value)}
-                  placeholder="+1 234 567 8900"
-                  required
-                />
-              </div>
-              <div id="recaptcha-container" />
-              <motion.button type="submit" className="auth-submit-btn" disabled={loading}
-                whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
-                {loading ? <span className="btn-spinner" /> : 'Send SMS Code'}
-              </motion.button>
-            </motion.form>
+          <form key="phone" onSubmit={handlePhoneSubmit} className="auth-form" style={{ display: (!confirmationResult && authMode === 'phone') ? 'flex' : 'none' }}>
+            <div className="auth-input-group">
+              <input
+                type="tel"
+                value={phoneNumber}
+                onChange={e => setPhoneNumber(e.target.value)}
+                placeholder="+1 234 567 8900"
+                required
+              />
+            </div>
+            <div id="recaptcha-container" />
+            <motion.button type="submit" className="auth-submit-btn" disabled={loading}
+              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
+              {loading ? <span className="btn-spinner" /> : 'Send SMS Code'}
+            </motion.button>
+          </form>
 
-          ) : (
-            <motion.form key="email"
-              initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.28 }} onSubmit={handleEmailSubmit} className="auth-form"
-            >
-              <div className="auth-input-group">
-                <span className="input-icon">✉️</span>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="Email address"
-                  required
-                />
-              </div>
-              <div className="auth-input-group">
-                <span className="input-icon">🔒</span>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="Password"
-                  required
-                />
-              </div>
-              <motion.button type="submit" className="auth-submit-btn" disabled={loading}
-                whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
-                {loading ? <span className="btn-spinner" /> : (isLogin ? 'Log In' : 'Create Account')}
-              </motion.button>
-              <div className="auth-toggle">
-                <p>
-                  {isLogin ? "Don't have an account?" : 'Already have an account?'}
-                  <button type="button" className="auth-toggle-btn" onClick={() => setIsLogin(!isLogin)}>
-                    {isLogin ? 'Sign Up' : 'Log In'}
-                  </button>
-                </p>
-              </div>
-            </motion.form>
-          )}
-        </AnimatePresence>
+          <form key="email" onSubmit={handleEmailSubmit} className="auth-form" style={{ display: (!confirmationResult && authMode === 'email') ? 'flex' : 'none' }}>
+            <div className="auth-input-group">
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="Email address"
+                required
+              />
+            </div>
+            <div className="auth-input-group">
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="Password"
+                required
+              />
+            </div>
+            <motion.button type="submit" className="auth-submit-btn" disabled={loading}
+              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
+              {loading ? <span className="btn-spinner" /> : (isLogin ? 'Log In' : 'Create Account')}
+            </motion.button>
+            <div className="auth-toggle">
+              <p>
+                {isLogin ? "Don't have an account?" : 'Already have an account?'}
+                <button type="button" className="auth-toggle-btn" onClick={() => setIsLogin(!isLogin)}>
+                  {isLogin ? 'Sign Up' : 'Log In'}
+                </button>
+              </p>
+            </div>
+          </form>
+        </div>
 
         {/* Social */}
         {!confirmationResult && (

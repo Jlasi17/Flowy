@@ -20,13 +20,21 @@ import AddToPlaylistModal from "./AddToPlaylistModal";
 import { AudioContext } from "./AudioPlayerProvider";
 
 function Home() {
-  const [showHero, setShowHero] = React.useState(!sessionStorage.getItem("hasSeenHero"));
+  const [showHero, setShowHero] = React.useState(() => {
+    try {
+      return !sessionStorage.getItem("hasSeenHero");
+    } catch (e) {
+      return true;
+    }
+  });
 
   React.useEffect(() => {
     if (showHero) {
       // Set the flag after a short delay so the user sees it once
       const timer = setTimeout(() => {
-        sessionStorage.setItem("hasSeenHero", "true");
+        try {
+          sessionStorage.setItem("hasSeenHero", "true");
+        } catch (e) {}
       }, 1000);
       return () => clearTimeout(timer);
     }

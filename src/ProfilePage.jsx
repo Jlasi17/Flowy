@@ -919,6 +919,16 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          {/* Mobile Logout Button */}
+          <div className="mobile-logout-wrapper">
+            <button 
+              className="mobile-logout-btn" 
+              onClick={() => setIsLogoutModalOpen(true)}
+            >
+              Log Out
+            </button>
+          </div>
+
         </div>
       ) : (
       <div className="bento-container">
