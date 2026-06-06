@@ -979,14 +979,14 @@
   .mobile-profile-container {
     display: flex;
     flex-direction: column;
-    padding: 24px 16px 0 16px; /* Removed static bottom padding */
+    padding: 24px 16px 0 16px;
+    /* Removed static bottom padding */
     gap: 24px;
     position: relative;
     z-index: 2;
     max-width: 600px;
     margin: 0 auto;
     width: 100%;
-    min-height: 100%;
   }
 
   .mobile-header {
@@ -1799,9 +1799,10 @@
   transform: scale(1.04);
   filter: brightness(1.12);
 }
+
 /* Mobile Logout Button */
 .mobile-logout-wrapper {
-  margin-top: auto;
+  margin-top: 16px;
   margin-bottom: calc(16px + env(safe-area-inset-bottom));
   padding: 0 8px;
   display: flex;
