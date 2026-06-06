@@ -1,0 +1,33 @@
+/* FeaturesPage.css */
+:root {
+  --bg: #030307;
+  --text: #ffffff;
+  --accent: #a78bfa;
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.fp-new-root {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* WebGL Canvas */
+.fp-fluid-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: auto;
+  /* required to capture hover events */
+}

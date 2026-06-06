@@ -10,10 +10,9 @@ body {
   background: #0b0b0b;
   font-family: "Inter", sans-serif;
   color: white;
-  overflow-x: hidden;
-  height: 100%;
   -webkit-user-select: none;
   user-select: none;
+  scroll-behavior: smooth;
 }
 
 /* Allow text selection inside search inputs */
@@ -418,4 +417,18 @@ section {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@font-face {
+  font-family: 'Knockout';
+  src: url('/fonts/Knockout-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SlamDunk';
+  src: url('/fonts/SlamDunk.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
 }

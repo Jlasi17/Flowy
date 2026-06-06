@@ -11,6 +11,7 @@ import MuseumGallery from "./MuseumGallery";
 import LyricsSyncPage from "./LyricsSyncPage";
 import ProfilePage from "./ProfilePage";
 import PlaylistsPage from "./PlaylistsPage";
+import FeaturesPage from "./FeaturesPage";
 import { AuthProvider } from "./contexts/AuthContext";
 import { DataProvider } from "./contexts/DataContext";
 import AuthPage from "./components/AuthPage";
@@ -73,6 +74,7 @@ function App() {
               <Route path="/lyrics-sync" element={<ProtectedRoute><LyricsSyncPage /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
               <Route path="/playlists" element={<ProtectedRoute><PlaylistsPage /></ProtectedRoute>} />
+              <Route path="/FeaturesPage" element={<FeaturesPage />} />
             </Routes>
 
             <PersistentAudioPlayer />
