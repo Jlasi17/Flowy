@@ -7,7 +7,7 @@ import KaraokeButton from './KaraokeButton';
 import { useCinematicControls } from '../hooks/useCinematicControls';
 import './LyricsPanel.css';
 
-export default function LyricsPanel({ onClose }) {
+export default function LyricsPanel({ onClose, hideSingers }) {
   const {
     audioRef,
     albumData,
@@ -261,8 +261,8 @@ export default function LyricsPanel({ onClose }) {
         }}
       />
 
-      {/* Atmospheric Orbs Constellation — hidden on mobile via CSS */}
-      {!isSingleSinger && (
+      {/* Ambient Orbs Background (Optional feature) */}
+      {!hideSingers && !isSingleSinger && (
         <div className="ambient-orbs-container">
           {ORBS.map((orb) => {
             // Check main vs background (bracket) activity
