@@ -81,7 +81,7 @@ export default function AuthPage() {
   const { login, signup, loginWithGoogle, setupRecaptcha, loginWithPhoneNumber } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/dashboard/bts';
+  const from = location.state?.from?.pathname || (typeof location.state?.from === 'string' ? location.state.from : '/dashboard/bts');
 
   useEffect(() => {
     if (!window.recaptchaVerifier) {
@@ -392,7 +392,7 @@ export default function AuthPage() {
               Continue with Google
             </motion.button>
             <button type="button" className="auth-ghost-btn"
-              onClick={() => navigate(location.state?.from?.pathname || '/', { replace: true })}>
+              onClick={() => navigate('/', { replace: true })}>
               Continue as guest →
             </button>
           </div>

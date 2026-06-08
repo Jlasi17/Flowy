@@ -8,7 +8,7 @@ import LyricsPanel from "./components/LyricsPanel";
 import { AudioContext } from "./AudioPlayerProvider";
 import confetti from "canvas-confetti";
 import groupsData from "./data/musicRegistry";
-import { GlobalMuteManager } from "./components/GlobalMuteButton";
+import GlobalMuteButton, { GlobalMuteManager } from "./components/GlobalMuteButton";
 import "./FeaturesPage.css";
 
 let audioCtx = null;
@@ -1162,6 +1162,7 @@ export default function FeaturesPage() {
 
   return (
     <div className="fp-new-root">
+      <GlobalMuteButton />
       <canvas ref={canvasRef} className="fp-fluid-bg" />
 
       {/* ═══ SECTION 1: Hero zoom-through ═══ */}
@@ -1430,9 +1431,10 @@ export default function FeaturesPage() {
                 </div>
 
                 {/* SECTION 9: Heatmap */}
-                <div style={{ height: "100vh", width: "100%", flexShrink: 0, scrollSnapAlign: "start", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", position: "relative", zIndex: 20, background: "#000000ff" }}>
-                  <GradientSlideTitle text="Musical Footprint" style={{ fontSize: "4rem", fontWeight: 800, marginBottom: "3rem", letterSpacing: "-0.02em", textShadow: "none", fontFamily: "'Clash Display', sans-serif" }} />
-                  <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: false, amount: 0.5 }} transition={{ duration: 0.8, ease: EXPO_OUT, delay: 0.2 }} className="fp-heatmap-container">
+                <div style={{ height: "100vh", width: "100%", flexShrink: 0, scrollSnapAlign: "start", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", position: "relative", zIndex: 20, background: "transparent" }}>
+                  <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, backgroundImage: "url('/city.png')", backgroundSize: "100% auto", backgroundPosition: "bottom center", backgroundRepeat: "no-repeat", WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, transparent 30%, black 65%, black 100%)", maskImage: "linear-gradient(to bottom, transparent 0%, transparent 30%, black 65%, black 100%)" }} />
+                  <GradientSlideTitle text="Musical Footprint" style={{ position: "relative", zIndex: 1, fontSize: "4rem", fontWeight: 800, marginBottom: "3rem", letterSpacing: "-0.02em", textShadow: "none", fontFamily: "'Clash Display', sans-serif" }} />
+                  <motion.div style={{ position: "relative", zIndex: 1, marginBottom: "20vh" }} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: false, amount: 0.5 }} transition={{ duration: 0.8, ease: EXPO_OUT, delay: 0.2 }} className="fp-heatmap-container">
                     <div className="fp-heatmap-wrapper">
                       <div className="fp-heatmap-y-axis"><span /><span>Mon</span><span /><span>Wed</span><span /><span>Fri</span><span /></div>
                       <div className="fp-heatmap-content">

@@ -101,7 +101,7 @@ export default function Dashboard() {
     }
   }, [isSearchOpen, groupId, meta.hasSolos]);
 
-  const { currentUser, isAdmin } = useAuth();
+  const { currentUser, isAdmin, logout } = useAuth();
   const { requireAuth, setSongs, setAlbumData, setAlbumId, setCurrentIndex, setIsPlaying, albumData, isPlaying, activeSong, is8DActive, setIs8DActive } =
     useContext(AudioContext);
 
@@ -339,16 +339,36 @@ export default function Dashboard() {
             ) : (
               <>
                   {isAdmin ? (
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="db-circle-btn"
-                      onClick={() => requireAuth(() => navigate('/profile'))}
-                      aria-label="Profile"
-                      title="Profile"
-                    >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    </motion.button>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="db-circle-btn"
+                        onClick={() => requireAuth(() => navigate('/profile'))}
+                        aria-label="Profile"
+                        title="Profile"
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="db-circle-btn"
+                        onClick={async () => {
+                          try {
+                            await logout();
+                            navigate('/');
+                          } catch (err) {
+                            console.error("Failed to log out", err);
+                          }
+                        }}
+                        aria-label="Logout"
+                        title="Logout"
+                        style={{ color: '#ff4b4b', background: 'rgba(255, 75, 75, 0.1)' }}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                      </motion.button>
+                    </div>
                   ) : (
                     <>
                       <motion.button
