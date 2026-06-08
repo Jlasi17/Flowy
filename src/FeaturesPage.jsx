@@ -8,15 +8,188 @@ import LyricsPanel from "./components/LyricsPanel";
 import { AudioContext } from "./AudioPlayerProvider";
 import confetti from "canvas-confetti";
 import groupsData from "./data/musicRegistry";
+import { GlobalMuteManager } from "./components/GlobalMuteButton";
 import "./FeaturesPage.css";
 
-// ─── Utility: Play a synthesized "pop" sound ──────────────────────────────────
+let audioCtx = null;
+let popBuffer = null;
+
+async function initPopAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    try {
+      const response = await fetch('/soundeffects/bubble_pop.mp3');
+      const arrayBuffer = await response.arrayBuffer();
+      popBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+    } catch (e) {
+      console.log("Failed to load pop sound", e);
+    }
+  }
+}
+
 function playPopSound() {
+  if (GlobalMuteManager && GlobalMuteManager.isMuted) return;
   try {
-    const audio = new Audio('/soundeffects/bubble_pop.mp3');
-    audio.play().catch(e => console.log("Audio play failed:", e));
+    if (!audioCtx) {
+      initPopAudio();
+    }
+    if (audioCtx && popBuffer) {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      const source = audioCtx.createBufferSource();
+      source.buffer = popBuffer;
+      // Lower the volume slightly so it's not overpowering
+      const gainNode = audioCtx.createGain();
+      gainNode.gain.value = 0.5;
+      source.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      source.start(0);
+    } else {
+      // Fallback
+      const audio = new Audio('/soundeffects/bubble_pop.mp3');
+      audio.volume = 0.5;
+      audio.play().catch(() => {});
+    }
   } catch (e) {
     console.log("Audio pop failed", e);
+  }
+}
+
+class GaplessAudio {
+  constructor(url) {
+    this.url = url;
+    this._volume = 1;
+    this._playRequested = false;
+    this.buffer = null;
+    this.source = null;
+    this.gainNode = null;
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    this.startTime = 0;
+    this.pausedAt = 0;
+    this.loopStart = 0;
+    this.loopEnd = 0;
+    this._isMuted = false;
+    
+    this.load();
+  }
+
+  async load() {
+    try {
+      const response = await fetch(this.url);
+      const arrayBuffer = await response.arrayBuffer();
+      this.buffer = await audioCtx.decodeAudioData(arrayBuffer);
+      
+      // Dynamically calculate exact trim points by scanning for silence (typical mp3 padding)
+      const channelData = this.buffer.getChannelData(0);
+      const threshold = 0.01; // Silence threshold
+      let startSample = 0;
+      let endSample = channelData.length - 1;
+      
+      for (let i = 0; i < channelData.length; i++) {
+        if (Math.abs(channelData[i]) > threshold) {
+          startSample = i;
+          break;
+        }
+      }
+      for (let i = channelData.length - 1; i >= 0; i--) {
+        if (Math.abs(channelData[i]) > threshold) {
+          endSample = i;
+          break;
+        }
+      }
+      
+      this.loopStart = Math.max(0, (startSample) / this.buffer.sampleRate);
+      this.loopEnd = Math.min(this.buffer.duration, (endSample) / this.buffer.sampleRate);
+      
+      if (this._playRequested) {
+        this._startPlaying();
+      }
+    } catch (e) {
+      console.error('Gapless audio load failed', e);
+    }
+  }
+
+  _startPlaying() {
+    if (!this.buffer) return;
+    if (this.source) return; 
+    
+    this.source = audioCtx.createBufferSource();
+    this.source.buffer = this.buffer;
+    this.source.loop = true;
+    
+    // Apply dynamic trimming
+    if (this.loopEnd > this.loopStart) {
+      this.source.loopStart = this.loopStart;
+      this.source.loopEnd = this.loopEnd;
+    }
+
+    this.gainNode = audioCtx.createGain();
+    this.gainNode.gain.value = this._isMuted ? 0 : this._volume;
+
+    this.source.connect(this.gainNode);
+    this.gainNode.connect(audioCtx.destination);
+    
+    let offset = this.pausedAt % this.buffer.duration;
+    if (offset < this.loopStart) offset = this.loopStart;
+
+    this.source.start(0, offset);
+    this.startTime = audioCtx.currentTime - offset;
+  }
+
+  play() {
+    this._playRequested = true;
+    return new Promise(async (resolve) => {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+      }
+      this._startPlaying();
+      resolve();
+    });
+  }
+
+  pause() {
+    this._playRequested = false;
+    if (this.source) {
+      this.pausedAt = audioCtx.currentTime - this.startTime;
+      this.source.stop();
+      this.source.disconnect();
+      this.source = null;
+    }
+  }
+
+  setMuted(muted) {
+    this._isMuted = muted;
+    if (this.gainNode && audioCtx) {
+      this.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+      this.gainNode.gain.value = this._isMuted ? 0 : this._volume;
+    }
+  }
+
+  set volume(val) {
+    this._volume = Math.max(0, Math.min(1, val));
+    if (this.gainNode && audioCtx) {
+      this.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+      this.gainNode.gain.value = this._isMuted ? 0 : this._volume;
+    }
+  }
+
+  fadeVolume(targetVal, durationMs = 1500) {
+    this._volume = Math.max(0, Math.min(1, targetVal));
+    if (this.gainNode && audioCtx && !this._isMuted) {
+      const currTime = audioCtx.currentTime;
+      // Use setTargetAtTime for a smooth, exponential fade that doesn't glitch
+      this.gainNode.gain.setTargetAtTime(this._volume, currTime, durationMs / 3000); 
+    }
+  }
+
+  get volume() {
+    return this._volume;
   }
 }
 
@@ -142,6 +315,111 @@ function BubbleExplosion({ x, y, color, onDone }) {
       style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh", pointerEvents: "none", zIndex: 9999 }}
     />
   );
+}
+
+// ─── InteractiveImageParticles ───────────────────────────────────
+function InteractiveImageParticles({ src }) {
+  const canvasRef = useRef(null);
+  
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width = window.innerWidth;
+    const H = canvas.height = window.innerHeight;
+    
+    let mouse = { x: -1000, y: -1000 };
+    
+    const onMouseMove = (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    };
+    
+    window.addEventListener("mousemove", onMouseMove);
+    
+    const img = new Image();
+    img.src = src;
+    let raf;
+    
+    img.onload = () => {
+      const offCanvas = document.createElement("canvas");
+      const offCtx = offCanvas.getContext("2d");
+      
+      const imgSize = 384; 
+      offCanvas.width = imgSize;
+      offCanvas.height = imgSize;
+      
+      offCtx.fillStyle = '#e5ff00';
+      offCtx.fillRect(0, 0, imgSize, imgSize);
+      offCtx.drawImage(img, 0, 0, imgSize, imgSize);
+      
+      const imgData = offCtx.getImageData(0, 0, imgSize, imgSize).data;
+      const particles = [];
+      const step = 6; 
+      
+      const startX = W / 2 - imgSize / 2;
+      const startY = H / 2 - imgSize / 2;
+
+      for (let y = 0; y < imgSize; y += step) {
+        for (let x = 0; x < imgSize; x += step) {
+          const i = (y * imgSize + x) * 4;
+          if (imgData[i + 3] > 0) { 
+            const targetX = startX + x;
+            const targetY = startY + y;
+            particles.push({
+              targetX,
+              targetY,
+              x: W / 2 + (Math.random() - 0.5) * 150,
+              y: H / 2 + (Math.random() - 0.5) * 150,
+              color: `rgba(${imgData[i]}, ${imgData[i+1]}, ${imgData[i+2]}, ${imgData[i+3]/255})`,
+              vx: (Math.random() - 0.5) * 40,
+              vy: (Math.random() - 0.5) * 40,
+              size: step * 0.95
+            });
+          }
+        }
+      }
+      
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+        particles.forEach(p => {
+          const dx = mouse.x - p.x;
+          const dy = mouse.y - p.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist < 120) {
+            const force = (120 - dist) / 120;
+            p.vx -= (dx / dist) * force * 15;
+            p.vy -= (dy / dist) * force * 15;
+          }
+          
+          // Spring back to target
+          p.vx += (p.targetX - p.x) * 0.05;
+          p.vy += (p.targetY - p.y) * 0.05;
+          
+          // Friction
+          p.vx *= 0.85;
+          p.vy *= 0.85;
+          
+          p.x += p.vx;
+          p.y += p.vy;
+          
+          ctx.fillStyle = p.color;
+          ctx.fillRect(p.x, p.y, p.size, p.size);
+        });
+        
+        raf = requestAnimationFrame(draw);
+      }
+      draw();
+    };
+    
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [src]);
+
+  return <canvas ref={canvasRef} style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh", pointerEvents: "none", zIndex: 1 }} />;
 }
 
 // ─── Song Bubble ──────────────────────────────────────────────────────────────
@@ -492,13 +770,15 @@ function ScrollTransformingText({ containerRef }) {
 function CinematicCTA({ onClick }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: false, amount: 0.5 });
-  const [hovered, setHovered] = useState(false);
   return (
     <motion.div ref={ref} initial={{ opacity: 0, scale: 0.9 }} animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }} transition={{ duration: 0.8, delay: 0.2, ease: EXPO_OUT }}>
-      <motion.button onClick={onClick} onHoverStart={() => setHovered(true)} onHoverEnd={() => setHovered(false)} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="fp-cta-btn" style={{ position: "relative", overflow: "hidden" }}>
-        <motion.span className="fp-cta-shimmer" initial={{ x: "-100%" }} animate={{ x: hovered ? "100%" : "-100%" }} transition={{ duration: 0.55, ease: "easeInOut" }} />
-        <span style={{ position: "relative", zIndex: 1 }}>join us</span>
-      </motion.button>
+      <button className="pushable" onClick={onClick}>
+        <span className="shadow"></span>
+        <span className="edge"></span>
+        <span className="front">
+          join us
+        </span>
+      </button>
     </motion.div>
   );
 }
@@ -663,6 +943,75 @@ export default function FeaturesPage() {
   const [currentTime, setCurrentTime] = useState(0);
   const touchStartY = useRef(0);
   const [isKaraokeActive, setIsKaraokeActive] = useState(false);
+  const openingSoundRef = useRef(null);
+  const [isMuted, setIsMuted] = useState(GlobalMuteManager.isMuted);
+
+  useEffect(() => {
+    const handleMuteChange = (e) => setIsMuted(e.detail.isMuted);
+    window.addEventListener('globalMuteChange', handleMuteChange);
+    return () => window.removeEventListener('globalMuteChange', handleMuteChange);
+  }, []);
+
+  useEffect(() => {
+    if (openingSoundRef.current) {
+      openingSoundRef.current.setMuted(isMuted);
+    }
+    if (currentAudio) {
+      currentAudio.muted = isMuted;
+    }
+  }, [isMuted, currentAudio]);
+
+  useEffect(() => {
+    if (!openingSoundRef.current) {
+      openingSoundRef.current = new GaplessAudio('/soundeffects/opening_sound.mp3');
+    }
+    const opening = openingSoundRef.current;
+    
+    const tryPlay = () => {
+      if (!activeTrack) {
+        opening.volume = 0;
+        opening.play()
+          .then(() => {
+            if (opening.fadeInterval) clearInterval(opening.fadeInterval);
+            opening.fadeInterval = setInterval(() => {
+              if (opening.volume < 0.95) opening.volume += 0.05;
+              else { opening.volume = 1; clearInterval(opening.fadeInterval); }
+            }, 50);
+            document.removeEventListener('click', tryPlay);
+            document.removeEventListener('scroll', tryPlay);
+            document.removeEventListener('touchstart', tryPlay);
+          })
+          .catch(e => console.log("Waiting for interaction..."));
+      }
+    };
+
+    if (!activeTrack) {
+      opening.volume = 0;
+      opening.play().then(() => {
+        if (opening.fadeInterval) clearInterval(opening.fadeInterval);
+        opening.fadeInterval = setInterval(() => {
+          if (opening.volume < 0.95) opening.volume += 0.05;
+          else { opening.volume = 1; clearInterval(opening.fadeInterval); }
+        }, 50);
+      }).catch(e => {
+        document.addEventListener('click', tryPlay);
+        document.addEventListener('scroll', tryPlay);
+        document.addEventListener('touchstart', tryPlay);
+      });
+    } else {
+      if (opening.fadeInterval) clearInterval(opening.fadeInterval);
+      opening.fadeInterval = setInterval(() => {
+        if (opening.volume > 0.05) opening.volume -= 0.05;
+        else { opening.volume = 0; opening.pause(); clearInterval(opening.fadeInterval); }
+      }, 50);
+    }
+
+    return () => {
+      document.removeEventListener('click', tryPlay);
+      document.removeEventListener('scroll', tryPlay);
+      document.removeEventListener('touchstart', tryPlay);
+    };
+  }, [activeTrack]);
 
   const [heatmapSquares] = useState(() => {
     const squares = [];
@@ -681,21 +1030,64 @@ export default function FeaturesPage() {
   });
 
   useEffect(() => { currentAudioRef.current = currentAudio; }, [currentAudio]);
-  useEffect(() => { return () => { if (currentAudio) currentAudio.pause(); }; }, [currentAudio]);
+  useEffect(() => { 
+    return () => { 
+      if (currentAudioRef.current) currentAudioRef.current.pause(); 
+    }; 
+  }, []);
+
+  const fadeOutAudio = useCallback((audio) => {
+    if (!audio) return;
+    if (audio.fadeInterval) clearInterval(audio.fadeInterval);
+    audio.fadeInterval = setInterval(() => {
+      if (audio.volume > 0.05) {
+        audio.volume -= 0.05;
+      } else {
+        audio.volume = 0;
+        audio.pause();
+        clearInterval(audio.fadeInterval);
+      }
+    }, 50);
+  }, []);
 
   const createAndPlayAudio = useCallback((fileUrl, startTime, track) => {
-    if (currentAudioRef.current) currentAudioRef.current.pause();
+    const oldAudio = currentAudioRef.current;
+    if (oldAudio) {
+      fadeOutAudio(oldAudio);
+    }
+    
     const audio = new Audio(fileUrl);
+    audio.muted = GlobalMuteManager.isMuted;
     audio.currentTime = startTime;
+    audio.volume = 0;
     audio.play().catch(e => console.log("Audio play failed:", e));
     audio.loop = true;
+    
+    // Gapless loop hack
+    audio.addEventListener('timeupdate', function() {
+      if (this.duration && this.currentTime >= this.duration - 0.25) {
+        this.currentTime = 0.05;
+        this.play().catch(e => {});
+      }
+    });
     setCurrentAudio(audio);
     setIsPlaying(true);
     if (track) setActiveTrack(track);
+    
+    const fadeInStep = 0.05;
+    audio.fadeInterval = setInterval(() => {
+      if (audio.volume < 1 - fadeInStep) {
+        audio.volume += fadeInStep;
+      } else {
+        audio.volume = 1;
+        clearInterval(audio.fadeInterval);
+      }
+    }, 50);
+
     audio.addEventListener('pause', () => setIsPlaying(false));
     audio.addEventListener('play', () => setIsPlaying(true));
     audio.addEventListener('timeupdate', () => setCurrentTime(audio.currentTime));
-  }, []);
+  }, [fadeOutAudio]);
 
   const handlePlayTrack = useCallback((track) => {
     setHasSelectedSong(true);
@@ -721,6 +1113,12 @@ export default function FeaturesPage() {
   const cardBorder = useTransform(cardProgress, [0.2, 0.7], ["1.5px", "0px"]);
   const cardShadowOpacity = useTransform(cardProgress, [0.2, 0.7], [1, 0]);
 
+  const [hasScrolledHero, setHasScrolledHero] = useState(false);
+  useMotionValueEvent(heroProgress, "change", (latest) => {
+    if (latest > 0.02 && !hasScrolledHero) setHasScrolledHero(true);
+    else if (latest <= 0.02 && hasScrolledHero) setHasScrolledHero(false);
+  });
+
   // Album cover flow transforms — kept exactly as original
   const albumSpread = useTransform(cardProgress, [0.5, 0.7], [1, 2.2]);
   const sideAlbumScale = useTransform(cardProgress, [0.2, 0.55, 0.65], [1, 1.6, 0.001]);
@@ -745,6 +1143,7 @@ export default function FeaturesPage() {
   const bubblesVisible = useTransform(cardProgress, v => v > 0.82);
 
   const [showBubbles, setShowBubbles] = useState(false);
+
   useMotionValueEvent(bubblesVisible, "change", (latest) => {
     setShowBubbles(latest);
   });
@@ -780,6 +1179,44 @@ export default function FeaturesPage() {
             </foreignObject>
           </svg>
           <motion.div style={{ position: "absolute", inset: 0, background: "rgba(5, 5, 15, 0.88)", zIndex: 15, opacity: blackOpacity }} />
+          
+          <AnimatePresence>
+            {!hasScrolledHero && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10, transition: { duration: 0.3 } }}
+                transition={{ delay: 1.5, duration: 1 }}
+                style={{
+                  position: "absolute",
+                  bottom: "8%",
+                  left: "50%",
+                  x: "-50%",
+                  zIndex: 20,
+                  color: "#fff",
+                  fontFamily: "'Clash Display', sans-serif",
+                  fontSize: "0.9rem",
+                  letterSpacing: "0.15em",
+                  textTransform: "uppercase",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "8px",
+                  pointerEvents: "none"
+                }}
+              >
+                <span>Scroll to experience</span>
+                <motion.div
+                  animate={{ y: [0, 8, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                  </svg>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </div>
 
@@ -851,13 +1288,16 @@ export default function FeaturesPage() {
                     )}
                   </AnimatePresence>
 
-                  {/* Center HYBE album — stays pinned in middle */}
-                  <motion.div
-                    className="fp-bubble-center-album"
-                    style={{ opacity: bubblesOpacity }}
-                  >
-                    <img src="/hybe-logo.png" alt="HYBE" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
-                  </motion.div>
+                  {/* Interactive HYBE particles */}
+                  {!showBubbles && (
+                    <motion.div
+                      className="fp-bubble-center-album"
+                      style={{ opacity: bubblesOpacity }}
+                    >
+                      <img src="/hybe-logo.png" alt="HYBE" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+                    </motion.div>
+                  )}
+                  {showBubbles && <InteractiveImageParticles src="/hybe-logo.png" />}
 
                   {/* Bubbles */}
                   <BubbleTracklist
@@ -877,13 +1317,13 @@ export default function FeaturesPage() {
               <motion.div
                 ref={standaloneContainerRef}
                 className="maximized-overlay fp-standalone-player"
-                initial={{ opacity: 0, scale: 0.9, y: 50 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 50, transition: { duration: 0.4 } }}
+                initial={{ opacity: 0, y: 80 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 80, transition: { duration: 0.4 } }}
                 transition={{ duration: 0.85, ease: EXPO_OUT }}
                 onWheel={(e) => {
                   if (e.currentTarget.scrollTop === 0 && e.deltaY < 0) {
-                    if (currentAudio) currentAudio.pause();
+                    fadeOutAudio(currentAudioRef.current);
                     setActiveTrack(null);
                     setIsPlaying(false);
                   }
@@ -893,7 +1333,7 @@ export default function FeaturesPage() {
                   if (e.currentTarget.scrollTop === 0) {
                     const deltaY = e.touches[0].clientY - touchStartY.current;
                     if (deltaY > 60) {
-                      if (currentAudioRef.current) currentAudioRef.current.pause();
+                      fadeOutAudio(currentAudioRef.current);
                       setActiveTrack(null);
                       setIsPlaying(false);
                     }
@@ -904,8 +1344,8 @@ export default function FeaturesPage() {
                   const vh = window.innerHeight;
                   const sectionIndex = Math.round(scrollTop / vh);
 
-                  // Karaoke instrumental should play during Mask (5), Karaoke (6), and Lyrics (7)
-                  const shouldBeKaraoke = sectionIndex >= 5 && sectionIndex <= 7;
+                  // Karaoke instrumental should play during Karaoke (6) and Lyrics (7)
+                  const shouldBeKaraoke = sectionIndex >= 6 && sectionIndex <= 7;
 
                   if (shouldBeKaraoke && !isKaraokeActive) {
                     setIsKaraokeActive(true);
@@ -925,7 +1365,7 @@ export default function FeaturesPage() {
                     window.karaokeConfettiPopped = false;
                   }
                 }}
-                style={{ position: "absolute", inset: 0, zIndex: 100, background: "transparent", animation: "none", overflowY: "auto", scrollSnapType: "y mandatory", scrollbarWidth: "none" }}
+                style={{ position: "absolute", inset: 0, zIndex: 100, background: "transparent", animation: "none", overflowY: "auto", scrollSnapType: "y mandatory", scrollbarWidth: "none", willChange: "transform, opacity" }}
               >
                 <div className="maximized-bg" style={{ position: "fixed", backgroundImage: activeTrack?.cover ? `url(${activeTrack.cover})` : 'none', backgroundColor: !activeTrack?.cover ? '#e5ff00' : undefined }} />
                 <div className="maximized-bg-tint" style={{ position: "fixed", background: 'rgba(0,0,0,0.8)' }} />

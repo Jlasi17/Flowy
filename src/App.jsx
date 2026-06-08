@@ -19,6 +19,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AuthModal from "./components/AuthModal";
 import AddToPlaylistModal from "./AddToPlaylistModal";
 import { AudioContext } from "./AudioPlayerProvider";
+import GlobalMuteButton from "./components/GlobalMuteButton";
 
 function Home() {
   const [showHero, setShowHero] = React.useState(() => {
@@ -80,6 +81,7 @@ function App() {
             <PersistentAudioPlayer />
             <AuthModal />
             <GlobalModals />
+            <GlobalMuteButton />
           </BrowserRouter>
         </AudioPlayerProvider>
       </AuthProvider>
