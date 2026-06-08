@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import WebGLFluid from "webgl-fluid";
-import { motion, useScroll, useTransform, AnimatePresence, useInView, useMotionValueEvent } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence, useInView, useMotionValueEvent, useMotionTemplate } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Fireworks } from '@fireworks-js/react';
 import LyricsPanel from "./components/LyricsPanel";
@@ -518,6 +518,93 @@ function KaraokeTitle({ text, currentTime }) {
   );
 }
 
+// ─── KineticMaskSequence ──────────────────────────────────────────────────────
+function VariableStretchText({ scrollYProgress }) {
+  const fontSize = useTransform(scrollYProgress, [0, 0.33], ["12vh", "60vh"]);
+  const wdth = useTransform(scrollYProgress, [0, 0.33], [120, 20]);
+  const fontVariationSettings = useMotionTemplate`"wdth" ${wdth}, "wght" 900`;
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&display=swap');
+      `}</style>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", width: "100%", height: "100%", paddingBottom: "5vh" }}>
+        <motion.div
+          style={{
+            fontFamily: "'Roboto Flex', sans-serif",
+            textTransform: "uppercase",
+            color: "#fff",
+            fontSize,
+            fontVariationSettings,
+            textAlign: "center",
+            whiteSpace: "nowrap",
+            lineHeight: 0.85
+          }}
+        >
+          HOW
+        </motion.div>
+        <motion.div
+          style={{
+            fontFamily: "'Roboto Flex', sans-serif",
+            textTransform: "uppercase",
+            color: "#fff",
+            fontSize,
+            fontVariationSettings,
+            textAlign: "center",
+            whiteSpace: "nowrap",
+            lineHeight: 0.85
+          }}
+        >
+          ABOUT
+        </motion.div>
+      </div>
+    </>
+  );
+}
+
+function KineticMaskSequence({ containerRef, currentTime }) {
+  const targetRef = useRef(null);
+  
+  const { scrollYProgress } = useScroll({ 
+    target: targetRef, 
+    container: containerRef, 
+    offset: ["start start", "end end"] 
+  });
+
+  return (
+    <div ref={targetRef} style={{ height: "300vh", width: "100%", position: "relative", zIndex: 10, background: "#000" }}>
+      
+      {/* 3 Snap points */}
+      <div style={{ height: "100vh", width: "100%", scrollSnapAlign: "start", flexShrink: 0 }} />
+      <div style={{ height: "100vh", width: "100%", scrollSnapAlign: "start", flexShrink: 0 }} />
+      <div style={{ height: "100vh", width: "100%", scrollSnapAlign: "start", flexShrink: 0 }} />
+
+      {/* WHITE BACKDROP (Reveals mask letters as white initially) */}
+      <div style={{ position: "absolute", top: 0, height: "100vh", width: "100%", background: "#fff", zIndex: 0 }} />
+
+      {/* KARAOKE PARENT */}
+      <div style={{ position: "absolute", top: "100vh", height: "200vh", width: "100%", zIndex: 1 }}>
+        <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden", background: "#000", display: "flex", justifyContent: "center", alignItems: "center" }}>
+           <KaraokeTitle text="karaoke party !!!" currentTime={currentTime} />
+        </div>
+      </div>
+
+      {/* MASK PARENT */}
+      <div style={{ position: "absolute", top: 0, height: "200vh", width: "100%", zIndex: 10, pointerEvents: "none" }}>
+        <div style={{ 
+          position: "sticky", top: 0, height: "100vh", 
+          background: "#000", color: "#fff", 
+          mixBlendMode: "multiply"
+        }}>
+           <VariableStretchText scrollYProgress={scrollYProgress} />
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
 // ─── Utility ──────────────────────────────────────────────────────────────────
 function getCoverForFile(filePath) {
   if (!filePath) return null;
@@ -805,18 +892,26 @@ export default function FeaturesPage() {
                   const scrollTop = e.currentTarget.scrollTop;
                   const vh = window.innerHeight;
                   const sectionIndex = Math.round(scrollTop / vh);
-                  const shouldBeKaraoke = sectionIndex === 5 || sectionIndex === 6;
+                  
+                  // Karaoke instrumental should play during Mask (5), Karaoke (6), and Lyrics (7)
+                  const shouldBeKaraoke = sectionIndex >= 5 && sectionIndex <= 7;
+                  
                   if (shouldBeKaraoke && !isKaraokeActive) {
                     setIsKaraokeActive(true);
-                    if (sectionIndex === 5) {
-                      confetti({ particleCount: 200, spread: 160, origin: { y: 0 }, gravity: 1.2, ticks: 300, colors: ['#000', '#fff', '#ff0055', '#00ffcc'] });
-                    }
                     const time = currentAudioRef.current?.currentTime || 0;
                     createAndPlayAudio(activeTrack.instrumentalFile || activeTrack.file.replace(".mp3", "_instrumental.mp3"), time);
                   } else if (!shouldBeKaraoke && isKaraokeActive) {
                     setIsKaraokeActive(false);
                     const time = currentAudioRef.current?.currentTime || 0;
                     createAndPlayAudio(activeTrack.file, time);
+                  }
+
+                  // Pop confetti ONLY when the Karaoke letters are fully revealed without the mask (Index 6)
+                  if (sectionIndex === 6 && !window.karaokeConfettiPopped) {
+                    confetti({ particleCount: 200, spread: 160, origin: { y: 0 }, gravity: 1.2, ticks: 300, colors: ['#000', '#fff', '#ff0055', '#00ffcc'] });
+                    window.karaokeConfettiPopped = true;
+                  } else if (sectionIndex < 6) {
+                    window.karaokeConfettiPopped = false;
                   }
                 }}
                 style={{ position: "absolute", inset: 0, zIndex: 100, background: "transparent", animation: "none", overflowY: "auto", scrollSnapType: "y mandatory", scrollbarWidth: "none" }}
@@ -863,19 +958,8 @@ export default function FeaturesPage() {
                   </AudioContext.Provider>
                 </div>
 
-                {/* SECTION 5: how about */}
-                <div style={{ height: "100vh", width: "100%", flexShrink: 0, scrollSnapAlign: "start", display: "flex", justifyContent: "center", alignItems: "center", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.9)" }}>
-                  <h3 style={{ fontSize: "4rem", fontWeight: 700, letterSpacing: "0.02em", textAlign: "center", margin: 0, color: "rgba(255,255,255,0.9)", fontFamily: "'Instrument Serif', serif", fontStyle: "italic" }}>
-                    <SlowScaleReveal style={{ fontSize: "inherit", fontWeight: "inherit", letterSpacing: "inherit", fontFamily: "inherit", fontStyle: "inherit", color: "inherit" }} delay={0}>
-                      HOW ABOUT<TypedEllipsis delay={0.85} />
-                    </SlowScaleReveal>
-                  </h3>
-                </div>
-
-                {/* SECTION 6: karaoke party */}
-                <div style={{ height: "100vh", width: "100%", flexShrink: 0, scrollSnapAlign: "start", display: "flex", justifyContent: "center", alignItems: "center", position: "relative", zIndex: 10, background: "#000" }}>
-                  <KaraokeTitle text="karaoke party !!!" currentTime={currentTime} />
-                </div>
+                {/* SECTION 5 & 6: KINETIC MASK SEQUENCE */}
+                <KineticMaskSequence containerRef={standaloneContainerRef} currentTime={currentTime} />
 
                 {/* SECTION 7: Karaoke lyrics */}
                 <div className="fp-lyrics-wrapper" style={{ height: "100vh", width: "100%", flexShrink: 0, scrollSnapAlign: "start", position: "relative", zIndex: 10 }}>
