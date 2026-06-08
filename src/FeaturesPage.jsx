@@ -49,7 +49,7 @@ function playPopSound() {
       // Fallback
       const audio = new Audio('/soundeffects/bubble_pop.mp3');
       audio.volume = 0.5;
-      audio.play().catch(() => {});
+      audio.play().catch(() => { });
     }
   } catch (e) {
     console.log("Audio pop failed", e);
@@ -72,7 +72,7 @@ class GaplessAudio {
     this.loopStart = 0;
     this.loopEnd = 0;
     this._isMuted = false;
-    
+
     this.load();
   }
 
@@ -81,13 +81,13 @@ class GaplessAudio {
       const response = await fetch(this.url);
       const arrayBuffer = await response.arrayBuffer();
       this.buffer = await audioCtx.decodeAudioData(arrayBuffer);
-      
+
       // Dynamically calculate exact trim points by scanning for silence (typical mp3 padding)
       const channelData = this.buffer.getChannelData(0);
       const threshold = 0.01; // Silence threshold
       let startSample = 0;
       let endSample = channelData.length - 1;
-      
+
       for (let i = 0; i < channelData.length; i++) {
         if (Math.abs(channelData[i]) > threshold) {
           startSample = i;
@@ -100,10 +100,10 @@ class GaplessAudio {
           break;
         }
       }
-      
+
       this.loopStart = Math.max(0, (startSample) / this.buffer.sampleRate);
       this.loopEnd = Math.min(this.buffer.duration, (endSample) / this.buffer.sampleRate);
-      
+
       if (this._playRequested) {
         this._startPlaying();
       }
@@ -114,12 +114,12 @@ class GaplessAudio {
 
   _startPlaying() {
     if (!this.buffer) return;
-    if (this.source) return; 
-    
+    if (this.source) return;
+
     this.source = audioCtx.createBufferSource();
     this.source.buffer = this.buffer;
     this.source.loop = true;
-    
+
     // Apply dynamic trimming
     if (this.loopEnd > this.loopStart) {
       this.source.loopStart = this.loopStart;
@@ -131,7 +131,7 @@ class GaplessAudio {
 
     this.source.connect(this.gainNode);
     this.gainNode.connect(audioCtx.destination);
-    
+
     let offset = this.pausedAt % this.buffer.duration;
     if (offset < this.loopStart) offset = this.loopStart;
 
@@ -184,7 +184,7 @@ class GaplessAudio {
     if (this.gainNode && audioCtx && !this._isMuted) {
       const currTime = audioCtx.currentTime;
       // Use setTargetAtTime for a smooth, exponential fade that doesn't glitch
-      this.gainNode.gain.setTargetAtTime(this._volume, currTime, durationMs / 3000); 
+      this.gainNode.gain.setTargetAtTime(this._volume, currTime, durationMs / 3000);
     }
   }
 
@@ -320,50 +320,50 @@ function BubbleExplosion({ x, y, color, onDone }) {
 // ─── InteractiveImageParticles ───────────────────────────────────
 function InteractiveImageParticles({ src }) {
   const canvasRef = useRef(null);
-  
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     const W = canvas.width = window.innerWidth;
     const H = canvas.height = window.innerHeight;
-    
+
     let mouse = { x: -1000, y: -1000 };
-    
+
     const onMouseMove = (e) => {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
     };
-    
+
     window.addEventListener("mousemove", onMouseMove);
-    
+
     const img = new Image();
     img.src = src;
     let raf;
-    
+
     img.onload = () => {
       const offCanvas = document.createElement("canvas");
       const offCtx = offCanvas.getContext("2d");
-      
-      const imgSize = 384; 
+
+      const imgSize = 384;
       offCanvas.width = imgSize;
       offCanvas.height = imgSize;
-      
+
       offCtx.fillStyle = '#e5ff00';
       offCtx.fillRect(0, 0, imgSize, imgSize);
       offCtx.drawImage(img, 0, 0, imgSize, imgSize);
-      
+
       const imgData = offCtx.getImageData(0, 0, imgSize, imgSize).data;
       const particles = [];
-      const step = 6; 
-      
+      const step = 6;
+
       const startX = W / 2 - imgSize / 2;
       const startY = H / 2 - imgSize / 2;
 
       for (let y = 0; y < imgSize; y += step) {
         for (let x = 0; x < imgSize; x += step) {
           const i = (y * imgSize + x) * 4;
-          if (imgData[i + 3] > 0) { 
+          if (imgData[i + 3] > 0) {
             const targetX = startX + x;
             const targetY = startY + y;
             particles.push({
@@ -371,7 +371,7 @@ function InteractiveImageParticles({ src }) {
               targetY,
               x: W / 2 + (Math.random() - 0.5) * 150,
               y: H / 2 + (Math.random() - 0.5) * 150,
-              color: `rgba(${imgData[i]}, ${imgData[i+1]}, ${imgData[i+2]}, ${imgData[i+3]/255})`,
+              color: `rgba(${imgData[i]}, ${imgData[i + 1]}, ${imgData[i + 2]}, ${imgData[i + 3] / 255})`,
               vx: (Math.random() - 0.5) * 40,
               vy: (Math.random() - 0.5) * 40,
               size: step * 0.95
@@ -379,40 +379,40 @@ function InteractiveImageParticles({ src }) {
           }
         }
       }
-      
+
       function draw() {
         ctx.clearRect(0, 0, W, H);
         particles.forEach(p => {
           const dx = mouse.x - p.x;
           const dy = mouse.y - p.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          
+
           if (dist < 120) {
             const force = (120 - dist) / 120;
             p.vx -= (dx / dist) * force * 15;
             p.vy -= (dy / dist) * force * 15;
           }
-          
+
           // Spring back to target
           p.vx += (p.targetX - p.x) * 0.05;
           p.vy += (p.targetY - p.y) * 0.05;
-          
+
           // Friction
           p.vx *= 0.85;
           p.vy *= 0.85;
-          
+
           p.x += p.vx;
           p.y += p.vy;
-          
+
           ctx.fillStyle = p.color;
           ctx.fillRect(p.x, p.y, p.size, p.size);
         });
-        
+
         raf = requestAnimationFrame(draw);
       }
       draw();
     };
-    
+
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
       if (raf) cancelAnimationFrame(raf);
@@ -966,7 +966,7 @@ export default function FeaturesPage() {
       openingSoundRef.current = new GaplessAudio('/soundeffects/opening_sound.mp3');
     }
     const opening = openingSoundRef.current;
-    
+
     const tryPlay = () => {
       if (!activeTrack) {
         opening.volume = 0;
@@ -1030,10 +1030,10 @@ export default function FeaturesPage() {
   });
 
   useEffect(() => { currentAudioRef.current = currentAudio; }, [currentAudio]);
-  useEffect(() => { 
-    return () => { 
-      if (currentAudioRef.current) currentAudioRef.current.pause(); 
-    }; 
+  useEffect(() => {
+    return () => {
+      if (currentAudioRef.current) currentAudioRef.current.pause();
+    };
   }, []);
 
   const fadeOutAudio = useCallback((audio) => {
@@ -1055,25 +1055,25 @@ export default function FeaturesPage() {
     if (oldAudio) {
       fadeOutAudio(oldAudio);
     }
-    
+
     const audio = new Audio(fileUrl);
     audio.muted = GlobalMuteManager.isMuted;
     audio.currentTime = startTime;
     audio.volume = 0;
     audio.play().catch(e => console.log("Audio play failed:", e));
     audio.loop = true;
-    
+
     // Gapless loop hack
-    audio.addEventListener('timeupdate', function() {
+    audio.addEventListener('timeupdate', function () {
       if (this.duration && this.currentTime >= this.duration - 0.25) {
         this.currentTime = 0.05;
-        this.play().catch(e => {});
+        this.play().catch(e => { });
       }
     });
     setCurrentAudio(audio);
     setIsPlaying(true);
     if (track) setActiveTrack(track);
-    
+
     const fadeInStep = 0.05;
     audio.fadeInterval = setInterval(() => {
       if (audio.volume < 1 - fadeInStep) {
@@ -1179,7 +1179,7 @@ export default function FeaturesPage() {
             </foreignObject>
           </svg>
           <motion.div style={{ position: "absolute", inset: 0, background: "rgba(5, 5, 15, 0.88)", zIndex: 15, opacity: blackOpacity }} />
-          
+
           <AnimatePresence>
             {!hasScrolledHero && (
               <motion.div
@@ -1211,7 +1211,7 @@ export default function FeaturesPage() {
                   transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                    <path d="M12 5v14M19 12l-7 7-7-7" />
                   </svg>
                 </motion.div>
               </motion.div>
@@ -1422,7 +1422,7 @@ export default function FeaturesPage() {
                 {/* SECTION 8: 3D Grid */}
                 <div className="fp-section-8-wrapper" style={{ height: "400vh", width: "100%", flexShrink: 0, scrollSnapAlign: "start", position: "relative", zIndex: 20, background: "#000" }}>
                   <div className="stuck-grid">
-                    <h2 style={{ position: "absolute", zIndex: 10, fontSize: "5rem", fontWeight: 800, textAlign: "center", pointerEvents: "none", color: "#fff", textShadow: "0 10px 30px rgba(0,0,0,0.8)", fontFamily: "'Clash Display', sans-serif" }}>we wanna show ur love towards music with</h2>
+                    <h2 style={{ position: "absolute", zIndex: 10, fontSize: "10rem", fontWeight: 800, textAlign: "center", pointerEvents: "none", color: "#ffffffff", textShadow: "0 10px 30px rgba(0,0,0,0.8)", fontFamily: "'OffBit-DotBold', sans-serif", lineHeight: 1 }}>We wanna show<br /> your love<br />towards music</h2>
                     {["/bts/bts1.jpg", "/bts/bts2.jpg", "/bts/bts3.jpg", "/bts/bts4.jpg", "/bts/bts5.jpg", "/bts/bts6.jpg", "/bts/bts7.jpg", "/bts/bts8.jpg", "/bts/bts9.jpg", "/bts/bts10.jpg", "/bts/bts11.jpg", "/bts/bts12.jpg", "/bts/bts13.jpg", "/bts/bts14.jpg", "/bts/bts15.jpg", "/txt/txt1.jpg", "/txt/txt2.jpg", "/txt/txt3.jpg", "/txt/txt4.jpg", "/txt/txt5.jpg", "/txt/txt6.jpg", "/txt/txt7.png", "/txt/txt8.png", "/txt/txt9.jpg", "/txt/txt10.jpg", "/txt/txt11.jpg", "/txt/txt12.jpg", "/txt/txt13.png", "/le/le1.png", "/le/le2.png", "/le/le3.jpg", "/le/le4.jpg", "/le/le5.png", "/le/le6.jpg", "/le/le7.png", "/le/le8.jpg", "/le/le9.png", "/bts/promise.png", "/bts/stay_alive.png", "/bts/take_two.png"].map((src, i) => (
                       <div key={i} className="grid-item" style={{ backgroundImage: `url('${src}')`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '0.5vmin', boxShadow: '0 20px 50px rgba(0,0,0,0.8)' }} />
                     ))}

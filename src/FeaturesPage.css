@@ -1145,3 +1145,10 @@ html {
   50% { opacity: 1; }
   100% { opacity: 0.5; }
 }
+
+@font-face {
+  font-family: 'OffBit-DotBold';
+  src: url('/fonts/OffBit-DotBold.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
