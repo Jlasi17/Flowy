@@ -7,7 +7,7 @@ import KaraokeButton from './KaraokeButton';
 import { useCinematicControls } from '../hooks/useCinematicControls';
 import './LyricsPanel.css';
 
-export default function LyricsPanel({ onClose, hideSingers }) {
+export default function LyricsPanel({ onClose }) {
   const {
     audioRef,
     albumData,
@@ -248,9 +248,9 @@ export default function LyricsPanel({ onClose, hideSingers }) {
       {/* Blurred album art background */}
       <div
         className="lyrics-bg"
-        style={{ 
+        style={{
           backgroundImage: (activeSong?.cover || albumData?.cover) ? `url(${activeSong?.cover || albumData?.cover})` : 'none',
-          backgroundColor: !(activeSong?.cover || albumData?.cover) ? albumData?.color : undefined 
+          backgroundColor: !(activeSong?.cover || albumData?.cover) ? albumData?.color : undefined
         }}
       />
       <div
@@ -261,8 +261,8 @@ export default function LyricsPanel({ onClose, hideSingers }) {
         }}
       />
 
-      {/* Ambient Orbs Background (Optional feature) */}
-      {!hideSingers && !isSingleSinger && (
+      {/* Atmospheric Orbs Constellation — hidden on mobile via CSS */}
+      {!karaokeMode && !isSingleSinger && (
         <div className="ambient-orbs-container">
           {ORBS.map((orb) => {
             // Check main vs background (bracket) activity
@@ -292,7 +292,7 @@ export default function LyricsPanel({ onClose, hideSingers }) {
                   animationDelay: orb.animDelay,
                 }}
               >
-                {getArtistProfileImage(orb.name) && (
+                {getArtistProfileImage(orb.name) && !karaokeMode && (
                   <img
                     src={getArtistProfileImage(orb.name)}
                     alt={orb.name}
