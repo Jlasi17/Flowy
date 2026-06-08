@@ -514,7 +514,18 @@ function KaraokeTitle({ text, currentTime }) {
   const beat = Math.floor((currentTime || 0) * 2) % neonColors.length;
   const active = neonColors[beat];
   return (
-    <SpringCharReveal text={text} style={{ fontSize: "6rem", fontWeight: 900, color: active.color, textTransform: "uppercase", letterSpacing: "-0.05em", textAlign: "center", textShadow: `0 0 20px ${active.shadow}, 0 0 50px ${active.shadow}`, fontFamily: "'Clash Display', sans-serif", transition: "color 0.15s ease, text-shadow 0.15s ease" }} />
+    <>
+      <style>{`
+        @font-face {
+          font-family: 'Mexcellent';
+          src: url('/fonts/Mexcellent 3d.otf') format('opentype');
+          font-weight: normal;
+          font-style: normal;
+
+        }
+      `}</style>
+      <SpringCharReveal text={text} style={{ fontSize: "10rem", fontWeight: 900, color: active.color, textTransform: "uppercase", letterSpacing: "0.02em", textAlign: "center", textShadow: `0 0 20px ${active.shadow}, 0 0 50px ${active.shadow}`, fontFamily: "'Mexcellent', sans-serif", transition: "color 0.15s ease, text-shadow 0.15s ease" }} />
+    </>
   );
 }
 
@@ -565,16 +576,16 @@ function VariableStretchText({ scrollYProgress }) {
 
 function KineticMaskSequence({ containerRef, currentTime }) {
   const targetRef = useRef(null);
-  
-  const { scrollYProgress } = useScroll({ 
-    target: targetRef, 
-    container: containerRef, 
-    offset: ["start start", "end end"] 
+
+  const { scrollYProgress } = useScroll({
+    target: targetRef,
+    container: containerRef,
+    offset: ["start start", "end end"]
   });
 
   return (
     <div ref={targetRef} style={{ height: "300vh", width: "100%", position: "relative", zIndex: 10, background: "#000" }}>
-      
+
       {/* 3 Snap points */}
       <div style={{ height: "100vh", width: "100%", scrollSnapAlign: "start", flexShrink: 0 }} />
       <div style={{ height: "100vh", width: "100%", scrollSnapAlign: "start", flexShrink: 0 }} />
@@ -586,18 +597,18 @@ function KineticMaskSequence({ containerRef, currentTime }) {
       {/* KARAOKE PARENT */}
       <div style={{ position: "absolute", top: "100vh", height: "200vh", width: "100%", zIndex: 1 }}>
         <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden", background: "#000", display: "flex", justifyContent: "center", alignItems: "center" }}>
-           <KaraokeTitle text="karaoke party !!!" currentTime={currentTime} />
+          <KaraokeTitle text="karaoke party !!!" currentTime={currentTime} />
         </div>
       </div>
 
       {/* MASK PARENT */}
       <div style={{ position: "absolute", top: 0, height: "200vh", width: "100%", zIndex: 10, pointerEvents: "none" }}>
-        <div style={{ 
-          position: "sticky", top: 0, height: "100vh", 
-          background: "#000", color: "#fff", 
+        <div style={{
+          position: "sticky", top: 0, height: "100vh",
+          background: "#000", color: "#fff",
           mixBlendMode: "multiply"
         }}>
-           <VariableStretchText scrollYProgress={scrollYProgress} />
+          <VariableStretchText scrollYProgress={scrollYProgress} />
         </div>
       </div>
 
@@ -892,10 +903,10 @@ export default function FeaturesPage() {
                   const scrollTop = e.currentTarget.scrollTop;
                   const vh = window.innerHeight;
                   const sectionIndex = Math.round(scrollTop / vh);
-                  
+
                   // Karaoke instrumental should play during Mask (5), Karaoke (6), and Lyrics (7)
                   const shouldBeKaraoke = sectionIndex >= 5 && sectionIndex <= 7;
-                  
+
                   if (shouldBeKaraoke && !isKaraokeActive) {
                     setIsKaraokeActive(true);
                     const time = currentAudioRef.current?.currentTime || 0;
