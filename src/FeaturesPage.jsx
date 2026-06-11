@@ -8,6 +8,8 @@ import LyricsPanel from "./components/LyricsPanel";
 import { AudioContext } from "./AudioPlayerProvider";
 import confetti from "canvas-confetti";
 import groupsData from "./data/musicRegistry";
+
+import PacmanPremium from './PacmanPremium';
 import GlobalMuteButton, { GlobalMuteManager } from "./components/GlobalMuteButton";
 import "./FeaturesPage.css";
 
@@ -1231,7 +1233,10 @@ export default function FeaturesPage() {
   const [dissolveProgress, setDissolveProgress] = useState(0);
   const [dissolveProgress2, setDissolveProgress2] = useState(0);
   const [activeSectionIndex, setActiveSectionIndex] = useState(0);
-
+  const [isPacmanHovered, setIsPacmanHovered] = useState(false);
+  const [isPacmanGameActive, setIsPacmanGameActive] = useState(false);
+  const [boxRect, setBoxRect] = useState(null);
+  const [eatenLettersCount, setEatenLettersCount] = useState(0);
   const ctaVideoRef = useRef(null);
   const ctaHasPlayedRef = useRef(false);
 
@@ -1754,7 +1759,36 @@ export default function FeaturesPage() {
                     height: "100vh", width: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", position: "sticky", top: 0, marginTop: "200vh", zIndex: 20, background: "linear-gradient(135deg, #000000ff 0%, #12121a 100%)",
                     clipPath: `polygon(0% 0%, 100% 0%, 100% ${Math.max(0, Math.min(100, (-0.28 + dissolveProgress * 1.56) * 100))}%, 0% ${Math.max(0, Math.min(100, (-0.28 + dissolveProgress * 1.56) * 100))}%)`
                   }}>
-                    <motion.div style={{ position: "relative", zIndex: 1, marginBottom: "10vh" }} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: false, amount: 0.5 }} transition={{ duration: 0.8, ease: EXPO_OUT, delay: 0.2 }} className="fp-heatmap-container">
+                    <motion.div
+                      style={{ position: "relative", zIndex: 1, marginBottom: "10vh", cursor: "pointer" }}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: false, amount: 0.5 }}
+                      transition={{ duration: 0.8, ease: EXPO_OUT, delay: 0.2 }}
+                      className={`fp-heatmap-container ${isPacmanHovered && !isPacmanGameActive ? 'heatmap-glitch' : ''}`}
+                      onMouseEnter={() => setIsPacmanHovered(true)}
+                      onMouseLeave={() => setIsPacmanHovered(false)}
+                      onClick={(e) => {
+                        setBoxRect(e.currentTarget.getBoundingClientRect());
+                        setIsPacmanGameActive(true);
+                      }}
+                    >
+                      <AnimatePresence>
+                        {isPacmanHovered && !isPacmanGameActive && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                            style={{ position: "absolute", bottom: "-40px", right: "20px", display: "flex", alignItems: "center", gap: "10px", zIndex: 10 }}
+                          >
+                            <svg viewBox="0 0 14 14" style={{ width: "24px", height: "24px", fill: "#ffea00", shapeRendering: "crispEdges", animation: "pixelChomp 0.3s infinite" }}>
+                              <path d="M5,0 h4 v1 h-4 z M3,1 h8 v1 h-8 z M2,2 h10 v1 h-10 z M1,3 h12 v1 h-12 z M1,4 h11 v1 h-11 z M0,5 h10 v1 h-10 z M0,6 h8 v1 h-8 z M0,7 h8 v1 h-8 z M0,8 h10 v1 h-10 z M1,9 h11 v1 h-11 z M1,10 h12 v1 h-12 z M2,11 h10 v1 h-10 z M3,12 h8 v1 h-8 z M5,13 h4 v1 h-4 z" />
+                            </svg>
+                            <span style={{ fontFamily: "'Upheaval', sans-serif", fontSize: "1.2rem", color: "#ffea00", textShadow: "0 0 10px rgba(255,234,0,0.5)", animation: "pulse 1s infinite" }}>PLAY</span>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                       <div className="fp-heatmap-wrapper">
                         <div className="fp-heatmap-y-axis"><span /><span>Mon</span><span /><span>Wed</span><span /><span>Fri</span><span /></div>
                         <div className="fp-heatmap-content">
@@ -1790,20 +1824,30 @@ export default function FeaturesPage() {
                           <path d="M5,0 h4 v1 h-4 z M3,1 h8 v1 h-8 z M2,2 h10 v1 h-10 z M1,3 h12 v1 h-12 z M1,4 h12 v1 h-12 z M0,5 h14 v4 h-14 z M1,9 h12 v1 h-12 z M1,10 h12 v1 h-12 z M2,11 h10 v1 h-10 z M3,12 h8 v1 h-8 z M5,13 h4 v1 h-4 z" />
                         </svg>
                       </div>
-                      
+
                       <div style={{
-                         position: "relative", zIndex: 1, fontSize: "8rem", fontWeight: 800,
-                         fontFamily: "'Upheaval', sans-serif",
-                         background: "linear-gradient(90deg, #ff4d85, #ff9d00, #ffea00, #6200ea)",
-                         WebkitBackgroundClip: "text",
-                         WebkitTextFillColor: "transparent",
-                         whiteSpace: "nowrap",
-                         clipPath: `polygon(${dissolveProgress2 * 100}% 0, 100% 0, 100% 100%, ${dissolveProgress2 * 100}% 100%)`
+                        position: "relative", zIndex: 1, fontSize: "8rem", fontWeight: 800,
+                        fontFamily: "'Upheaval', sans-serif",
+                        background: "linear-gradient(90deg, #ff4d85, #ff9d00, #ffea00, #6200ea)",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        whiteSpace: "nowrap",
+                        clipPath: `polygon(${dissolveProgress2 * 100}% 0, 100% 0, 100% 100%, ${dissolveProgress2 * 100}% 100%)`
                       }}>
                         MUSICAL FOOTPRINT
                       </div>
                     </div>
                   </div>
+
+                  <AnimatePresence>
+                    {isPacmanGameActive && (
+                      <PacmanPremium
+                        heatmapSquares={heatmapSquares}
+                        boxRect={boxRect}
+                        onClose={() => setIsPacmanGameActive(false)}
+                      />
+                    )}
+                  </AnimatePresence>
 
                   {/* SECTION 10: CTA */}
                   <div style={{
