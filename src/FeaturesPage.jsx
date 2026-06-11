@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import WebGLFluid from "webgl-fluid";
 import { motion, useScroll, useTransform, AnimatePresence, useInView, useMotionValueEvent, useMotionTemplate } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -522,9 +522,10 @@ function EmptyBubble({ position, onPop, popped, visible }) {
           onDone={() => setExploding(false)}
         />
       )}
-      <AnimatePresence>
+      <AnimatePresence custom={popped}>
         {!popped && visible && (
           <motion.div
+            custom={popped}
             className="fp-bubble-empty"
             style={{
               position: "absolute",
@@ -533,10 +534,19 @@ function EmptyBubble({ position, onPop, popped, visible }) {
               width: position.size,
               height: position.size,
             }}
-            initial={{ y: "120vh", opacity: 0, scale: 0.5 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: "120vh", opacity: 0, scale: 0.5, transition: { duration: 0.7, ease: [0.22, 0.61, 0.36, 1], delay: position.delay * 0.5 } }}
-            transition={{ duration: 1.1 + position.delay * 0.3, ease: [0.22, 0.61, 0.36, 1], delay: position.delay }}
+            variants={{
+              hidden: { y: "120vh", opacity: 0, scale: 0.5 },
+              visible: {
+                y: 0, opacity: 1, scale: 1,
+                transition: { duration: 1.1 + position.delay * 0.3, ease: [0.22, 0.61, 0.36, 1], delay: position.delay }
+              },
+              exit: (isPopping) => isPopping
+                ? { opacity: 0, scale: 1.2, transition: { duration: 0.1 } }
+                : { y: "120vh", opacity: 0, scale: 0.5, transition: { duration: 0.7, ease: [0.22, 0.61, 0.36, 1], delay: position.delay * 0.5 } }
+            }}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
             onClick={handleClick}
             whileHover={{ scale: 1.07, cursor: "pointer" }}
           >
@@ -735,7 +745,7 @@ function FireworksBackground() {
   if (!isInView) return <div ref={containerRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }} />;
   return (
     <div ref={containerRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}>
-      <Fireworks options={{ opacity: 0.5, particles: 100, explosion: 5, intensity: 25, traceSpeed: 3, friction: 0.95, gravity: 1.5, sound: { enable: false } }}
+      <Fireworks options={{ opacity: 0.5, particles: 100, explosion: 5, intensity: 25, traceSpeed: 3, friction: 0.95, gravity: 1.5, sound: { enable: false }, lineWidth: { trace: { min: 0, max: 0 } } }}
         style={{ top: 0, left: 0, width: '100%', height: '100%', position: 'absolute' }} />
     </div>
   );
@@ -820,7 +830,7 @@ function VariableStretchText({ scrollYProgress }) {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&display=swap');
       `}</style>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", width: "100%", height: "100%", paddingBottom: "5vh" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", width: "100%", height: "100%", paddingBottom: "0vh" }}>
         <motion.div
           style={{
             fontFamily: "'Roboto Flex', sans-serif",
@@ -915,6 +925,279 @@ function getCoverForFile(filePath) {
   return null;
 }
 
+// ─── CanvasMouseTail ────────────────────────────────────────────────────────
+function CanvasMouseTail({ activeSection }) {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    if (activeSection !== 5 && activeSection !== 6 && activeSection !== 7) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W = canvas.width = window.innerWidth;
+    let H = canvas.height = window.innerHeight;
+
+    let particles = [];
+    let mouse = { x: -1000, y: -1000 };
+
+    const type = activeSection === 5 ? 'question' : 'confetti';
+
+    class Particle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.life = 1;
+        this.vx = (Math.random() - 0.5) * 2;
+        this.vy = (Math.random() - 0.5) * 2 - 1;
+        this.size = Math.random() * 15 + 15;
+        this.angle = Math.random() * Math.PI * 2;
+        this.va = (Math.random() - 0.5) * 0.2;
+        if (type === 'confetti') {
+          const colors = ['#ff4d85', '#ff9d00', '#ffea00', '#6200ea', '#00e5ff'];
+          this.color = colors[Math.floor(Math.random() * colors.length)];
+        } else {
+          this.color = '#fff';
+        }
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += 0.05; // gravity
+        this.angle += this.va;
+        this.life -= 0.02;
+      }
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        ctx.globalAlpha = Math.max(0, this.life);
+
+        if (type === 'question') {
+          ctx.fillStyle = this.color;
+          ctx.font = `bold ${this.size}px 'Clash Display', sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('?', 0, 0);
+        } else {
+          // confetti (rectangles)
+          ctx.fillStyle = this.color;
+          ctx.fillRect(-this.size / 4, -this.size / 4, this.size / 2, this.size / 2);
+        }
+
+        ctx.restore();
+      }
+    }
+
+    let raf;
+    const onMouseMove = (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+      // Add particle on move
+      particles.push(new Particle(mouse.x, mouse.y));
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+
+    function loop() {
+      ctx.clearRect(0, 0, W, H);
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.update();
+        p.draw();
+        if (p.life <= 0) particles.splice(i, 1);
+      }
+      raf = requestAnimationFrame(loop);
+    }
+    loop();
+
+    const onResize = () => {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', onResize);
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('resize', onResize);
+      cancelAnimationFrame(raf);
+    };
+  }, [activeSection]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9999,
+        opacity: (activeSection === 5 || activeSection === 6 || activeSection === 7) ? 1 : 0
+      }}
+    />
+  );
+}
+
+
+// ─── HeroStars ───────────────────────────────────────────────────────────────
+const HeroStars = ({ topHalfOnly = false }) => {
+  const stars = useMemo(() => {
+    return Array.from({ length: 150 }).map(() => ({
+      x: Math.random() * 100,
+      y: Math.random() * (topHalfOnly ? 50 : 100),
+      size: Math.random() * 2 + 1,
+      opacity: Math.random() * 0.8 + 0.2,
+      duration: Math.random() * 3 + 2,
+      delay: Math.random() * 2
+    }));
+  }, [topHalfOnly]);
+
+  return (
+    <div style={{ position: "absolute", inset: 0, zIndex: 5, pointerEvents: "none", overflow: "hidden" }}>
+      {stars.map((s, i) => (
+        <motion.div
+          key={i}
+          style={{
+            position: "absolute",
+            left: `${s.x}%`,
+            top: `${s.y}%`,
+            width: s.size,
+            height: s.size,
+            borderRadius: "50%",
+            backgroundColor: "#fff",
+          }}
+          animate={{ opacity: [s.opacity, s.opacity * 0.2, s.opacity] }}
+          transition={{ duration: s.duration, repeat: Infinity, delay: s.delay, ease: "easeInOut" }}
+        />
+      ))}
+    </div>
+  );
+};
+
+// ─── DissolveTransition ───────────────────────────────────────────────────────
+function DissolveTransition({ containerRef, startVh = 11, endVh = 12 }) {
+  const gridRef = useRef(null);
+  const stateRef = useRef({ cells: [], cellEls: [], W: 0, H: 0, cols: 0, rows: 0 });
+
+  const CELL = 16;
+  const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@$%&*+=?!{}[]';
+  const SPREAD_ABOVE = 0.28;
+  const SPREAD_BELOW = 0.28;
+  const SCATTER = 0.15;
+  const SOLID_CORE = 0.03;
+  const MIN_SCATTER_CENTER = 0.3;
+  const VIS_THRESHOLD = 0.65;
+  const COLOR = '#ffffff';
+
+  function hash(r, c, s) {
+    const raw = Math.sin(r * s + c * (s * 2.45)) * 43758.5453;
+    return raw - Math.floor(raw);
+  }
+
+  function buildGrid() {
+    const el = gridRef.current;
+    if (!el) return;
+    el.innerHTML = '';
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    const cols = Math.ceil(W / CELL);
+    const rows = Math.ceil(H / CELL);
+    const cells = [];
+    const cellEls = [];
+    const fs = Math.round(CELL * 0.7);
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const div = document.createElement('div');
+        div.style.cssText = `
+          position:absolute;left:${c * CELL}px;top:${r * CELL}px;
+          width:${CELL}px;height:${CELL}px;
+          background:${COLOR};visibility:hidden;
+          display:flex;align-items:center;justify-content:center;
+          color:#000;font-weight:600;font-family:monospace;overflow:hidden;
+          font-size:${fs}px;
+        `;
+        div.textContent = CHARS[Math.floor(Math.random() * CHARS.length)];
+        el.appendChild(div);
+        cellEls.push(div);
+        cells.push({
+          ny: (r + 0.5) / rows,
+          visRand: hash(r, c, 127.1),
+          scatterOff: (hash(r, c, 269.3) - 0.5) * SCATTER,
+        });
+      }
+    }
+    stateRef.current = { cells, cellEls, W, H, cols, rows };
+  }
+
+  function hideAll() {
+    stateRef.current.cellEls.forEach(el => el.style.visibility = 'hidden');
+  }
+
+  function updateBand(progress) {
+    const { cells, cellEls } = stateRef.current;
+    const TOTAL = 1 + SPREAD_ABOVE + SPREAD_BELOW;
+    const bandCenterY = -SPREAD_ABOVE + progress * TOTAL;
+
+    for (let i = 0; i < cells.length; i++) {
+      const cell = cells[i];
+      const rawDist = Math.abs(cell.ny - bandCenterY);
+      const scatterStr = Math.max(MIN_SCATTER_CENTER, Math.min(1, rawDist / SOLID_CORE));
+      const scattered = cell.ny - bandCenterY + cell.scatterOff * scatterStr;
+      const normDist = scattered >= 0
+        ? scattered / SPREAD_BELOW
+        : Math.abs(scattered) / SPREAD_ABOVE;
+
+      if (normDist >= 1) { cellEls[i].style.visibility = 'hidden'; continue; }
+      const density = (1 - normDist) * (1 - normDist);
+      cellEls[i].style.visibility =
+        density > cell.visRand * VIS_THRESHOLD ? 'visible' : 'hidden';
+    }
+  }
+
+  useEffect(() => {
+    buildGrid();
+    window.addEventListener('resize', buildGrid);
+    return () => window.removeEventListener('resize', buildGrid);
+  }, []);
+
+  useEffect(() => {
+    const container = containerRef?.current;
+    if (!container) return;
+
+    const onScroll = () => {
+      const scrollTop = container.scrollTop;
+      const vh = window.innerHeight;
+      const triggerScrollStart = vh * startVh;
+      const triggerScrollEnd = vh * endVh;
+      const progress = Math.max(0, Math.min(1,
+        (scrollTop - triggerScrollStart) / (triggerScrollEnd - triggerScrollStart)
+      ));
+
+      if (progress <= 0 || progress >= 1) {
+        hideAll();
+      } else {
+        updateBand(progress);
+      }
+    };
+
+    container.addEventListener('scroll', onScroll, { passive: true });
+    return () => container.removeEventListener('scroll', onScroll);
+  }, [containerRef]);
+
+  return (
+    <div style={{ position: "sticky", top: 0, height: 0, width: "100%", zIndex: 60, overflow: "visible", pointerEvents: "none" }}>
+      <div
+        ref={gridRef}
+        style={{
+          position: 'absolute', top: 0, left: 0,
+          width: '100vw', height: '100vh',
+          pointerEvents: 'none',
+          overflow: 'hidden',
+        }}
+      />
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function FeaturesPage() {
   const navigate = useNavigate();
@@ -945,6 +1228,24 @@ export default function FeaturesPage() {
   const [isKaraokeActive, setIsKaraokeActive] = useState(false);
   const openingSoundRef = useRef(null);
   const [isMuted, setIsMuted] = useState(GlobalMuteManager.isMuted);
+  const [dissolveProgress, setDissolveProgress] = useState(0);
+  const [dissolveProgress2, setDissolveProgress2] = useState(0);
+  const [activeSectionIndex, setActiveSectionIndex] = useState(0);
+
+  const ctaVideoRef = useRef(null);
+  const ctaHasPlayedRef = useRef(false);
+
+  useEffect(() => {
+    if (dissolveProgress2 > 0 && !ctaHasPlayedRef.current) {
+      ctaHasPlayedRef.current = true;
+      if (ctaVideoRef.current) {
+        ctaVideoRef.current.currentTime = 0;
+        ctaVideoRef.current.play().catch(() => { });
+      }
+    } else if (dissolveProgress2 === 0) {
+      ctaHasPlayedRef.current = false;
+    }
+  }, [dissolveProgress2]);
 
   useEffect(() => {
     const handleMuteChange = (e) => setIsMuted(e.detail.isMuted);
@@ -1162,12 +1463,14 @@ export default function FeaturesPage() {
 
   return (
     <div className="fp-new-root">
+      <CanvasMouseTail activeSection={activeSectionIndex} />
       <GlobalMuteButton />
       <canvas ref={canvasRef} className="fp-fluid-bg" />
 
       {/* ═══ SECTION 1: Hero zoom-through ═══ */}
       <div ref={heroRef} style={{ height: "300vh", position: "relative", pointerEvents: "none" }}>
         <motion.div style={{ position: "sticky", top: 0, height: "100vh", width: "100%", overflow: "hidden", pointerEvents: "none", opacity: glassOpacity }}>
+          <HeroStars />
           <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", zIndex: 10, pointerEvents: "none" }}>
             <defs>
               <mask id="cutout-mask">
@@ -1344,6 +1647,18 @@ export default function FeaturesPage() {
                   const scrollTop = e.currentTarget.scrollTop;
                   const vh = window.innerHeight;
                   const sectionIndex = Math.round(scrollTop / vh);
+                  setActiveSectionIndex(sectionIndex);
+
+                  // Dissolve progress (Section 8 is from 800vh to 1200vh)
+                  const s8Start = vh * 11;
+                  const s8End = vh * 12;
+                  const dp = Math.max(0, Math.min(1, (scrollTop - s8Start) / (s8End - s8Start)));
+                  setDissolveProgress(dp);
+
+                  const s9Start = vh * 12;
+                  const s9End = vh * 13;
+                  const dp2 = Math.max(0, Math.min(1, (scrollTop - s9Start) / (s9End - s9Start)));
+                  setDissolveProgress2(dp2);
 
                   // Karaoke instrumental should play during Karaoke (6) and Lyrics (7)
                   const shouldBeKaraoke = sectionIndex >= 6 && sectionIndex <= 7;
@@ -1373,6 +1688,9 @@ export default function FeaturesPage() {
                 <div className="maximized-bg-vignette" style={{ position: "fixed" }} />
                 <div className="maximized-bg-noise" style={{ position: "fixed" }} />
                 <div className="maximized-bg-spotlight" style={{ position: "fixed" }} />
+
+                <DissolveTransition containerRef={standaloneContainerRef} startVh={11} endVh={12} />
+                <DissolveTransition containerRef={standaloneContainerRef} startVh={12} endVh={13} />
 
                 <div style={{ position: "relative", width: "100%", zIndex: 10 }}>
                   <div style={{ position: "sticky", top: 0, height: "100vh", width: "100%", overflow: "hidden", zIndex: 5 }}>
@@ -1420,44 +1738,92 @@ export default function FeaturesPage() {
                   </AudioContext.Provider>
                 </div>
 
-                {/* SECTION 8: 3D Grid */}
-                <div className="fp-section-8-wrapper" style={{ height: "400vh", width: "100%", flexShrink: 0, scrollSnapAlign: "start", position: "relative", zIndex: 20, background: "#000" }}>
-                  <div className="stuck-grid">
+                {/* SECTION 8 & 9 & 10 WRAPPER: Overlapping 600vh block */}
+                <div className="fp-section-8-wrapper" style={{ height: "600vh", width: "100%", flexShrink: 0, scrollSnapAlign: "start", position: "relative", zIndex: 20, background: "#000" }}>
+
+                  {/* SECTION 8: 3D Grid */}
+                  <div className="stuck-grid" style={{ position: "sticky", top: 0, height: "100vh", zIndex: 10, background: "#000" }}>
                     <h2 style={{ position: "absolute", zIndex: 10, fontSize: "10rem", fontWeight: 800, textAlign: "center", pointerEvents: "none", color: "#ffffffff", textShadow: "0 10px 30px rgba(0,0,0,0.8)", fontFamily: "'OffBit-DotBold', sans-serif", lineHeight: 1 }}>We wanna show<br /> your love<br />towards music</h2>
                     {["/bts/bts1.jpg", "/bts/bts2.jpg", "/bts/bts3.jpg", "/bts/bts4.jpg", "/bts/bts5.jpg", "/bts/bts6.jpg", "/bts/bts7.jpg", "/bts/bts8.jpg", "/bts/bts9.jpg", "/bts/bts10.jpg", "/bts/bts11.jpg", "/bts/bts12.jpg", "/bts/bts13.jpg", "/bts/bts14.jpg", "/bts/bts15.jpg", "/txt/txt1.jpg", "/txt/txt2.jpg", "/txt/txt3.jpg", "/txt/txt4.jpg", "/txt/txt5.jpg", "/txt/txt6.jpg", "/txt/txt7.png", "/txt/txt8.png", "/txt/txt9.jpg", "/txt/txt10.jpg", "/txt/txt11.jpg", "/txt/txt12.jpg", "/txt/txt13.png", "/le/le1.png", "/le/le2.png", "/le/le3.jpg", "/le/le4.jpg", "/le/le5.png", "/le/le6.jpg", "/le/le7.png", "/le/le8.jpg", "/le/le9.png", "/bts/promise.png", "/bts/stay_alive.png", "/bts/take_two.png"].map((src, i) => (
                       <div key={i} className="grid-item" style={{ backgroundImage: `url('${src}')`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '0.5vmin', boxShadow: '0 20px 50px rgba(0,0,0,0.8)' }} />
                     ))}
                   </div>
-                </div>
 
-                {/* SECTION 9: Heatmap */}
-                <div style={{ height: "100vh", width: "100%", flexShrink: 0, scrollSnapAlign: "start", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", position: "relative", zIndex: 20, background: "transparent" }}>
-                  <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, backgroundImage: "url('/city.png')", backgroundSize: "100% auto", backgroundPosition: "bottom center", backgroundRepeat: "no-repeat", WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, transparent 30%, black 65%, black 100%)", maskImage: "linear-gradient(to bottom, transparent 0%, transparent 30%, black 65%, black 100%)" }} />
-                  <GradientSlideTitle text="Musical Footprint" style={{ position: "relative", zIndex: 1, fontSize: "4rem", fontWeight: 800, marginBottom: "3rem", letterSpacing: "-0.02em", textShadow: "none", fontFamily: "'Clash Display', sans-serif" }} />
-                  <motion.div style={{ position: "relative", zIndex: 1, marginBottom: "20vh" }} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: false, amount: 0.5 }} transition={{ duration: 0.8, ease: EXPO_OUT, delay: 0.2 }} className="fp-heatmap-container">
-                    <div className="fp-heatmap-wrapper">
-                      <div className="fp-heatmap-y-axis"><span /><span>Mon</span><span /><span>Wed</span><span /><span>Fri</span><span /></div>
-                      <div className="fp-heatmap-content">
-                        <div className="fp-heatmap-x-axis">
-                          <span style={{ gridColumn: 2 }}>Jan</span><span style={{ gridColumn: 6 }}>Feb</span><span style={{ gridColumn: 10 }}>Mar</span><span style={{ gridColumn: 15 }}>Apr</span><span style={{ gridColumn: 20 }}>May</span>
-                        </div>
-                        <div className="fp-heatmap-grid">
-                          {heatmapSquares.map((sq, i) => (
-                            <div key={i} className={`fp-heatmap-square ${sq.level > 0 ? 'fp-heatmap-active' : ''}`} style={{ gridColumn: sq.col + 1, gridRow: sq.row + 1, animationDelay: `${Math.random() * -10}s`, animationDuration: `${3 + Math.random() * 4}s` }} />
-                          ))}
+                  {/* SECTION 9: Heatmap */}
+                  <div style={{
+                    height: "100vh", width: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", position: "sticky", top: 0, marginTop: "200vh", zIndex: 20, background: "linear-gradient(135deg, #000000ff 0%, #12121a 100%)",
+                    clipPath: `polygon(0% 0%, 100% 0%, 100% ${Math.max(0, Math.min(100, (-0.28 + dissolveProgress * 1.56) * 100))}%, 0% ${Math.max(0, Math.min(100, (-0.28 + dissolveProgress * 1.56) * 100))}%)`
+                  }}>
+                    <motion.div style={{ position: "relative", zIndex: 1, marginBottom: "10vh" }} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: false, amount: 0.5 }} transition={{ duration: 0.8, ease: EXPO_OUT, delay: 0.2 }} className="fp-heatmap-container">
+                      <div className="fp-heatmap-wrapper">
+                        <div className="fp-heatmap-y-axis"><span /><span>Mon</span><span /><span>Wed</span><span /><span>Fri</span><span /></div>
+                        <div className="fp-heatmap-content">
+                          <div className="fp-heatmap-x-axis">
+                            <span style={{ gridColumn: 2 }}>Jan</span><span style={{ gridColumn: 6 }}>Feb</span><span style={{ gridColumn: 10 }}>Mar</span><span style={{ gridColumn: 15 }}>Apr</span><span style={{ gridColumn: 20 }}>May</span>
+                          </div>
+                          <div className="fp-heatmap-grid">
+                            {heatmapSquares.map((sq, i) => (
+                              <div key={i} className={`fp-heatmap-square ${sq.level > 0 ? 'fp-heatmap-active' : ''}`} style={{ gridColumn: sq.col + 1, gridRow: sq.row + 1, animationDelay: `${Math.random() * -10}s`, animationDuration: `${3 + Math.random() * 4}s` }} />
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </motion.div>
-                </div>
+                    </motion.div>
 
-                {/* SECTION 10: CTA */}
-                <div style={{ height: "100vh", width: "100%", flexShrink: 0, scrollSnapAlign: "start", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", position: "relative", zIndex: 20, background: "#000" }}>
-                  <FireworksBackground />
-                  <div style={{ textAlign: "center", maxWidth: "800px", zIndex: 10, position: "relative" }}>
-                    <WordReveal text="lets experience all in the FLOWY" stagger={0.07} style={{ fontSize: "4rem", fontWeight: 800, color: "#fff", marginBottom: "3rem", textShadow: "0 0 20px rgba(255,255,255,0.2)", fontFamily: "'Clash Display', sans-serif", lineHeight: 1.15 }} />
+                    <div style={{ position: "relative", width: "100vw", textAlign: "center", marginBottom: "10vh", padding: "10px" }}>
+                      <div style={{
+                        position: "absolute",
+                        left: `calc(${dissolveProgress2 * 100}% - 60px)`,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        width: "120px",
+                        height: "120px",
+                        zIndex: 10,
+                        opacity: dissolveProgress2 > 0 && dissolveProgress2 < 1 ? 1 : 0
+                      }}>
+                        {/* Pixel Pac-Man Open Mouth */}
+                        <svg viewBox="0 0 14 14" style={{ width: "100%", height: "100%", fill: "#ffb800", shapeRendering: "crispEdges", position: "absolute", top: 0, left: 0 }}>
+                          <path d="M5,0 h4 v1 h-4 z M3,1 h8 v1 h-8 z M2,2 h10 v1 h-10 z M1,3 h12 v1 h-12 z M1,4 h11 v1 h-11 z M0,5 h10 v1 h-10 z M0,6 h8 v1 h-8 z M0,7 h8 v1 h-8 z M0,8 h10 v1 h-10 z M1,9 h11 v1 h-11 z M1,10 h12 v1 h-12 z M2,11 h10 v1 h-10 z M3,12 h8 v1 h-8 z M5,13 h4 v1 h-4 z" />
+                        </svg>
+                        {/* Pixel Pac-Man Closed Mouth (Scroll driven) */}
+                        <svg viewBox="0 0 14 14" style={{ width: "100%", height: "100%", fill: "#ffb800", shapeRendering: "crispEdges", position: "absolute", top: 0, left: 0, opacity: Math.floor(dissolveProgress2 * 40) % 2 === 0 ? 1 : 0 }}>
+                          <path d="M5,0 h4 v1 h-4 z M3,1 h8 v1 h-8 z M2,2 h10 v1 h-10 z M1,3 h12 v1 h-12 z M1,4 h12 v1 h-12 z M0,5 h14 v4 h-14 z M1,9 h12 v1 h-12 z M1,10 h12 v1 h-12 z M2,11 h10 v1 h-10 z M3,12 h8 v1 h-8 z M5,13 h4 v1 h-4 z" />
+                        </svg>
+                      </div>
+                      
+                      <div style={{
+                         position: "relative", zIndex: 1, fontSize: "8rem", fontWeight: 800,
+                         fontFamily: "'Upheaval', sans-serif",
+                         background: "linear-gradient(90deg, #ff4d85, #ff9d00, #ffea00, #6200ea)",
+                         WebkitBackgroundClip: "text",
+                         WebkitTextFillColor: "transparent",
+                         whiteSpace: "nowrap",
+                         clipPath: `polygon(${dissolveProgress2 * 100}% 0, 100% 0, 100% 100%, ${dissolveProgress2 * 100}% 100%)`
+                      }}>
+                        MUSICAL FOOTPRINT
+                      </div>
+                    </div>
                   </div>
-                  <CinematicCTA onClick={() => navigate("/")} />
+
+                  {/* SECTION 10: CTA */}
+                  <div style={{
+                    height: "100vh", width: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", position: "sticky", top: 0, zIndex: 30, background: "#000",
+                    clipPath: `polygon(0% 0%, 100% 0%, 100% ${Math.max(0, Math.min(100, (-0.28 + dissolveProgress2 * 1.56) * 100))}%, 0% ${Math.max(0, Math.min(100, (-0.28 + dissolveProgress2 * 1.56) * 100))}%)`
+                  }}>
+                    <video
+                      ref={ctaVideoRef}
+                      src="/city_loop.mp4"
+                      loop
+                      muted
+                      playsInline
+                      style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0, opacity: 0.6 }}
+                    />
+                    <HeroStars topHalfOnly={true} />
+                    <div style={{ textAlign: "center", maxWidth: "800px", zIndex: 10, position: "relative" }}>
+                      <WordReveal text="lets experience all in the FLOWY" stagger={0.07} style={{ fontSize: "4rem", fontWeight: 800, color: "#fff", marginBottom: "3rem", textShadow: "0 0 20px rgba(255,255,255,0.2)", fontFamily: "'Clash Display', sans-serif", lineHeight: 1.15 }} />
+                    </div>
+                    <CinematicCTA onClick={() => navigate("/")} />
+                  </div>
                 </div>
               </motion.div>
             )}
