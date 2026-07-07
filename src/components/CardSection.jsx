@@ -198,6 +198,35 @@ function CardSection() {
         )}
       </div>
 
+      {/* About Us Footer Link */}
+      <div 
+        style={{
+          width: "100%",
+          textAlign: "center",
+          zIndex: 100,
+          pointerEvents: "auto",
+          marginTop: "auto",
+          paddingBottom: "max(40px, env(safe-area-inset-bottom, 40px))"
+        }}
+      >
+        <span 
+          style={{ 
+            color: "rgba(255, 255, 255, 0.6)", 
+            fontSize: "14px", 
+            letterSpacing: "1px",
+            textTransform: "uppercase",
+            cursor: "pointer", 
+            textDecoration: "none",
+            transition: "color 0.3s ease"
+          }}
+          onMouseEnter={(e) => e.target.style.color = "rgba(255, 255, 255, 1)"}
+          onMouseLeave={(e) => e.target.style.color = "rgba(255, 255, 255, 0.6)"}
+          onClick={() => navigate('/FeaturesPage')}
+        >
+          About Us
+        </span>
+      </div>
+
       <GroupAdminModal 
         isOpen={modalOpen} 
         onClose={() => setModalOpen(false)} 

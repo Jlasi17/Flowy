@@ -2,7 +2,8 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(25px);
+  backdrop-filter: var(--glass-blur-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -96,9 +97,10 @@
 .album-glass-input {
   width: 100%;
   background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 30px;
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
   padding: 16px 24px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -155,8 +157,9 @@
   justify-content: center;
   color: #ff4d4d;
   cursor: pointer;
-  transition: all 0.2s;
-  backdrop-filter: blur(10px);
+  transition: all var(--transition-normal) var(--ease-standard);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
 }
 
 .album-song-remove-btn:hover {
@@ -172,8 +175,9 @@
 .album-song-input {
   width: 100%;
   background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+  border: 1px solid var(--glass-border);
   border-radius: 30px;
   padding: 12px 24px;
   font-size: 0.85rem;
@@ -215,8 +219,9 @@
   justify-content: center;
   cursor: pointer;
   position: relative;
-  transition: all 0.2s;
-  backdrop-filter: blur(10px);
+  transition: all var(--transition-normal) var(--ease-standard);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
 }
 
 .album-preview-square:hover {
@@ -229,8 +234,9 @@
   position: relative;
   width: 100%;
   background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+  border: 1px solid var(--glass-border);
   border-radius: 30px;
   padding: 12px 24px;
   font-size: 0.85rem;
@@ -273,7 +279,8 @@
   margin-top: 40px;
   transition: all 0.2s;
   letter-spacing: 1px;
-  backdrop-filter: blur(10px);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
 }
 
 .add-song-btn:hover {

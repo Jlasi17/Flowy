@@ -265,8 +265,7 @@ const btsSongs = {
     { name: "they don’t know ’bout us", file: "11. they don’t know ’bout us.mp3", duration: "2:44" },
     { name: "One More Night", file: "12. One More Night.mp3", duration: "2:47" },
     { name: "Please", file: "13. Please.mp3", duration: "2:52" },
-    { name: "Into the Sun", file: "14. Into the Sun.mp3", duration: "3:47" },
-    { name: "Come Over", file: "15. Come Over.mp3", isHidden: true, duration: "2:56" }
+    { name: "Into the Sun", file: "14. Into the Sun.mp3", duration: "3:47" }
   ],
   "18": [
     { name: "Heartbeat", file: "Heartbeat.mp3", duration: "4:13" },
@@ -306,6 +305,9 @@ const btsSongs = {
   ],
   "29": [
     { name: "Take Two", file: "Take Two.mp3", duration: "3:49" }
+  ],
+  "30": [
+    { name: "Come Over", file: "BTS - Come Over.mp3", duration: "2:56" }
   ]
 };
 

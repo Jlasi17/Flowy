@@ -39,8 +39,14 @@ function connectProgressWS(jobId, onMessage, onError) {
     console.error('WS error:', e);
     if (onError) onError(e);
   };
-  ws.onclose = () => console.log('WS closed for job:', jobId);
+  ws.onclose = () => {};
   return ws;
+}
+
+// ponytail: DRY localStorage reads — one helper instead of ~12 try/catch blocks
+function readLocal(key, fallback) {
+  try { const v = localStorage.getItem(key); return v != null ? JSON.parse(v) : fallback; }
+  catch { return fallback; }
 }
 
 export default function AudioPlayerProvider({ children }) {
@@ -66,16 +72,14 @@ export default function AudioPlayerProvider({ children }) {
 
   useEffect(() => {
     const loadSettings = () => {
-      try {
-        const toggles = JSON.parse(localStorage.getItem('flowy_settings_toggles') || '{}');
-        const cf = Number(localStorage.getItem('flowy_settings_crossfade')) || 0;
-        setPlaybackSettings({
-          gapless: toggles.gapless ?? true,
-          normalize: toggles.normalize ?? true,
-          autoplay: toggles.autoplay ?? false,
-          crossfade: cf
-        });
-      } catch (e) {}
+      const toggles = readLocal('flowy_settings_toggles', {});
+      const cf = Number(localStorage.getItem('flowy_settings_crossfade')) || 0;
+      setPlaybackSettings({
+        gapless: toggles.gapless ?? true,
+        normalize: toggles.normalize ?? true,
+        autoplay: toggles.autoplay ?? false,
+        crossfade: cf
+      });
     };
     loadSettings();
     window.addEventListener('flowy_settings_changed', loadSettings);
@@ -91,6 +95,7 @@ export default function AudioPlayerProvider({ children }) {
   // AUTH MODAL
   const { currentUser } = useAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false); // Global maximized state
   
   const requireAuth = useCallback((callback) => {
     if (currentUser) {
@@ -117,9 +122,7 @@ export default function AudioPlayerProvider({ children }) {
   const queueBtnRef = useRef(null);
   const mobileQueueBtnRef = useRef(null); // mobile mini-player queue button
 
-  useEffect(() => {
-    console.log("Global Queue Updated:", queue);
-  }, [queue]);
+
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -142,12 +145,7 @@ export default function AudioPlayerProvider({ children }) {
   const [karaokeInstrumentalUrl, setKaraokeInstrumentalUrl] = useState(null);
   const [karaokeVocalsUrl, setKaraokeVocalsUrl] = useState(null);
   const [vocalVolume, setVocalVolume] = useState(() => {
-    try {
-      const saved = localStorage.getItem('flowy_vocal_volume');
-      return saved !== null ? Number(saved) : 0;
-    } catch (e) {
-      return 0;
-    }
+    try { const v = localStorage.getItem('flowy_vocal_volume'); return v !== null ? Number(v) : 0; } catch { return 0; }
   });
   const [instVolume, setInstVolume] = useState(100);
 
@@ -169,19 +167,9 @@ export default function AudioPlayerProvider({ children }) {
   const preloadTriggeredRef = useRef(false);
   const countdownIntervalRef = useRef(null);
   const [isCinematicActive, setIsCinematicActive] = useState(false);
-  const [albumProgress, setAlbumProgress] = useState(() => {
-    try {
-      const saved = localStorage.getItem('flowy_album_progress');
-      return saved ? JSON.parse(saved) : {};
-    } catch { return {}; }
-  });
+  const [albumProgress, setAlbumProgress] = useState(() => readLocal('flowy_album_progress', {}));
 
-  const [questStatus, setQuestStatus] = useState(() => {
-    try {
-      const saved = localStorage.getItem('flowy_quest_status');
-      return saved ? JSON.parse(saved) : {};
-    } catch { return {}; }
-  });
+  const [questStatus, setQuestStatus] = useState(() => readLocal('flowy_quest_status', {}));
 
   // --- FIRESTORE SYNC LOGIC ---
   const [isCloudSynced, setIsCloudSynced] = useState(false);
@@ -258,12 +246,7 @@ export default function AudioPlayerProvider({ children }) {
   }, [currentUser]);
   // ----------------------------
 
-  const [likedSongs, setLikedSongs] = useState(() => {
-    try {
-      const saved = localStorage.getItem('flowy_liked_songs');
-      return saved ? JSON.parse(saved) : {};
-    } catch { return {}; }
-  });
+  const [likedSongs, setLikedSongs] = useState(() => readLocal('flowy_liked_songs', {}));
 
   useEffect(() => {
     localStorage.setItem('flowy_liked_songs', JSON.stringify(likedSongs));
@@ -271,20 +254,14 @@ export default function AudioPlayerProvider({ children }) {
   }, [likedSongs, isCloudSynced, syncStateToCloud]);
 
   const [userPlaylists, setUserPlaylists] = useState(() => {
-    try {
-      const saved = localStorage.getItem('flowy_user_playlists');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        // Fix any corrupted playlists where title was accidentally saved as an object
-        return parsed.map(p => {
-          if (p.title && typeof p.title === 'object') {
-            return { ...p, title: p.title.title || 'Untitled Playlist' };
-          }
-          return p;
-        });
+    const parsed = readLocal('flowy_user_playlists', []);
+    // Fix any corrupted playlists where title was accidentally saved as an object
+    return parsed.map(p => {
+      if (p.title && typeof p.title === 'object') {
+        return { ...p, title: p.title.title || 'Untitled Playlist' };
       }
-      return [];
-    } catch { return []; }
+      return p;
+    });
   });
 
   useEffect(() => {
@@ -334,8 +311,6 @@ export default function AudioPlayerProvider({ children }) {
   }, []);
 
   // --- ANALYTICS TRACKING ---
-  const isPlayingRef = useRef(isPlaying);
-  useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
 
   // Track listening time and active hours every 5 seconds
   useEffect(() => {
@@ -346,19 +321,13 @@ export default function AudioPlayerProvider({ children }) {
         localStorage.setItem('flowy_total_seconds', sec);
 
         const today = new Date().toISOString().split('T')[0];
-        let dailySecs = {};
-        try {
-          dailySecs = JSON.parse(localStorage.getItem('flowy_daily_seconds') || '{}');
-        } catch(e) {}
+        const dailySecs = readLocal('flowy_daily_seconds', {});
         dailySecs[today] = (dailySecs[today] || 0) + 5;
         localStorage.setItem('flowy_daily_seconds', JSON.stringify(dailySecs));
 
         // Update active hours
         const hour = new Date().getHours();
-        let hoursMap = {};
-        try {
-          hoursMap = JSON.parse(localStorage.getItem('flowy_active_hours') || '{}');
-        } catch (e) {}
+        const hoursMap = readLocal('flowy_active_hours', {});
         hoursMap[hour] = (hoursMap[hour] || 0) + 5;
         localStorage.setItem('flowy_active_hours', JSON.stringify(hoursMap));
       }
@@ -370,16 +339,10 @@ export default function AudioPlayerProvider({ children }) {
   useEffect(() => {
     if (activeSong && isPlaying) {
       // History & Play Counts
-      let history = [];
-      try {
-        const parsed = JSON.parse(localStorage.getItem('flowy_play_history') || '[]');
-        history = Array.isArray(parsed) ? parsed.filter(Boolean) : [];
-      } catch(e) {}
+      const rawHistory = readLocal('flowy_play_history', []);
+      let history = Array.isArray(rawHistory) ? rawHistory.filter(Boolean) : [];
       
-      let counts = {};
-      try {
-        counts = JSON.parse(localStorage.getItem('flowy_play_counts') || '{}');
-      } catch(e) {}
+      const counts = readLocal('flowy_play_counts', {});
 
       if (history.length === 0 || (history[0] && history[0].title !== activeSong.name)) {
         history.unshift({
@@ -757,9 +720,7 @@ export default function AudioPlayerProvider({ children }) {
     setQueue((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
-  const handleNextKaraokeCountdown = useCallback((count) => {
-    setNextKaraokeCountdown(count);
-  }, []);
+
 
   // Automatically un-minimize when processing finishes
   useEffect(() => {
@@ -897,7 +858,7 @@ export default function AudioPlayerProvider({ children }) {
           
           if (processingStartTimeRef.current) {
             const duration = (performance.now() - processingStartTimeRef.current) / 1000;
-            console.log(`[Karaoke] Processing took ${duration.toFixed(1)}s`);
+
             setLastProcessingDuration(duration);
             processingStartTimeRef.current = null;
           }
@@ -926,7 +887,7 @@ export default function AudioPlayerProvider({ children }) {
     
     // Check for preloaded job matching this song
     if (preloadedJobRef.current && preloadedJobRef.current.filePath === targetSong.filePath) {
-      console.log(`[Karaoke] Instant-start using preloaded job!`);
+
       const { jobId, instrumentalUrl, vocalsUrl } = preloadedJobRef.current;
       preloadedJobRef.current = null;
       preloadTriggeredRef.current = false;
@@ -971,7 +932,7 @@ export default function AudioPlayerProvider({ children }) {
           ws.close();
         }
       }, () => {
-        console.log('WS connection lost');
+
       });
       karaokeWsRef.current = ws;
     } catch (e) {
@@ -1008,7 +969,7 @@ export default function AudioPlayerProvider({ children }) {
           preloadedJobRef.current = { jobId: job_id, instrumentalUrl, vocalsUrl, filePath: song.filePath };
           
           const duration = (performance.now() - preloadStartTime) / 1000;
-          console.log(`[Karaoke Preload] background processing took ${duration.toFixed(1)}s`);
+
           setLastProcessingDuration(duration);
           
           setPreloadingNext(false);
@@ -1018,7 +979,7 @@ export default function AudioPlayerProvider({ children }) {
           ws.close();
         }
       }, () => {
-        console.log('Preload WS failed');
+
       });
       preloadWsRef.current = ws;
     } catch (e) {
@@ -1140,7 +1101,7 @@ export default function AudioPlayerProvider({ children }) {
     const preloadThreshold = lastProcessingDuration + 15; // Actual time + 15s buffer
 
     if (timeRemaining <= preloadThreshold && timeRemaining > 0 && nextIdx !== null && !preloadTriggeredRef.current) {
-      console.log(`[Karaoke] Triggering preload based on threshold: ${preloadThreshold.toFixed(1)}s`);
+
       preloadTriggeredRef.current = true;
       startPreloading(songs[nextIdx]);
     }
@@ -1237,7 +1198,7 @@ export default function AudioPlayerProvider({ children }) {
           isTransitioningRef.current = false;
         }).catch(() => {
           isTransitioningRef.current = false;
-          console.log("Playback interrupted");
+
         });
         
         setIsPlaying(true);
@@ -1246,6 +1207,16 @@ export default function AudioPlayerProvider({ children }) {
       }
     }
   }, [activeSong, karaokeMode, startKaraoke]);
+
+  // ponytail: extracted from timeupdate + ended handlers to avoid duplication
+  const recordAlbumPlay = useCallback(() => {
+    if (albumId && activeSong && !activeSong.isHidden) {
+      const currentAlbumPlays = albumProgress[albumId] || [];
+      if (!currentAlbumPlays.includes(activeSong.name)) {
+        setAlbumProgress(prev => ({ ...prev, [albumId]: [...(prev[albumId] || []), activeSong.name] }));
+      }
+    }
+  }, [albumId, activeSong, albumProgress]);
 
   // Redundant isPlaying effect removed to prevent duplicate play() calls
   useEffect(() => {
@@ -1261,13 +1232,7 @@ export default function AudioPlayerProvider({ children }) {
         if (threshold > 0 && timeRemaining <= threshold && timeRemaining > 0.1 && !crossfadeTriggeredRef.current) {
           crossfadeTriggeredRef.current = true;
           
-          if (albumId && activeSong && !activeSong.isHidden) {
-            const currentAlbumPlays = albumProgress[albumId] || [];
-            if (!currentAlbumPlays.includes(activeSong.name)) {
-              const nextPlays = [...currentAlbumPlays, activeSong.name];
-              setAlbumProgress(prev => ({ ...prev, [albumId]: nextPlays }));
-            }
-          }
+          recordAlbumPlay();
 
           if (repeatMode === 'one') {
             audio.currentTime = 0;
@@ -1280,18 +1245,9 @@ export default function AudioPlayerProvider({ children }) {
       }
     };
     const handleEnded = () => {
-      if (albumId && activeSong && !activeSong.isHidden) {
-        const currentAlbumPlays = albumProgress[albumId] || [];
-        if (!currentAlbumPlays.includes(activeSong.name)) {
-          const nextPlays = [...currentAlbumPlays, activeSong.name];
-          setAlbumProgress(prev => ({ ...prev, [albumId]: nextPlays }));
-          
-          console.log(`[Progress] Recorded "${activeSong.name}" for album ${albumId}. (${nextPlays.length} total)`);
-        }
-      }
+      recordAlbumPlay();
 
       if (karaokeMode || isCinematicActive) {
-        console.log("[Progress] Skipping playNext because karaoke or cinematic is active");
         return; 
       }
       if (repeatMode === 'one') {
@@ -1309,7 +1265,7 @@ export default function AudioPlayerProvider({ children }) {
       audio.removeEventListener("timeupdate", update);
       audio.removeEventListener("ended", handleEnded);
     };
-  }, [queue, currentIndex, songs, repeatMode, shuffleMode, karaokeMode, playNext, albumId, activeSong, isCinematicActive, playbackSettings, albumProgress]);
+  }, [queue, currentIndex, songs, repeatMode, shuffleMode, karaokeMode, playNext, albumId, activeSong, isCinematicActive, playbackSettings, recordAlbumPlay]);
 
   const contextValue = useMemo(() => ({
     audioRef,
@@ -1327,6 +1283,7 @@ export default function AudioPlayerProvider({ children }) {
 
     queue,
     activeSong,
+    setActiveSong,
     isQueueOpen,
     setIsQueueOpen,
     toastMessage,
@@ -1455,7 +1412,9 @@ export default function AudioPlayerProvider({ children }) {
     isPlaying,
     setIsPlaying,
     currentTime,
-    volume
+    volume,
+    isMaximized,
+    setIsMaximized
   };
 
   return (

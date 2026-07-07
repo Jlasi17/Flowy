@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useRef, useState, useCallback, useMemo, useContext } from "react";
 import WebGLFluid from "webgl-fluid";
 import { motion, useScroll, useTransform, AnimatePresence, useInView, useMotionValueEvent, useMotionTemplate } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -347,7 +347,8 @@ function InteractiveImageParticles({ src }) {
       const offCanvas = document.createElement("canvas");
       const offCtx = offCanvas.getContext("2d");
 
-      const imgSize = 384;
+      const isMobile = window.innerWidth <= 768;
+      const imgSize = isMobile ? Math.min(384, window.innerWidth * 0.6) : 384;
       offCanvas.width = imgSize;
       offCanvas.height = imgSize;
 
@@ -650,6 +651,35 @@ function BubbleTracklist({ tracklist, onPlay, activeTrack, visible }) {
     { x: "12%", y: "28%", size: 14, delay: 0.85 },
   ];
 
+  const isMobile = typeof window !== 'undefined' ? window.innerWidth <= 768 : false;
+
+  const mobileSongPositions = [
+    { x: "5%", y: "4%", size: 100, delay: 0.05 },
+    { x: "42%", y: "2%", size: 110, delay: 0.22 },
+    { x: "72%", y: "12%", size: 100, delay: 0.14 },
+    { x: "12%", y: "18%", size: 105, delay: 0.31 },
+    { x: "65%", y: "24%", size: 115, delay: 0.42 },
+    { x: "8%", y: "70%", size: 110, delay: 0.38 },
+    { x: "45%", y: "76%", size: 125, delay: 0.55 },
+    { x: "75%", y: "84%", size: 105, delay: 0.62 },
+    { x: "25%", y: "86%", size: 95, delay: 0.48 },
+  ];
+
+  const activeSongPositions = isMobile ? mobileSongPositions : songPositions;
+
+  const mobileEmptyPositions = [
+    { x: "20%", y: "2%", size: 30, delay: 0.2 },
+    { x: "80%", y: "6%", size: 25, delay: 0.5 },
+    { x: "5%", y: "22%", size: 40, delay: 0.8 },
+    { x: "88%", y: "26%", size: 35, delay: 0.3 },
+    { x: "12%", y: "74%", size: 28, delay: 0.6 },
+    { x: "92%", y: "78%", size: 22, delay: 0.4 },
+    { x: "40%", y: "88%", size: 36, delay: 0.7 },
+    { x: "65%", y: "94%", size: 24, delay: 0.9 },
+  ];
+
+  const activeEmptyPositions = isMobile ? mobileEmptyPositions : emptyPositions;
+
   return (
     <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
       {/* Song bubbles */}
@@ -658,7 +688,7 @@ function BubbleTracklist({ tracklist, onPlay, activeTrack, visible }) {
           key={track.title}
           track={track}
           index={i}
-          position={songPositions[i]}
+          position={activeSongPositions[i]}
           onPlay={onPlay}
           isActive={activeTrack?.title === track.title}
           visible={visible}
@@ -666,7 +696,7 @@ function BubbleTracklist({ tracklist, onPlay, activeTrack, visible }) {
       ))}
 
       {/* Empty poppable bubbles */}
-      {emptyPositions.map((pos, i) => (
+      {activeEmptyPositions.map((pos, i) => (
         <EmptyBubble
           key={i}
           position={pos}
@@ -688,18 +718,48 @@ function BubbleTracklist({ tracklist, onPlay, activeTrack, visible }) {
 // ─── HeroText ─────────────────────────────────────────────────────────────────
 function HeroText({ textScale, textY }) {
   const [visible, setVisible] = useState(false);
-  useEffect(() => { const t = setTimeout(() => setVisible(true), 200); return () => clearTimeout(t); }, []);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1920);
 
-  const line1 = "MUSIC", line2 = "SHOULD BE", line3 = "FELT.";
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    const t = setTimeout(() => setVisible(true), 200);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const isMobile = windowWidth <= 768;
+
   const makeVariants = (baseDelay) => ({
     hidden: { y: 60, opacity: 0 },
     visible: (i) => ({ y: 0, opacity: 1, transition: { duration: 0.7, ease: EXPO_OUT, delay: baseDelay + i * 0.028 } })
   });
 
+  const gap = isMobile ? 6.5 : 15;
+  const startY = isMobile ? 38 : 35;
+
+  const lines = isMobile
+    ? [
+      { text: "MUSIC", y: `${startY}%`, variants: makeVariants(0) },
+      { text: "SHOULD", y: `${startY + gap}%`, variants: makeVariants(0.15) },
+      { text: "BE", y: `${startY + gap * 2}%`, variants: makeVariants(0.3) },
+      { text: "FELT.", y: `${startY + gap * 3}%`, variants: makeVariants(0.45) }
+    ]
+    : [
+      { text: "MUSIC", y: `${startY}%`, variants: makeVariants(0) },
+      { text: "SHOULD BE", y: `${startY + gap}%`, variants: makeVariants(0.15) },
+      { text: "FELT.", y: `${startY + gap * 2}%`, variants: makeVariants(0.3) }
+    ];
+
+  const fontSize = isMobile ? "20vw" : "11vw";
+  const startX = isMobile ? "8%" : "25%";
+
   return (
     <motion.g style={{ transformOrigin: "50% 50%", scale: textScale, y: textY }}>
-      {[{ text: line1, y: "35%", variants: makeVariants(0) }, { text: line2, y: "50%", variants: makeVariants(0.15) }, { text: line3, y: "65%", variants: makeVariants(0.3) }].map(({ text, y, variants }) => (
-        <text key={y} x="25%" y={y} textAnchor="start" fontSize="11vw" fontWeight="900" letterSpacing="-0.04em" fontFamily="'Clash Display', sans-serif" fill="black">
+      {lines.map(({ text, y, variants }) => (
+        <text key={y} x={startX} y={y} textAnchor="start" fontSize={fontSize} fontWeight="900" letterSpacing="-0.04em" fontFamily="'Clash Display', sans-serif" fill="black">
           {text.split("").map((char, i) => (
             <motion.tspan key={i} custom={i} variants={variants} initial="hidden" animate={visible ? "visible" : "hidden"} dy={0} dx={char === " " ? "0.3em" : 0}>
               {char === " " ? "\u00A0" : char}
@@ -1203,6 +1263,7 @@ function DissolveTransition({ containerRef, startVh = 11, endVh = 12 }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function FeaturesPage() {
   const navigate = useNavigate();
+  const { setActiveSong, setAlbumData, setIsPlaying: setGlobalIsPlaying } = useContext(AudioContext);
 
   const tracklist = [
     { num: "01", title: "Blood Sweat & Tears", file: "/btssongs/8/Blood Sweat & Tears.mp3", instrumentalFile: "/instrumentals/Blood Sweat & Tears_instrumental.mp3" },
@@ -1719,6 +1780,27 @@ export default function FeaturesPage() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Mobile Player Layout (Visible only on mobile via CSS) */}
+                    <div className="mobile-player-layout" style={{ position: 'absolute', top: '10vh', left: 0, width: '100%', height: '80vh', zIndex: 20 }}>
+                      <div className="mobile-player-header">
+                        <span className="mobile-playlist-name" style={{ margin: '0 auto' }}>Now Playing</span>
+                      </div>
+                      <div style={{ position: 'relative', flex: 1, width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                        <div className="mobile-song-info" style={{ marginTop: '20px' }}>
+                          <h2>{activeTrack?.title || "Track"}</h2>
+                          <p>{activeTrack?.artist || "HYBE"}</p>
+                        </div>
+                        <div className="mobile-art-container" style={{ margin: '20px 0' }}>
+                          <div className={`mobile-album-circle ${isPlaying ? "spinning" : ""}`} style={{ animation: isPlaying ? 'spin 10s linear infinite' : 'none' }}>
+                            <div className="light-reflection" />
+                            <img src={activeTrack?.cover || "/txt/txt1.jpg"} alt="Album sleeve" style={!activeTrack?.cover ? { display: 'none' } : {}} />
+                          </div>
+                        </div>
+                        <div style={{ marginTop: '20px', fontSize: '12px', opacity: 0.5 }}>Scroll down for more</div>
+                      </div>
+                    </div>
+
                   </div>
                   <div style={{ marginTop: "-100vh", position: "relative", zIndex: 10 }}>
                     <div style={{ height: "100vh", width: "100%", scrollSnapAlign: "start", flexShrink: 0 }} />

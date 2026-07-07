@@ -72,10 +72,11 @@ export default function PersistentAudioPlayer() {
     setInstVolume,
     likedSongs,
     toggleLike,
-    requireAuth
+    requireAuth,
+    isMaximized,
+    setIsMaximized
   } = useContext(AudioContext);
 
-  const [isMaximized, setIsMaximized] = useState(false);
   const [isLyricsOpen, setIsLyricsOpen] = useState(false);
   const [swipeDirection, setSwipeDirection] = useState('next');
 
@@ -162,7 +163,7 @@ export default function PersistentAudioPlayer() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isPlaying, volume, updateVolume, setIsPlaying, audioRef, isLyricsOpen, playNext, playPrev]);
+  }, [isPlaying, volume, updateVolume, setIsPlaying, audioRef, isLyricsOpen, playNext, playPrev, requireAuth, isCinematicActive]);
 
   if (!activeSong) return null;
 

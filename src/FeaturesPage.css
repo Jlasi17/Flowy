@@ -51,16 +51,15 @@ html {
    Mac Card
    ════════════════════════════════════════ */
 .fp-mac-card {
-  background: rgba(18, 18, 22, 0.72);
-  border-style: solid;
-  border-color: rgba(255, 255, 255, 0.09);
-  backdrop-filter: blur(32px) saturate(2);
-  -webkit-backdrop-filter: blur(32px) saturate(2);
+  background: var(--glass-bg-heavy);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   color: #fff;
-  transition: background 0.3s ease;
+  transition: background var(--transition-normal) var(--ease-standard);
 }
 
 /* ════════════════════════════════════════
@@ -115,8 +114,8 @@ html {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 384px;
-  height: 384px;
+  width: min(384px, 60vw);
+  height: min(384px, 60vw);
   border-radius: 12px;
   overflow: hidden;
   z-index: 5;
@@ -413,12 +412,12 @@ html {
   top: 40px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--glass-bg-light);
+  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--glass-blur-medium);
   padding: 12px 32px;
-  border-radius: 99px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--glass-border);
   color: rgba(255, 255, 255, 0.8);
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -1055,7 +1054,7 @@ html {
   }
 }
 
-/* From Uiverse.io by PriyanshuGupta28 */ 
+/* From Uiverse.io by PriyanshuGupta28 */
 .pushable {
   position: relative;
   background: transparent;
@@ -1089,13 +1088,11 @@ html {
   height: 100%;
   width: 100%;
   border-radius: 8px;
-  background: linear-gradient(
-    to right,
-    hsl(248, 39%, 39%) 0%,
-    hsl(248, 39%, 49%) 8%,
-    hsl(248, 39%, 39%) 92%,
-    hsl(248, 39%, 29%) 100%
-  );
+  background: linear-gradient(to right,
+      hsl(248, 39%, 39%) 0%,
+      hsl(248, 39%, 49%) 8%,
+      hsl(248, 39%, 39%) 92%,
+      hsl(248, 39%, 29%) 100%);
 }
 
 .front {
@@ -1140,10 +1137,19 @@ html {
 .pushable:focus:not(:focus-visible) {
   outline: none;
 }
+
 @keyframes pulse {
-  0% { opacity: 0.5; }
-  50% { opacity: 1; }
-  100% { opacity: 0.5; }
+  0% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.5;
+  }
 }
 
 @font-face {
@@ -1161,17 +1167,40 @@ html {
 }
 
 @keyframes chompTop {
-  0%, 100% { transform: rotate(-45deg); }
-  50% { transform: rotate(0deg); }
+
+  0%,
+  100% {
+    transform: rotate(-45deg);
+  }
+
+  50% {
+    transform: rotate(0deg);
+  }
 }
+
 @keyframes chompBot {
-  0%, 100% { transform: rotate(45deg); }
-  50% { transform: rotate(0deg); }
+
+  0%,
+  100% {
+    transform: rotate(45deg);
+  }
+
+  50% {
+    transform: rotate(0deg);
+  }
 }
 
 @keyframes pixelChomp {
-  0%, 49% { opacity: 0; }
-  50%, 100% { opacity: 1; }
+
+  0%,
+  49% {
+    opacity: 0;
+  }
+
+  50%,
+  100% {
+    opacity: 1;
+  }
 }
 
 .heatmap-glitch {
@@ -1179,10 +1208,27 @@ html {
 }
 
 @keyframes heatmapGlitchAnim {
-  0% { transform: translate(0) }
-  20% { transform: translate(-2px, 2px) }
-  40% { transform: translate(-2px, -2px) }
-  60% { transform: translate(2px, 2px) }
-  80% { transform: translate(2px, -2px) }
-  100% { transform: translate(0) }
+  0% {
+    transform: translate(0)
+  }
+
+  20% {
+    transform: translate(-2px, 2px)
+  }
+
+  40% {
+    transform: translate(-2px, -2px)
+  }
+
+  60% {
+    transform: translate(2px, 2px)
+  }
+
+  80% {
+    transform: translate(2px, -2px)
+  }
+
+  100% {
+    transform: translate(0)
+  }
 }

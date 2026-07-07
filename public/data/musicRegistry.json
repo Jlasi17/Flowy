@@ -359,100 +359,17 @@
             "titleSong": "SWIM",
             "type": "Studio Album",
             "language": "Korean",
-            "color": "#f5f5f5",
-            "year": 2026,
-            "songs": [
-              {
-                "name": "Body to Body",
-                "file": "01. Body to Body.mp3",
-                "duration": "3:09",
-                "lyricsFile": "/lyrics/Body to Body.lrc"
-              },
-              {
-                "name": "Hooligan",
-                "file": "02. Hooligan.mp3",
-                "duration": "3:02",
-                "lyricsFile": "/lyrics/Hooligan.lrc"
-              },
-              {
-                "name": "Aliens",
-                "file": "03. Aliens.mp3",
-                "duration": "2:47",
-                "lyricsFile": "/lyrics/aliens.lrc"
-              },
-              {
-                "name": "FYA",
-                "file": "04. FYA.mp3",
-                "duration": "3:00",
-                "lyricsFile": "/lyrics/fya.lrc"
-              },
-              {
-                "name": "2.0",
-                "file": "05. 2.0.mp3",
-                "duration": "2:49",
-                "lyricsFile": "20.lrc"
-              },
-              {
-                "name": "No. 29",
-                "file": "06. No. 29.mp3",
-                "duration": "1:38"
-              },
-              {
-                "name": "SWIM",
-                "file": "07. SWIM.mp3",
-                "duration": "2:39",
-                "lyricsFile": "/lyrics/SWIM.lrc"
-              },
-              {
-                "name": "Merry Go Round",
-                "file": "08. Merry Go Round.mp3",
-                "duration": "3:49",
-                "lyricsFile": "/lyrics/Merry Go Round.lrc"
-              },
-              {
-                "name": "NORMAL (Explicit)",
-                "file": "09. NORMAL (Explicit).mp3",
-                "duration": "3:01",
-                "lyricsFile": "/lyrics/NORMAL (Explicit).lrc"
-              },
-              {
-                "name": "Like Animals",
-                "file": "10. Like Animals.mp3",
-                "duration": "3:09",
-                "lyricsFile": "/lyrics/Like Animals.lrc"
-              },
-              {
-                "name": "they don\u2019t know \u2019bout us",
-                "file": "11. they don\u2019t know \u2019bout us.mp3",
-                "duration": "2:44",
-                "lyricsFile": "/lyrics/they don\u2019t know \u2019bout us.lrc"
-              },
-              {
-                "name": "One More Night",
-                "file": "12. One More Night.mp3",
-                "duration": "2:47",
-                "lyricsFile": "/lyrics/One More Night.lrc"
-              },
-              {
-                "name": "Please",
-                "file": "13. Please.mp3",
-                "duration": "2:52",
-                "lyricsFile": "/lyrics/Please.lrc"
-              },
-              {
-                "name": "Into the Sun",
-                "file": "14. Into the Sun.mp3",
-                "duration": "3:47",
-                "lyricsFile": "/lyrics/Into the Sun.lrc"
-              },
-              {
-                "name": "Come Over",
-                "file": "15. Come Over.mp3",
-                "isHidden": true,
-                "duration": "2:56",
-                "lyricsFile": "/lyrics/come over.lrc"
-              }
-            ]
+            "color": "#f5f5f5"
+          },
+          {
+            "id": "30",
+            "title": "Come Over - Single",
+            "cover": "/bts/come_over.png",
+            "release": "12 June 2026",
+            "titleSong": "Come Over",
+            "type": "Single",
+            "language": "English",
+            "color": "#1a1a1a"
           }
         ]
       }
@@ -773,8 +690,7 @@
         {
           "name": "Boy In Luv",
           "file": "Boy in Luv.mp3",
-          "duration": "3:51",
-          "lyricsFile": "/lyrics/Boy In Luv.lrc"
+          "duration": "3:51"
         },
         {
           "name": "Just One Day",
@@ -893,8 +809,7 @@
         {
           "name": "I Need U",
           "file": "I Need U.mp3",
-          "duration": "3:31",
-          "lyricsFile": "/lyrics/I NEED U.lrc"
+          "duration": "3:31"
         },
         {
           "name": "Hold Me Tight",
@@ -978,8 +893,7 @@
         {
           "name": "I Need U",
           "file": "I Need U.mp3",
-          "duration": "3:30",
-          "lyricsFile": "/lyrics/I NEED U.lrc"
+          "duration": "3:30"
         },
         {
           "name": "I Need U (Urban Mix)",
@@ -1264,8 +1178,7 @@
         {
           "name": "DNA",
           "file": "DNA.mp3",
-          "duration": "3:43",
-          "lyricsFile": "/lyrics/DNA.lrc"
+          "duration": "3:43"
         },
         {
           "name": "Best Of Me",
@@ -1312,8 +1225,7 @@
         {
           "name": "FAKE LOVE",
           "file": "FAKE LOVE.mp3",
-          "duration": "4:02",
-          "lyricsFile": "/lyrics/FAKE LOVE.lrc"
+          "duration": "4:02"
         },
         {
           "name": "The Truth Untold",
@@ -1369,7 +1281,7 @@
         },
         {
           "name": "Trivia: Just Dance",
-          "file": "Trivia \u8d77 _ Just Dance.mp3",
+          "file": "Trivia 起 _ Just Dance.mp3",
           "duration": "3:45"
         },
         {
@@ -1380,8 +1292,7 @@
         {
           "name": "DNA",
           "file": "DNA.mp3",
-          "duration": "3:43",
-          "lyricsFile": "/lyrics/DNA.lrc"
+          "duration": "3:43"
         },
         {
           "name": "Dimple",
@@ -1390,7 +1301,7 @@
         },
         {
           "name": "Trivia: Love",
-          "file": "Trivia \u627f _ Love.mp3",
+          "file": "Trivia 承 _ Love.mp3",
           "duration": "3:45"
         },
         {
@@ -1406,12 +1317,11 @@
         {
           "name": "FAKE LOVE",
           "file": "FAKE LOVE.mp3",
-          "duration": "4:02",
-          "lyricsFile": "/lyrics/FAKE LOVE.lrc"
+          "duration": "4:02"
         },
         {
           "name": "Trivia: Seesaw",
-          "file": "Trivia \u8f49 _ Seesaw.mp3",
+          "file": "Trivia 轉 _ Seesaw.mp3",
           "duration": "4:06"
         },
         {
@@ -1454,8 +1364,7 @@
         {
           "name": "Mikrokosmos",
           "file": "Mikrokosmos.mp3",
-          "duration": "3:44",
-          "lyricsFile": "/lyrics/Mikrokosmos.lrc"
+          "duration": "3:44"
         },
         {
           "name": "Make It Right",
@@ -1492,14 +1401,12 @@
         {
           "name": "Black Swan",
           "file": "Black Swan.mp3",
-          "duration": "3:18",
-          "lyricsFile": "/lyrics/Black Swan.lrc"
+          "duration": "3:18"
         },
         {
           "name": "ON",
           "file": "ON.mp3",
-          "duration": "4:06",
-          "lyricsFile": "/lyrics/ON.lrc"
+          "duration": "4:06"
         },
         {
           "name": "UGH!",
@@ -1507,8 +1414,8 @@
           "duration": "3:45"
         },
         {
-          "name": "00:00 (Zero O\u2019Clock)",
-          "file": "00_00 (Zero O\u2019Clock).mp3",
+          "name": "00:00 (Zero O’Clock)",
+          "file": "00_00 (Zero O’Clock).mp3",
           "duration": "4:10"
         },
         {
@@ -1588,8 +1495,7 @@
         {
           "name": "Born Singer",
           "file": "Born Singer.mp3",
-          "duration": "3:58",
-          "lyricsFile": "/lyrics/Born Singer.lrc"
+          "duration": "3:58"
         },
         {
           "name": "No More Dream",
@@ -1604,8 +1510,7 @@
         {
           "name": "Boy In Luv",
           "file": "Boy In Luv.mp3",
-          "duration": "3:51",
-          "lyricsFile": "/lyrics/Boy In Luv.lrc"
+          "duration": "3:51"
         },
         {
           "name": "Danger",
@@ -1615,8 +1520,7 @@
         {
           "name": "I NEED U",
           "file": "I NEED U.mp3",
-          "duration": "3:31",
-          "lyricsFile": "/lyrics/I NEED U.lrc"
+          "duration": "3:31"
         },
         {
           "name": "RUN",
@@ -1636,35 +1540,30 @@
         {
           "name": "DNA",
           "file": "DNA.mp3",
-          "duration": "3:43",
-          "lyricsFile": "/lyrics/DNA.lrc"
+          "duration": "3:43"
         },
         {
           "name": "FAKE LOVE",
           "file": "FAKE LOVE.mp3",
-          "duration": "4:02",
-          "lyricsFile": "/lyrics/FAKE LOVE.lrc"
+          "duration": "4:02"
         },
         {
           "name": "ON",
           "file": "ON.mp3",
-          "duration": "4:06",
-          "lyricsFile": "/lyrics/ON.lrc"
+          "duration": "4:06"
         },
         {
           "name": "Butter",
           "file": "Butter.mp3",
-          "duration": "2:44",
-          "lyricsFile": "/lyrics/Butter.lrc"
+          "duration": "2:44"
         },
         {
           "name": "Yet To Come",
           "file": "Yet To Come.mp3",
-          "duration": "3:13",
-          "lyricsFile": "/lyrics/Yet To Come.lrc"
+          "duration": "3:13"
         },
         {
-          "name": "00:00 (Zero O\u2019Clock)",
+          "name": "00:00 (Zero O’Clock)",
           "file": "00_00 (Zero O_Clock).mp3",
           "duration": "4:10"
         },
@@ -1701,8 +1600,7 @@
         {
           "name": "Filter",
           "file": "Filter.mp3",
-          "duration": "3:00",
-          "lyricsFile": "/lyrics/Filter.lrc"
+          "duration": "3:00"
         },
         {
           "name": "For Youth",
@@ -1766,7 +1664,7 @@
         },
         {
           "name": "Trivia: Seesaw",
-          "file": "Trivia \u8f49 _ Seesaw.mp3",
+          "file": "Trivia 轉 _ Seesaw.mp3",
           "duration": "4:06"
         }
       ],
@@ -1774,32 +1672,27 @@
         {
           "name": "Body to Body",
           "file": "01. Body to Body.mp3",
-          "duration": "3:09",
-          "lyricsFile": "/lyrics/Body to Body.lrc"
+          "duration": "3:09"
         },
         {
           "name": "Hooligan",
           "file": "02. Hooligan.mp3",
-          "duration": "3:02",
-          "lyricsFile": "/lyrics/Hooligan.lrc"
+          "duration": "3:02"
         },
         {
           "name": "Aliens",
           "file": "03. Aliens.mp3",
-          "duration": "2:47",
-          "lyricsFile": "/lyrics/aliens.lrc"
+          "duration": "2:47"
         },
         {
           "name": "FYA",
           "file": "04. FYA.mp3",
-          "duration": "3:00",
-          "lyricsFile": "/lyrics/fya.lrc"
+          "duration": "3:00"
         },
         {
           "name": "2.0",
           "file": "05. 2.0.mp3",
-          "duration": "2:49",
-          "lyricsFile": "20.lrc"
+          "duration": "2:49"
         },
         {
           "name": "No. 29",
@@ -1809,57 +1702,42 @@
         {
           "name": "SWIM",
           "file": "07. SWIM.mp3",
-          "duration": "2:39",
-          "lyricsFile": "/lyrics/SWIM.lrc"
+          "duration": "2:39"
         },
         {
           "name": "Merry Go Round",
           "file": "08. Merry Go Round.mp3",
-          "duration": "3:49",
-          "lyricsFile": "/lyrics/Merry Go Round.lrc"
+          "duration": "3:49"
         },
         {
           "name": "NORMAL (Explicit)",
           "file": "09. NORMAL (Explicit).mp3",
-          "duration": "3:01",
-          "lyricsFile": "/lyrics/NORMAL (Explicit).lrc"
+          "duration": "3:01"
         },
         {
           "name": "Like Animals",
           "file": "10. Like Animals.mp3",
-          "duration": "3:09",
-          "lyricsFile": "/lyrics/Like Animals.lrc"
+          "duration": "3:09"
         },
         {
-          "name": "they don\u2019t know \u2019bout us",
-          "file": "11. they don\u2019t know \u2019bout us.mp3",
-          "duration": "2:44",
-          "lyricsFile": "/lyrics/they don\u2019t know \u2019bout us.lrc"
+          "name": "they don’t know ’bout us",
+          "file": "11. they don’t know ’bout us.mp3",
+          "duration": "2:44"
         },
         {
           "name": "One More Night",
           "file": "12. One More Night.mp3",
-          "duration": "2:47",
-          "lyricsFile": "/lyrics/One More Night.lrc"
+          "duration": "2:47"
         },
         {
           "name": "Please",
           "file": "13. Please.mp3",
-          "duration": "2:52",
-          "lyricsFile": "/lyrics/Please.lrc"
+          "duration": "2:52"
         },
         {
           "name": "Into the Sun",
           "file": "14. Into the Sun.mp3",
-          "duration": "3:47",
-          "lyricsFile": "/lyrics/Into the Sun.lrc"
-        },
-        {
-          "name": "Come Over",
-          "file": "15. Come Over.mp3",
-          "isHidden": true,
-          "duration": "2:56",
-          "lyricsFile": "/lyrics/come over.lrc"
+          "duration": "3:47"
         }
       ],
       "18": [
@@ -1871,8 +1749,7 @@
         {
           "name": "Dream Glow",
           "file": "Dream Glow.mp3",
-          "duration": "3:07",
-          "lyricsFile": "/lyrics/Dream Glow.lrc"
+          "duration": "3:07"
         },
         {
           "name": "A Brand New Day",
@@ -1931,8 +1808,7 @@
         {
           "name": "Left and Right",
           "file": "Left and Right.mp3",
-          "duration": "2:34",
-          "lyricsFile": "/lyrics/Left and Right.lrc"
+          "duration": "2:34"
         }
       ],
       "26": [
@@ -1961,6 +1837,13 @@
           "name": "Take Two",
           "file": "Take Two.mp3",
           "duration": "3:49"
+        }
+      ],
+      "30": [
+        {
+          "name": "Come Over",
+          "file": "15. Come Over.mp3",
+          "duration": "2:56"
         }
       ]
     },
@@ -2191,7 +2074,7 @@
         },
         {
           "name": "Daydream",
-          "file": "j-hope/Hope World/Daydream (\u1107\u1162\u11a8\u110b\u1175\u11af\u1106\u1169\u11bc).mp3",
+          "file": "j-hope/Hope World/Daydream (백일몽).mp3",
           "duration": "3:48"
         },
         {
@@ -2200,7 +2083,7 @@
         },
         {
           "name": "HANGSANG (feat. Supreme Boi)",
-          "file": "j-hope/Hope World/\u1112\u1161\u11bc\u1109\u1161\u11bc (HANGSANG).mp3"
+          "file": "j-hope/Hope World/항상 (HANGSANG).mp3"
         },
         {
           "name": "Airplane",
@@ -2241,7 +2124,7 @@
         },
         {
           "name": "What if...",
-          "file": "j-hope/Jack In The Box/What if\u2026.mp3"
+          "file": "j-hope/Jack In The Box/What if….mp3"
         },
         {
           "name": "Safety Zone",
@@ -2278,7 +2161,7 @@
         },
         {
           "name": "what if... (dance mix)",
-          "file": "j-hope/HOPE ON THE STREET VOL.1/what if\u2026 (dance mix).mp3"
+          "file": "j-hope/HOPE ON THE STREET VOL.1/what if… (dance mix).mp3"
         },
         {
           "name": "NEURON",
@@ -2688,8 +2571,8 @@
           "duration": "3:04"
         },
         {
-          "name": "Eve, Psyche & The Bluebeard\u2019s wife",
-          "file": "10. Eve, Psyche & The Bluebeard\u2019s wife.mp3",
+          "name": "Eve, Psyche & The Bluebeard’s wife",
+          "file": "10. Eve, Psyche & The Bluebeard’s wife.mp3",
           "duration": "3:05"
         },
         {
@@ -2734,8 +2617,7 @@
         {
           "name": "Smart",
           "file": "04. Smart.mp3",
-          "duration": "2:46",
-          "lyricsFile": "/lyrics/Smart.lrc"
+          "duration": "2:46"
         },
         {
           "name": "We got so much",
@@ -2784,8 +2666,7 @@
         {
           "name": "Come Over",
           "file": "03. Come Over.mp3",
-          "duration": "2:17",
-          "lyricsFile": "/lyrics/come over.lrc"
+          "duration": "2:17"
         },
         {
           "name": "Ash",
@@ -2829,8 +2710,7 @@
         {
           "name": "BOOMPALA",
           "file": "02. BOOMPALA.mp3",
-          "duration": "2:57",
-          "lyricsFile": "/lyrics/BOOMPALA.lrc"
+          "duration": "2:57"
         },
         {
           "name": "CELEBRATION",
@@ -3081,8 +2961,7 @@
         {
           "name": "Tinnitus (Wanna be a rock)",
           "file": "04. Tinnitus (Wanna be a rock).mp3",
-          "duration": "2:37",
-          "lyricsFile": "/lyrics/Tinnitus (Wanna be a rock).lrc"
+          "duration": "2:37"
         },
         {
           "name": "Farewell, Neverland",
@@ -3104,8 +2983,7 @@
         {
           "name": "Back for More (TXT Ver.)",
           "file": "03. Back for More (TXT Ver.).mp3",
-          "duration": "2:42",
-          "lyricsFile": "/lyrics/Back for More (TXT Ver.).lrc"
+          "duration": "2:42"
         },
         {
           "name": "Dreamer",
@@ -3139,14 +3017,14 @@
         },
         {
           "name": "Chasing That Feeling (English Ver.)",
-          "file": "10. Chasing That Feeling (English Ver. \u2013 Digital Only).mp3",
+          "file": "10. Chasing That Feeling (English Ver. – Digital Only).mp3",
           "duration": "3:02"
         }
       ],
       "txt10": [
         {
-          "name": "I\u2019ll See You There Tomorrow",
-          "file": "01. I\u2019ll See You There Tomorrow.mp3",
+          "name": "I’ll See You There Tomorrow",
+          "file": "01. I’ll See You There Tomorrow.mp3",
           "duration": "3:16"
         },
         {
@@ -3263,12 +3141,11 @@
         {
           "name": "Stick With You",
           "file": "02.Stick With You.mp3",
-          "duration": "2:33",
-          "lyricsFile": "/lyrics/Stick With You.lrc"
+          "duration": "2:33"
         },
         {
-          "name": "Take Me to Nirvana (feat. \u4e07\u59ae\u8fbeVinida Weng)",
-          "file": "03.Take Me to Nirvana (feat. \u4e07\u59ae\u8fbeVinida Weng).mp3",
+          "name": "Take Me to Nirvana (feat. 万妮达Vinida Weng)",
+          "file": "03.Take Me to Nirvana (feat. 万妮达Vinida Weng).mp3",
           "duration": "2:31"
         },
         {

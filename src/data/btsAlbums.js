@@ -86,6 +86,7 @@ const btsAlbums = [
     year: 2026,
     albums: [
       { id: "17", title: "Arirang", cover: "/bts/bts17.jpg", release: "20 March 2026", titleSong: "SWIM", type: "Studio Album", language: "Korean", color: "#f5f5f5" },
+      { id: "30", title: "Come Over - Single", cover: "/bts/come_over.png", release: "12 June 2026", titleSong: "Come Over", type: "Single", language: "English", color: "#ffffff" }
     ]
   }
 ];

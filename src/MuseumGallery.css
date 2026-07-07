@@ -41,8 +41,8 @@
 .mg-topbar {
   height: var(--tbh);
   background: rgba(12, 6, 24, 0.93);
-  backdrop-filter: blur(14px);
-  border-bottom: 1.5px solid var(--c-glass-b);
+  backdrop-filter: var(--glass-blur-light);
+  border-bottom: 1.5px solid var(--glass-border);
   display: flex;
   align-items: center;
   padding: 0 20px;
@@ -112,8 +112,8 @@
 .mg-sidebar {
   width: var(--sw);
   background: var(--c-panel);
-  backdrop-filter: blur(22px);
-  border-right: 1.5px solid var(--c-glass-b);
+  backdrop-filter: var(--glass-blur-medium);
+  border-right: 1.5px solid var(--glass-border);
   display: flex;
   flex-direction: column;
   transition: width .35s cubic-bezier(.4, 0, .2, 1);
@@ -993,9 +993,9 @@
   bottom: -26px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(18, 10, 32, .88);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(240, 192, 96, .3);
+  background: rgba(20, 10, 35, .9);
+  backdrop-filter: var(--glass-blur-medium);
+  border: 1px solid rgba(255, 255, 255, .15);
   padding: 3px 10px;
   border-radius: 6px;
   white-space: nowrap;
@@ -1037,9 +1037,9 @@
 /* DOTS */
 .mg-dots {
   height: 42px;
-  background: rgba(10, 6, 20, .92);
-  backdrop-filter: blur(8px);
-  border-top: 1px solid var(--c-glass-b);
+  background: rgba(4, 2, 8, .85);
+  backdrop-filter: var(--glass-blur-light);
+  border-top: 1px solid rgba(255, 255, 255, .08);
   display: flex;
   align-items: center;
   justify-content: center;

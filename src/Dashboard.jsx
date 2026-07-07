@@ -11,6 +11,7 @@ import "./DashboardMobile.css";
 import { groupsData as fallbackData } from "./data/musicRegistry";
 import { DataContext } from "./contexts/DataContext";
 import AlbumAdminModal from "./components/AlbumAdminModal";
+import ScrambleText from "./components/ScrambleText";
 
 function getContrastYIQ(hexcolor) {
   if (!hexcolor) return 'white';
@@ -621,23 +622,26 @@ export default function Dashboard() {
 
           {/* ── INFO PANEL ── */}
           {(current || (isAdmin && active === albums.length)) && (
-            <div className={`db-info ${isPlayerVisible ? 'db-info--player-visible' : ''}`} key={current?.id || 'new-album'}>
+            <div className={`db-info ${isPlayerVisible ? 'db-info--player-visible' : ''}`}>
               <div className="db-info-top">
                 <div className="db-info-text">
-                  <div className="db-info-year">{current ? (current.year || current.member) + ' · ' + current.type : 'NEW RELEASE'}</div>
-                  <h1 className="db-info-title">{current ? current.title : 'CREATE NEW ALBUM'}</h1>
+                  <div className="db-info-year">
+                    <ScrambleText text={current ? (current.member || meta.title) : 'NEW RELEASE'} />
+                  </div>
+                  <h1 className="db-info-title">
+                    <ScrambleText text={current ? current.title : 'CREATE NEW ALBUM'} />
+                  </h1>
                   <div className="db-info-sub">
-                    <span>{current ? (current.member || meta.title) : 'ADD DETAILS'}</span>
-                    {current && current.titleSong && (
-                      <>
-                        <span className="db-dot-sep">·</span>
-                        <span>{current.titleSong}</span>
-                      </>
-                    )}
+                    <span>
+                      <ScrambleText text={current ? (() => {
+                        const yr = current.year || (current.release ? current.release.match(/\d{4}/)?.[0] : '');
+                        return yr ? `${yr} · ${current.type}` : (current.type || '');
+                      })() : 'ADD DETAILS'} />
+                    </span>
                     {current?.rank && (
                       <>
                         <span className="db-dot-sep">·</span>
-                        <span>#{current.rank} chart</span>
+                        <span><ScrambleText text={`#${current.rank} chart`} /></span>
                       </>
                     )}
                   </div>

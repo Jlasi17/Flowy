@@ -25,9 +25,9 @@ dist-ssr
 *.sw?
 
 # Media files
-public/*songs/
-public/*-songs/
-public/lyrics/
-pubile/soloarists/
+public/*
+
 
 backend/temp_jobs/
+download_plugin.js
+.agents/*

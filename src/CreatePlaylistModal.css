@@ -3,8 +3,8 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
   z-index: 1000;
 }
 
@@ -25,10 +25,10 @@
   pointer-events: auto;
   width: min(480px, 92vw);
   background: rgba(16, 16, 22, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 28px;
-  backdrop-filter: blur(50px) saturate(1.8);
-  -webkit-backdrop-filter: blur(50px) saturate(1.8);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: var(--glass-blur-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
   box-shadow:
     0 32px 80px rgba(0, 0, 0, 0.6),
     0 8px 24px rgba(0, 0, 0, 0.4),

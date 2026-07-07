@@ -58,8 +58,8 @@
   position: fixed;
   inset: 0;
   background: rgba(6, 6, 10, 0.45);
-  backdrop-filter: blur(40px) saturate(1.5);
-  -webkit-backdrop-filter: blur(40px) saturate(1.5);
+  backdrop-filter: var(--glass-blur-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
   z-index: -1;
   pointer-events: none;
 }

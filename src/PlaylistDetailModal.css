@@ -3,8 +3,8 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
   z-index: 900;
 }
 
@@ -16,9 +16,9 @@
   bottom: 0;
   width: min(480px, 100vw);
   background: rgba(10, 10, 16, 0.45);
-  border-left: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(50px) saturate(1.8);
-  -webkit-backdrop-filter: blur(50px) saturate(1.8);
+  border-left: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
   z-index: 901;
   display: flex;
   flex-direction: column;
@@ -101,8 +101,8 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
+  backdrop-filter: var(--glass-blur-light);
+  transition: all var(--transition-normal) var(--ease-standard);
 }
 .pdm-close:hover {
   background: rgba(255, 255, 255, 0.15);
